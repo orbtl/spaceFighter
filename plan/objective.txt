@@ -1,0 +1,4 @@
+I plan to make a two-dimensional, grid-based, space combat game.  It will be turn-based combat featuring different types of ships the players can buy that have unique characteristics, such as movemend range per turn, attack range, instant attack vs projectiles, etc.
+My goal is to learn and fully implement sockets to enable real-time updating to both players any updates from the server on the current state of the game.  Ideally the games will be stored in their current state in a database so that players may asyncronously leave and rejoin a game to continue playing at a different time.
+I would like to include a good amount of customizability and map randomization, with dynamic but symmetrical generation to ensure fair games.
+I am currently not sure whether the players will start with a set amount of money to buy whichever ships they want, or if they will gain income over the course of the game from capturing objectives like mining asteroids.

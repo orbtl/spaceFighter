@@ -1,0 +1,51 @@
+ALL DESIRED FEATURES
+    -Socket implementation to update players when the other player makes a move
+    -Map randomization including options to customize it (such as frequency of asteroids, etc)
+    -Collision with map elements such as asteroids for ships
+    -Collision with map elements such as asteroids for weapon fire
+    -Grid map system with indexed tiles that load images in layers somehow to have ships on top of terrain etc
+    -Dynamic grid highlighting/coloration on mouseover to show potential spaces players can click on based on context such as which ship they are selecting, whether they are choosing to move or shoot, whether it's their turn, etc
+    -Buffs/Powerups that return health or give extra damage etc (able to be picked up on map)
+    -Health and damage system
+    -Save game status in database so game can be left and resumed later, or in event of accidental refresh/page close etc
+    -Multiple different ship types with unique characteristics
+    -Login/Registration to make sure the correct player is getting back into the correct game?
+    -Host/Join page?
+    -Stats for players?
+    -Do we want randomization for damage amounts to make the game less repetitive?
+    -Purchase system to buy ships with allotted money
+    -Income system?  Do we want a way to gain money over the course of the game to buy new ships?
+    -Some time of HUD that is going to need to be able to display things like basic game information (turn number, whose turn it is, etc), as well as provide selectable options for the player (such as attack, move, cancel, special ability, whatever)
+    -Some type of readout that shows information on what just happened (ship 1 attacked ship 2 and hit for 37 damage etc)
+    -Some type of win condition (have a main ship that if it dies you lose?  or when all your ships die?)
+    -Have both instant travel attacks and projectile-based attacks like missiles
+    -Have some kind of mechanic for at least one of the ships that takes momentum into account (require to keep moving in the direction you are going as you shoot?)
+
+Ship type ideas:
+    -Fast Scout type ship
+        -Fast movement speed and good maneuverability
+        -Low health and low damage and low range, high speed
+        -Maybe can only fire in the direction it is moving?  So player has to get it moving towards enemy ships and fire and take into account where it will end up?
+        -Can only shoot in 8 cardinal/diagonal directions
+
+    -Sniper ship
+        -Slow movement speed and turning speed
+        -Low health, high range, high damage, low speed
+        -Maybe have a mechanic where it can power up for a turn to do more damage the next turn
+            -or maybe have it so you can only shoot after coming to a stop and powering up for hte next turn
+        -Can pinpoint shoot anything within range in line-of-sight (how to calculate that?) that it is facing towards, regardless of cardinal directions
+
+    -Bomber/Missile ship
+        -Shoots projectiles that the player chooses the target of (which have their own movespeed)
+        -Medium health, medium range, medium damage, medium speed
+        -Does area-of-effect damage but must be aimed carefully
+        -Can fire in any direction
+        -Has limited ammo or maybe the ammo regenerates at a certain rate (like it can only fire a missile every 2 rounds etc)
+        -Maybe has special EMP ability to remove shields of nearby ships?
+
+    -Main/Capitol ship
+        -Has a strong shield that must first be destroyed or taken down before its health can be damaged
+        -High health, Low range, Medium damage, Low speed
+        -Using ship turrets, automatically shoots anything that gets within range
+        -Shields regenerate at some kind of per-turn rate, unless taken down by EMP in which they take a certain amount of turns to power back up
+        -If this dies, the player loses

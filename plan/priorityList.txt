@@ -1,0 +1,32 @@
+Priority list of features
+
+p0:
+    -Socket implementation to update players when the other player makes a move
+    -Grid map system with indexed tiles that load images in layers somehow to have ships on top of terrain etc
+    -Health and damage system
+    -Some type of win condition (have a main ship that if it dies you lose?  or when all your ships die?)
+
+p1:
+    -Some time of HUD that is going to need to be able to display things like basic game information (turn number, whose turn it is, etc), as well as provide selectable options for the player (such as attack, move, cancel, special ability, whatever)
+    -Multiple different ship types with unique characteristics
+    -Purchase system to buy ships with allotted money
+    -Collision with map elements such as asteroids for ships
+    -Collision with map elements such as asteroids for weapon fire
+    -Dynamic grid highlighting/coloration on mouseover to show potential spaces players can click on based on context such as which ship they are selecting, whether they are choosing to move or shoot, whether it's their turn, etc
+
+p2:
+    -Some type of readout that shows information on what just happened (ship 1 attacked ship 2 and hit for 37 damage etc)
+    -Host/Join page?
+    -Map randomization including options to customize it (such as frequency of asteroids, etc)
+    -Do we want randomization for damage amounts to make the game less repetitive?
+    -Income system?  Do we want a way to gain money over the course of the game to buy new ships?
+    -Buffs/Powerups that return health or give extra damage etc (able to be picked up on map)
+
+p3:
+    -Have both instant travel attacks and projectile-based attacks like missiles
+    -Have some kind of mechanic for at least one of the ships that takes momentum into account (require to keep moving in the direction you are going as you shoot?)
+    -Save game status in database so game can be left and resumed later, or in event of accidental refresh/page close etc
+    -Login/Registration to make sure the correct player is getting back into the correct game?
+
+p4:
+    -Stats for players?
