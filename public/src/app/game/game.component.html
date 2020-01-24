@@ -1,0 +1,7 @@
+<table *ngIf="gameMap" class="borderTable">
+    <tr *ngFor="let row of gameMap">
+        <td *ngFor="let col of row">
+            <img *ngIf="col.img" [src]="col.img">
+        </td>
+    </tr>
+</table>
