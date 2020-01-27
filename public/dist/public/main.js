@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<table *ngIf=\"gameMap\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n    <tr *ngFor=\"let row of gameMap\">\n        <td *ngFor=\"let col of row\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\">\n            <div [style.background-color]=\"col.bg\" style=\"position: relative;\">\n                <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\">\n                <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop\" [style.right]='col.imgTopPosX' [style.top]='col.imgTopPosY' [style.opacity]='col.imgTopAlpha' [style.transform]='col.imgTopRotate' style=\"position: absolute;\">\n            </div>\n        </td>\n    </tr>\n</table>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"col.click()\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop\" [style.right]='col.imgTopPosX' [style.top]='col.imgTopPosY' [style.opacity]='col.imgTopAlpha' [style.transform]='col.imgTopRotate' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>");
 
 /***/ }),
 
@@ -424,20 +424,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GameComponent", function() { return GameComponent; });
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _map_obj__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../map-obj */ "./src/app/map-obj.ts");
+
 
 
 let GameComponent = class GameComponent {
     constructor() {
         // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
         this.exampleGameMap = [
-            [0, 0, 0, 'mbm1', 'rFighter', 'rScout', 'rSniper', 'rCapitol'],
+            [0, 0, 0, 'm', 'rFighter', 'rScout', 'rSniper', 'rCapitol'],
             ['bFighter', 0, 0, 0, 0, 0, 0, 0],
-            [0, 'mbm2', 0, 0, 'mbm2', 'met', 0, 0],
-            [0, 0, 0, 0, 'met', 'met', 0, 0],
-            [0, 'bScout', 'bScout', 0, 0, 0, 'mgm1', 0],
+            [0, 'm', 0, 0, 'm', 'm', 0, 0],
+            [0, 0, 0, 0, 'm', 'm', 0, 0],
+            [0, 'bScout', 'bScout', 0, 0, 0, 'm', 0],
             [0, 0, 0, 'bSniper', 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 'mgm2', 0, 0, 0, 0, 'bCapitol', 0],
+            [0, 'm', 0, 0, 0, 0, 'bCapitol', 0],
         ];
         // map definitions:
         this.gameMapDef = {
@@ -468,22 +470,53 @@ let GameComponent = class GameComponent {
             'rSniper': { 'name': 'red sniper', 'img': 'assets/img/playerShip3_red.png', 'size': '50' },
             'rCapitol': { 'name': 'red capitol', 'img': 'assets/img/ufored.png', 'size': '50' },
         };
-        this.gameScale = '50px;'; // affects height and width of table blocks
+        this.gameScale = '50'; // affects height and width of table blocks
         this.gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
     }
     ngOnInit() {
-        this.generateMap(this.exampleGameMap);
+        this.newGame(this.exampleGameMap);
+    }
+    newGame(map) {
+        this.gameMap = new _map_obj__WEBPACK_IMPORTED_MODULE_2__["MapObj"]();
+        this.generateMap(map);
     }
     generateMap(map) {
-        this.gameMap = [];
+        this.gameMap.map = [];
         for (let row in map) {
-            this.gameMap.push([]);
+            this.gameMap.map.push([]);
             for (let col in map[row]) {
-                this.gameMap[row].push(this.gameMapDef[map[row][col]]); // puts the value from gameMapDef into each grid location in gameMap based on the key provided from each grid location in map passed in parameters
+                if (map[row][col] == 'm') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"](+row, +col, 0, 20)); // + operator converts string to number
+                }
+                else if (map[row][col] == 'bFighter') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"](+row, +col, 0, 'blue'));
+                }
+                else if (map[row][col] == 'bScout') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"](+row, +col, 0, 'blue'));
+                }
+                else if (map[row][col] == 'bSniper') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"](+row, +col, 0, 'blue'));
+                }
+                else if (map[row][col] == 'bCapitol') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"](+row, +col, 0, 'blue'));
+                }
+                else if (map[row][col] == 'rFighter') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"](+row, +col, 0, 'red'));
+                }
+                else if (map[row][col] == 'rScout') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"](+row, +col, 0, 'red'));
+                }
+                else if (map[row][col] == 'rSniper') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"](+row, +col, 0, 'red'));
+                }
+                else if (map[row][col] == 'rCapitol') {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"](+row, +col, 0, 'red'));
+                }
+                else {
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["BaseObj"](+row, +col, 0, 0, 0, 0)); // push empty base object
+                }
             }
         }
-    }
-    createShip(shiptype) {
     }
 };
 GameComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
@@ -494,6 +527,280 @@ GameComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     })
 ], GameComponent);
 
+
+
+/***/ }),
+
+/***/ "./src/app/map-obj.ts":
+/*!****************************!*\
+  !*** ./src/app/map-obj.ts ***!
+  \****************************/
+/*! exports provided: BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BaseObj", function() { return BaseObj; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Fighter", function() { return Fighter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Scout", function() { return Scout; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Sniper", function() { return Sniper; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Capitol", function() { return Capitol; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Asteroid", function() { return Asteroid; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MapObj", function() { return MapObj; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+
+class BaseObj {
+    constructor(row, col, rotate, hp, speed, range) {
+        this.location = {
+            'row': 0,
+            'col': 0,
+            'rotate': 0,
+            'transform': 'rotate(0deg)',
+        };
+        this.location.row = row;
+        this.location.col = col;
+        this.location.rotate = rotate;
+        this.location.transform = `rotate(${rotate}deg)`;
+        this.hp = hp;
+        this.speed = speed;
+        this.range = range;
+        this.ammo = 1;
+        this.shieldHP = 0;
+        this.size = 50;
+    }
+    click() {
+        console.log('clicked a BaseObj');
+        return this;
+    }
+    move(targetRow, targetCol) {
+        this.location.row = targetRow;
+        this.location.col = targetCol;
+        return this;
+    }
+    takeDmg(amount) {
+        if (this.shieldHP > 0) {
+            this.shieldHP -= amount;
+            if (this.shieldHP < 0) {
+                amount = Math.abs(this.shieldHP);
+            }
+            else {
+                amount = 0;
+            }
+        }
+        this.hp -= amount;
+        if (this.hp <= 0) {
+            this.die();
+        }
+        return this;
+    }
+    die() {
+        this.hp = 0;
+        this.img = null;
+        this.imgTop = null;
+        this.bg = null;
+        // maybe have code in here to change the entry to a different map null object?
+        return this;
+    }
+}
+class Fighter extends BaseObj {
+    constructor(row, col, rotate, color) {
+        super(row, col, rotate, 50, 4, 6);
+        this.missile = {
+            'firing': false,
+            'target': {
+                'row': 0,
+                'col': 0,
+            },
+        };
+        this.img = `assets/img/playerShip1_${color}.png`;
+    }
+    fireMissile(targetRow, targetCol) {
+        if (this.missile.firing == false && this.ammo > 0) {
+            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
+            if (distance <= this.range) {
+                this.missile.firing = true;
+                this.missile.target.row = targetRow;
+                this.missile.target.col = targetCol;
+                this.ammo = 0;
+            }
+            else {
+                console.log('Missile target out of range');
+            }
+        }
+        else {
+            console.log('Missile already firing or out of ammo');
+        }
+        return this;
+    }
+    newTurn() {
+        if (this.missile.firing == true) {
+            // do missile exploding stuff here
+            //
+            this.missile.firing = false;
+        }
+        else if (this.ammo == 0) {
+            this.ammo = 1;
+        }
+        return this;
+    }
+    click() {
+        console.log('clicked a Fighter');
+        return this;
+    }
+}
+class Scout extends BaseObj {
+    constructor(row, col, rotate, color) {
+        super(row, col, rotate, 25, 5, 3);
+        this.empAmmo = 1;
+        this.img = `assets/img/playerShip2_${color}.png`;
+    }
+    fireEMP() {
+        if (this.empAmmo > 0) {
+            // do EMP exploding stuff
+        }
+        else {
+            console.log('Out of EMP ammo');
+        }
+        this.empAmmo = 0;
+        return this;
+    }
+    shoot(targetRow, targetCol, targetObj) {
+        if (this.ammo == 0) {
+            console.log('Cannot fire more than once per turn');
+            return this;
+        }
+        let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
+        if (distance <= this.range) {
+            try {
+                targetObj.takeDmg(10);
+                this.ammo = 0;
+            }
+            catch (error) {
+                console.log('Error reducing health of target');
+            }
+        }
+        else {
+            console.log('Target out of range');
+        }
+    }
+    newTurn() {
+        this.ammo = 1;
+    }
+    click() {
+        console.log('clicked a Scout');
+        return this;
+    }
+}
+class Sniper extends BaseObj {
+    constructor(row, col, rotate, color) {
+        super(row, col, rotate, 20, 2, 12);
+        this.charged = false;
+        this.img = `assets/img/playerShip3_${color}.png`;
+    }
+    charge() {
+        if (this.ammo > 0 && this.charged == false) {
+            this.charged = true;
+            this.ammo = 0;
+        }
+        else {
+            console.log('Either out of ammo or already charged');
+        }
+        return this;
+    }
+    shoot(targetRow, targetCol, targetObj) {
+        if (this.ammo > 0) {
+            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
+            if (distance <= this.range) {
+                try {
+                    if (this.charged == true) {
+                        targetObj.takeDmg(60);
+                        this.charged = false;
+                    }
+                    else {
+                        targetObj.takeDmg(30);
+                    }
+                    this.ammo = 0;
+                }
+                catch (error) {
+                    console.log('Error reducing health of target');
+                }
+            }
+            else {
+                console.log('Target out of range');
+            }
+        }
+        else {
+            console.log('Out of ammo');
+        }
+    }
+    newTurn() {
+        this.ammo = 1;
+    }
+    click() {
+        console.log('clicked a Sniper');
+        return this;
+    }
+}
+class Capitol extends BaseObj {
+    constructor(row, col, rotate, color) {
+        super(row, col, rotate, 50, 3, 2);
+        this.shieldHP = 100;
+        this.ammo = 2;
+        this.img = `assets/img/ufo${color}.png`;
+    }
+    newTurn() {
+        this.ammo = 2;
+        while (this.ammo > 0) {
+            // have logic to shoot anything within range and do low damage, like 15 or something
+        }
+        this.shieldHP += 10;
+    }
+    die() {
+        console.log('Game over');
+        super.die();
+        // need game over logic here
+        return this;
+    }
+    click() {
+        console.log('clicked a Capitol');
+        return this;
+    }
+}
+class Asteroid extends BaseObj {
+    constructor(row, col, rotate, hp) {
+        super(row, col, rotate, hp, 0, 0);
+        this.ammo = 0;
+        let meteorArray = ['meteorBrown_big1', 'meteorBrown_big2', 'meteorBrown_big3', 'meteorBrown_big4', 'meteorGrey_big1', 'meteorGrey_big2', 'meteorGrey_big3', 'meteorGrey_big4', 'meteorBrown_med1', 'meteorBrown_med2', 'meteorGrey_med1', 'meteorGrey_med2', 'meteorGrey_small1', 'meteorGrey_small2', 'meteorBrown_small1', 'meteorBrown_small2'];
+        let randMeteorInd = (Math.floor(Math.random() * meteorArray.length));
+        this.img = `assets/img/Meteors/${meteorArray[randMeteorInd]}.png`;
+        if (randMeteorInd <= 7) { // big meteor
+            this.size = 50;
+        }
+        else if (randMeteorInd <= 11) { // medium meteor
+            this.size = (Math.floor(Math.random() * 15) + 35);
+        }
+        else { // small meteor
+            this.size = (Math.floor(Math.random() * 15) + 20);
+        }
+    }
+    newTurn() {
+        let rotate = (this.location.rotate + (Math.floor(Math.random() * 60) - 30));
+        this.location.rotate = rotate;
+        this.location.transform = `rotate(${rotate}deg)`;
+        return this;
+    }
+    click() {
+        console.log('clicked an Asteroid');
+        return this;
+    }
+}
+class MapObj {
+    constructor() {
+        this.turn = 0;
+        this.playerTurn = 'blue';
+        this.activeClick = '';
+    }
+}
 
 
 /***/ }),

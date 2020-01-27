@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MapObj } from '../map-obj';
+import { BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj } from '../map-obj';
 
 @Component({
   selector: 'app-game',
@@ -12,14 +12,14 @@ import { MapObj } from '../map-obj';
 export class GameComponent implements OnInit {
   // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
   exampleGameMap = [
-    [0,0,0,'mbm1','rFighter','rScout','rSniper','rCapitol'],
+    [0,0,0,'m','rFighter','rScout','rSniper','rCapitol'],
     ['bFighter',0,0,0,0,0,0,0],
-    [0,'mbm2',0,0,'mbm2','met',0,0],
-    [0,0,0,0,'met','met',0,0],
-    [0,'bScout','bScout',0,0,0,'mgm1',0],
+    [0,'m',0,0,'m','m',0,0],
+    [0,0,0,0,'m','m',0,0],
+    [0,'bScout','bScout',0,0,0,'m',0],
     [0,0,0,'bSniper',0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,'mgm2',0,0,0,0,'bCapitol',0],
+    [0,'m',0,0,0,0,'bCapitol',0],
   ];
   // actual game map placeholder
   gameMap: any;
@@ -52,24 +52,55 @@ export class GameComponent implements OnInit {
     'rSniper': {'name': 'red sniper', 'img': 'assets/img/playerShip3_red.png', 'size': '50'},
     'rCapitol': {'name': 'red capitol', 'img': 'assets/img/ufored.png', 'size': '50'},
   }
-  gameScale = '50px;'; // affects height and width of table blocks
+  gameScale = '50'; // affects height and width of table blocks
   gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
 
   constructor() { }
 
   ngOnInit() {
-    this.generateMap(this.exampleGameMap);
+    this.newGame(this.exampleGameMap);
   }
-  generateMap(map){
-    this.gameMap = [];
+  newGame(map: any) {
+    this.gameMap = new MapObj();
+    this.generateMap(map);
+  }
+  generateMap(map: any){
+    this.gameMap.map = [];
     for (let row in map){
-      this.gameMap.push([]);
+      this.gameMap.map.push([]);
       for (let col in map[row]){
-        this.gameMap[row].push(this.gameMapDef[map[row][col]]); // puts the value from gameMapDef into each grid location in gameMap based on the key provided from each grid location in map passed in parameters
+        if (map[row][col] == 'm') {
+          this.gameMap.map[row].push(new Asteroid(+row, +col, 0, 20)); // + operator converts string to number
+        }
+        else if (map[row][col] == 'bFighter') {
+          this.gameMap.map[row].push(new Fighter(+row, +col, 0, 'blue'));
+        }
+        else if (map[row][col] == 'bScout') {
+          this.gameMap.map[row].push(new Scout(+row, +col, 0, 'blue'));
+        }
+        else if (map[row][col] == 'bSniper') {
+          this.gameMap.map[row].push(new Sniper(+row, +col, 0, 'blue'));
+        }
+        else if (map[row][col] == 'bCapitol') {
+          this.gameMap.map[row].push(new Capitol(+row, +col, 0, 'blue'));
+        }
+        else if (map[row][col] == 'rFighter') {
+          this.gameMap.map[row].push(new Fighter(+row, +col, 0, 'red'));
+        }
+        else if (map[row][col] == 'rScout') {
+          this.gameMap.map[row].push(new Scout(+row, +col, 0, 'red'));
+        }
+        else if (map[row][col] == 'rSniper') {
+          this.gameMap.map[row].push(new Sniper(+row, +col, 0, 'red'));
+        }
+        else if (map[row][col] == 'rCapitol') {
+          this.gameMap.map[row].push(new Capitol(+row, +col, 0, 'red'));
+        }
+        else {
+          this.gameMap.map[row].push(new BaseObj(+row, +col, 0, 0, 0, 0)); // push empty base object
+        }
       }
     }
   }
-  createShip(shiptype: String){
-
-  }
+  
 }

@@ -1,8 +1,9 @@
-class BaseObj {
+export class BaseObj {
     location: any = {
         'row': 0,
         'col': 0,
-        'rotate': 'rotate(0deg)',
+        'rotate': 0,
+        'transform': 'rotate(0deg)',
     }
     hp: number;
     img: String;
@@ -11,25 +12,47 @@ class BaseObj {
     speed: number;
     range: number;
     ammo: number;
+    shieldHP: number;
+    size: number;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
         this.location.col = col;
-        this.location.rotate = `rotate(${rotate}deg)`;
+        this.location.rotate = rotate;
+        this.location.transform = `rotate(${rotate}deg)`;
         this.hp = hp;
         this.speed = speed;
         this.range = range;
         this.ammo = 1;
+        this.shieldHP = 0;
+        this.size = 50;
     }
     click(){
         console.log('clicked a BaseObj');
+        return this;
     }
     move(targetRow: number, targetCol: number) {
         this.location.row = targetRow;
         this.location.col = targetCol;
         return this;
     }
-    die(){
+    takeDmg(amount: number) {
+        if (this.shieldHP > 0){
+            this.shieldHP -= amount;
+            if (this.shieldHP < 0) {
+                amount = Math.abs(this.shieldHP);
+            }
+            else {
+                amount = 0;
+            }
+        }
+        this.hp -= amount;
+        if (this.hp <= 0) {
+            this.die();
+        }
+        return this;
+    }
+    die() {
         this.hp = 0;
         this.img = null;
         this.imgTop = null;
@@ -39,7 +62,7 @@ class BaseObj {
     }
 }
 
-class Fighter extends BaseObj {
+export class Fighter extends BaseObj {
     missile: any = {
         'firing': false,
         'target': {
@@ -48,8 +71,9 @@ class Fighter extends BaseObj {
         },      
     }
 
-    constructor (row: number, col: number, rotate: number, hp: number) {
+    constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 50, 4, 6);
+        this.img = `assets/img/playerShip1_${color}.png`;
     }
     fireMissile(targetRow: number, targetCol: number){
         if (this.missile.firing == false && this.ammo > 0) {
@@ -80,13 +104,18 @@ class Fighter extends BaseObj {
         }
         return this;
     }
+    click(){
+        console.log('clicked a Fighter');
+        return this;
+    }
 }
 
-class Scout extends BaseObj {
+export class Scout extends BaseObj {
     empAmmo: number;
-    constructor (row: number, col: number, rotate: number, hp: number) {
+    constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 25, 5, 3);
         this.empAmmo = 1;
+        this.img = `assets/img/playerShip2_${color}.png`;
     }
     fireEMP(){
         if (this.empAmmo > 0) {
@@ -106,11 +135,8 @@ class Scout extends BaseObj {
         let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
         if (distance <= this.range) {
             try {
-                targetObj.health -= 10; // do 10 damage
+                targetObj.takeDmg(10);
                 this.ammo = 0;
-                if (targetObj.health <= 0) {
-                    targetObj.die();
-                }
             } catch (error) {
                 console.log('Error reducing health of target')
             }
@@ -122,13 +148,18 @@ class Scout extends BaseObj {
     newTurn(){
         this.ammo = 1;
     }
+    click(){
+        console.log('clicked a Scout');
+        return this;
+    }
 }
 
-class Sniper extends BaseObj {
+export class Sniper extends BaseObj {
     charged: Boolean;
-    constructor (row: number, col: number, rotate: number, hp: number) {
+    constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 20, 2, 12);
         this.charged = false;
+        this.img = `assets/img/playerShip3_${color}.png`;
     }
     charge(){
         if (this.ammo > 0 && this.charged == false) {
@@ -146,16 +177,13 @@ class Sniper extends BaseObj {
             if (distance <= this.range) {
                 try {
                     if (this.charged == true) {
-                        targetObj.health -= 60; // do 60 damage
+                        targetObj.takeDmg(60);
                         this.charged = false;
                     }
                     else {
-                        targetObj.health -= 30 // do 30 damage
+                        targetObj.takeDmg(30);
                     }
                     this.ammo = 0;
-                    if (targetObj.health <= 0) {
-                        targetObj.die();
-                    }
                 } catch (error) {
                     console.log('Error reducing health of target')
                 }
@@ -171,14 +199,18 @@ class Sniper extends BaseObj {
     newTurn(){
         this.ammo = 1;
     }
+    click(){
+        console.log('clicked a Sniper');
+        return this;
+    }
 }
 
-class Capitol extends BaseObj {
-    shieldHP: number;
-    constructor (row: number, col: number, rotate: number, hp: number) {
+export class Capitol extends BaseObj {
+    constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 50, 3, 2);
         this.shieldHP = 100;
         this.ammo = 2;
+        this.img = `assets/img/ufo${color}.png`;
     }
     newTurn(){
         this.ammo = 2;
@@ -187,12 +219,56 @@ class Capitol extends BaseObj {
         }
         this.shieldHP += 10;
     }
-    die () {
+    die(){
         console.log('Game over');
+        super.die();
+        // need game over logic here
+        return this;
+    }
+    click(){
+        console.log('clicked a Capitol');
+        return this;
+    }
+}
+
+export class Asteroid extends BaseObj {
+    constructor (row: number, col: number, rotate: number, hp: number) {
+        super(row, col, rotate, hp, 0, 0);
+        this.ammo = 0;
+        let meteorArray = ['meteorBrown_big1', 'meteorBrown_big2', 'meteorBrown_big3', 'meteorBrown_big4', 'meteorGrey_big1', 'meteorGrey_big2', 'meteorGrey_big3', 'meteorGrey_big4', 'meteorBrown_med1', 'meteorBrown_med2', 'meteorGrey_med1', 'meteorGrey_med2', 'meteorGrey_small1', 'meteorGrey_small2', 'meteorBrown_small1', 'meteorBrown_small2'];
+        let randMeteorInd = (Math.floor(Math.random()*meteorArray.length));
+        this.img = `assets/img/Meteors/${meteorArray[randMeteorInd]}.png`;
+        if (randMeteorInd <= 7){ // big meteor
+            this.size = 50;
+        }
+        else if (randMeteorInd <= 11) { // medium meteor
+            this.size = (Math.floor(Math.random()*15)+35);
+        }
+        else { // small meteor
+            this.size = (Math.floor(Math.random()*15)+20);
+        }
+    }
+    newTurn(){
+        let rotate = (this.location.rotate + (Math.floor(Math.random()*60)-30));
+        this.location.rotate = rotate;
+        this.location.transform = `rotate(${rotate}deg)`;
+        return this;
+    }
+    click(){
+        console.log('clicked an Asteroid');
+        return this;
     }
 }
 
 
-export class MapObj {
-    
+export class MapObj { // main game object
+    turn: number;
+    map: any;
+    playerTurn: string;
+    activeClick: string;
+    constructor(){
+        this.turn = 0;
+        this.playerTurn = 'blue';
+        this.activeClick = '';
+    }
 }
