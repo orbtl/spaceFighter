@@ -1,0 +1,11 @@
+Every game object to be interpreted by the game map is going to need the following basic properties:
+
+-location attribute that contains:
+    -row coordinate
+    -column coordinate
+    -Some kind of rotation variable (so we can keep track of which direction it's facting)
+-A health variable (ships die, asteroids also die?  Basically anything that isn't empty space that blocks line of sight should have a health)
+-A click method that will control what will happen so we can have on the page (click)="thatObject.click()"
+-An image attribute that will link to the relavent image file
+-A Secondary image attribute to show things layered on top like missile images
+-A Background attribute that will have a (default empty) background color to highlight squares the user can move/shoot to/at

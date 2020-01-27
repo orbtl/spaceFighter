@@ -1,7 +1,10 @@
-<table *ngIf="gameMap" class="borderTable">
+<table *ngIf="gameMap" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
     <tr *ngFor="let row of gameMap">
-        <td *ngFor="let col of row">
-            <img *ngIf="col.img" [src]="col.img">
+        <td *ngFor="let col of row" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale">
+            <div [style.background-color]="col.bg" style="position: relative;">
+                <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size">
+                <img *ngIf="col.imgTop" [src]="col.imgTop" [style.right]='col.imgTopPosX' [style.top]='col.imgTopPosY' [style.opacity]='col.imgTopAlpha' [style.transform]='col.imgTopRotate' style="position: absolute;">
+            </div>
         </td>
     </tr>
 </table>

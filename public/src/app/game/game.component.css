@@ -1,3 +1,7 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
 .borderTable{
     border-collapse: collapse;
 }
@@ -7,6 +11,6 @@
 .borderTable td{
     width: 50px; height: 50px; max-width: 50px; max-height: 50px;
 }
-.borderTable img{
-    max-width: 50px; max-height: 50px;
+.borderTable tr{
+    height: 50px; max-height: 50px;
 }

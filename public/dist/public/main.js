@@ -32,7 +32,7 @@ webpackEmptyAsyncContext.id = "./$$_lazy_route_resource lazy recursive";
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("Hello World\n<router-outlet></router-outlet>");
+/* harmony default export */ __webpack_exports__["default"] = ("<router-outlet></router-outlet>");
 
 /***/ }),
 
@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<table *ngIf=\"gameMap\" class=\"borderTable\">\n    <tr *ngFor=\"let row of gameMap\">\n        <td *ngFor=\"let col of row\">\n            <img *ngIf=\"col.img\" [src]=\"col.img\">\n        </td>\n    </tr>\n</table>");
+/* harmony default export */ __webpack_exports__["default"] = ("<table *ngIf=\"gameMap\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n    <tr *ngFor=\"let row of gameMap\">\n        <td *ngFor=\"let col of row\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\">\n            <div [style.background-color]=\"col.bg\" style=\"position: relative;\">\n                <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\">\n                <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop\" [style.right]='col.imgTopPosX' [style.top]='col.imgTopPosY' [style.opacity]='col.imgTopAlpha' [style.transform]='col.imgTopRotate' style=\"position: absolute;\">\n            </div>\n        </td>\n    </tr>\n</table>");
 
 /***/ }),
 
@@ -408,7 +408,7 @@ AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = (".borderTable{\r\n    border-collapse: collapse;\r\n}\r\n.borderTable, .borderTable th, .borderTable td{\r\n    border: 1px solid black;\r\n}\r\n.borderTable td{\r\n    width: 50px; height: 50px; max-width: 50px; max-height: 50px;\r\n}\r\n.borderTable img{\r\n    max-width: 50px; max-height: 50px;\r\n}\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvZ2FtZS9nYW1lLmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSx5QkFBeUI7QUFDN0I7QUFDQTtJQUNJLHVCQUF1QjtBQUMzQjtBQUNBO0lBQ0ksV0FBVyxFQUFFLFlBQVksRUFBRSxlQUFlLEVBQUUsZ0JBQWdCO0FBQ2hFO0FBQ0E7SUFDSSxlQUFlLEVBQUUsZ0JBQWdCO0FBQ3JDIiwiZmlsZSI6InNyYy9hcHAvZ2FtZS9nYW1lLmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuYm9yZGVyVGFibGV7XHJcbiAgICBib3JkZXItY29sbGFwc2U6IGNvbGxhcHNlO1xyXG59XHJcbi5ib3JkZXJUYWJsZSwgLmJvcmRlclRhYmxlIHRoLCAuYm9yZGVyVGFibGUgdGR7XHJcbiAgICBib3JkZXI6IDFweCBzb2xpZCBibGFjaztcclxufVxyXG4uYm9yZGVyVGFibGUgdGR7XHJcbiAgICB3aWR0aDogNTBweDsgaGVpZ2h0OiA1MHB4OyBtYXgtd2lkdGg6IDUwcHg7IG1heC1oZWlnaHQ6IDUwcHg7XHJcbn1cclxuLmJvcmRlclRhYmxlIGltZ3tcclxuICAgIG1heC13aWR0aDogNTBweDsgbWF4LWhlaWdodDogNTBweDtcclxufSJdfQ== */");
+/* harmony default export */ __webpack_exports__["default"] = ("*{\r\n    margin: 0px;\r\n    padding: 0px;\r\n}\r\n.borderTable{\r\n    border-collapse: collapse;\r\n}\r\n.borderTable, .borderTable th, .borderTable td{\r\n    border: 1px solid black;\r\n}\r\n.borderTable td{\r\n    width: 50px; height: 50px; max-width: 50px; max-height: 50px;\r\n}\r\n.borderTable tr{\r\n    height: 50px; max-height: 50px;\r\n}\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvZ2FtZS9nYW1lLmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSxXQUFXO0lBQ1gsWUFBWTtBQUNoQjtBQUNBO0lBQ0kseUJBQXlCO0FBQzdCO0FBQ0E7SUFDSSx1QkFBdUI7QUFDM0I7QUFDQTtJQUNJLFdBQVcsRUFBRSxZQUFZLEVBQUUsZUFBZSxFQUFFLGdCQUFnQjtBQUNoRTtBQUNBO0lBQ0ksWUFBWSxFQUFFLGdCQUFnQjtBQUNsQyIsImZpbGUiOiJzcmMvYXBwL2dhbWUvZ2FtZS5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiKntcclxuICAgIG1hcmdpbjogMHB4O1xyXG4gICAgcGFkZGluZzogMHB4O1xyXG59XHJcbi5ib3JkZXJUYWJsZXtcclxuICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7XHJcbn1cclxuLmJvcmRlclRhYmxlLCAuYm9yZGVyVGFibGUgdGgsIC5ib3JkZXJUYWJsZSB0ZHtcclxuICAgIGJvcmRlcjogMXB4IHNvbGlkIGJsYWNrO1xyXG59XHJcbi5ib3JkZXJUYWJsZSB0ZHtcclxuICAgIHdpZHRoOiA1MHB4OyBoZWlnaHQ6IDUwcHg7IG1heC13aWR0aDogNTBweDsgbWF4LWhlaWdodDogNTBweDtcclxufVxyXG4uYm9yZGVyVGFibGUgdHJ7XHJcbiAgICBoZWlnaHQ6IDUwcHg7IG1heC1oZWlnaHQ6IDUwcHg7XHJcbn0iXX0= */");
 
 /***/ }),
 
@@ -430,23 +430,46 @@ let GameComponent = class GameComponent {
     constructor() {
         // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
         this.exampleGameMap = [
-            [0, 0, 0, 'mbm1', 0],
-            [0, 'mbm1', 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 'bSniper', 0],
+            [0, 0, 0, 'mbm1', 'rFighter', 'rScout', 'rSniper', 'rCapitol'],
+            ['bFighter', 0, 0, 0, 0, 0, 0, 0],
+            [0, 'mbm2', 0, 0, 'mbm2', 'met', 0, 0],
+            [0, 0, 0, 0, 'met', 'met', 0, 0],
+            [0, 'bScout', 'bScout', 0, 0, 0, 'mgm1', 0],
+            [0, 0, 0, 'bSniper', 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 'mgm2', 0, 0, 0, 0, 'bCapitol', 0],
         ];
         // map definitions:
         this.gameMapDef = {
+            // empty space
             0: { 'name': 'empty', 'img': null },
-            'mbm1': { 'name': 'meteorBrownMedium1', 'img': 'assets/img/Meteors/meteorBrown_med1.png' },
-            'mbm2': { 'name': 'meteorBrownMedium2', 'img': 'assets/img/Meteors/meteorBrown_med2.png' },
-            'mgm1': { 'name': 'meteorGreyMedium1', 'img': 'assets/img/Meteors/meteorGrey_med1.png' },
-            'mgm2': { 'name': 'meteorGreyMedium2', 'img': 'assets/img/Meteors/meteorGrey_med2.png' },
-            'bFighter': { 'name': 'blue fighter', 'img': 'assets/img/playerShip1_blue.png' },
-            'bScout': { 'name': 'blue scout', 'img': 'assets/img/playerShip2_blue.png' },
-            'bSniper': { 'name': 'blue sniper', 'img': 'assets/img/playerShip3_blue.png' },
-            'bCapitol': { 'name': 'blue capitol', 'img': 'assets/img/ufoBlue.png' },
+            // empty placeholding space for big meteors
+            'met': { 'name': 'Big Meteor', 'img': null },
+            // meteors
+            'mbb1': { 'name': 'meteorBrownBig1', 'img': 'assets/img/Meteors/meteorBrown_big1.png', 'size': '100' },
+            'mbb2': { 'name': 'meteorBrownBig2', 'img': 'assets/img/Meteors/meteorBrown_big2.png', 'size': '100' },
+            'mbb3': { 'name': 'meteorBrownBig3', 'img': 'assets/img/Meteors/meteorBrown_big3.png', 'size': '100' },
+            'mbb4': { 'name': 'meteorBrownBig4', 'img': 'assets/img/Meteors/meteorBrown_big4.png', 'size': '100' },
+            'mgb1': { 'name': 'meteorGreyBig1', 'img': 'assets/img/Meteors/meteorGrey_big1.png', 'size': '100' },
+            'mgb2': { 'name': 'meteorGreyBig2', 'img': 'assets/img/Meteors/meteorGrey_big2.png', 'size': '100' },
+            'mgb3': { 'name': 'meteorGreyBig3', 'img': 'assets/img/Meteors/meteorGrey_big3.png', 'size': '100' },
+            'mgb4': { 'name': 'meteorGreyBig4', 'img': 'assets/img/Meteors/meteorGrey_big4.png', 'size': '100' },
+            'mbm1': { 'name': 'meteorBrownMedium1', 'img': 'assets/img/Meteors/meteorBrown_med1.png', 'size': '50' },
+            'mbm2': { 'name': 'meteorBrownMedium2', 'img': 'assets/img/Meteors/meteorBrown_med2.png', 'size': '50' },
+            'mgm1': { 'name': 'meteorGreyMedium1', 'img': 'assets/img/Meteors/meteorGrey_med1.png', 'size': '50' },
+            'mgm2': { 'name': 'meteorGreyMedium2', 'img': 'assets/img/Meteors/meteorGrey_med2.png', 'size': '50', 'bg': '' },
+            // player ships
+            'bFighter': { 'name': 'blue fighter', 'img': 'assets/img/playerShip1_blue.png', 'size': '50' },
+            'bScout': { 'name': 'blue scout', 'img': 'assets/img/playerShip2_blue.png', 'size': '50', 'imgTop': 'assets/img/Lasers/laserGreen02.png', 'imgTopPosX': '20px', 'imgTopPosY': '0px', 'imgTopAlpha': '0.7', 'imgTopRotate': 'rotate(45deg)' },
+            'bSniper': { 'name': 'blue sniper', 'img': 'assets/img/playerShip3_blue.png', 'size': '50' },
+            'bCapitol': { 'name': 'blue capitol', 'img': 'assets/img/ufoBlue.png', 'size': '50' },
+            'rFighter': { 'name': 'red fighter', 'img': 'assets/img/playerShip1_red.png', 'size': '50' },
+            'rScout': { 'name': 'red scout', 'img': 'assets/img/playerShip2_red.png', 'size': '50' },
+            'rSniper': { 'name': 'red sniper', 'img': 'assets/img/playerShip3_red.png', 'size': '50' },
+            'rCapitol': { 'name': 'red capitol', 'img': 'assets/img/ufored.png', 'size': '50' },
         };
+        this.gameScale = '50px;'; // affects height and width of table blocks
+        this.gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
     }
     ngOnInit() {
         this.generateMap(this.exampleGameMap);
@@ -459,6 +482,8 @@ let GameComponent = class GameComponent {
                 this.gameMap[row].push(this.gameMapDef[map[row][col]]); // puts the value from gameMapDef into each grid location in gameMap based on the key provided from each grid location in map passed in parameters
             }
         }
+    }
+    createShip(shiptype) {
     }
 };
 GameComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([

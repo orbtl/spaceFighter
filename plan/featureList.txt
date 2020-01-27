@@ -27,6 +27,7 @@ Ship type ideas:
         -Low health and low damage and low range, high speed
         -Maybe can only fire in the direction it is moving?  So player has to get it moving towards enemy ships and fire and take into account where it will end up?
         -Can only shoot in 8 cardinal/diagonal directions
+        -Maybe has special EMP ability to remove shields of nearby ships?
 
     -Sniper ship
         -Slow movement speed and turning speed
@@ -35,13 +36,12 @@ Ship type ideas:
             -or maybe have it so you can only shoot after coming to a stop and powering up for hte next turn
         -Can pinpoint shoot anything within range in line-of-sight (how to calculate that?) that it is facing towards, regardless of cardinal directions
 
-    -Bomber/Missile ship
+    -Bomber/Missile (Fighter) ship
         -Shoots projectiles that the player chooses the target of (which have their own movespeed)
         -Medium health, medium range, medium damage, medium speed
         -Does area-of-effect damage but must be aimed carefully
         -Can fire in any direction
         -Has limited ammo or maybe the ammo regenerates at a certain rate (like it can only fire a missile every 2 rounds etc)
-        -Maybe has special EMP ability to remove shields of nearby ships?
 
     -Main/Capitol ship
         -Has a strong shield that must first be destroyed or taken down before its health can be damaged
