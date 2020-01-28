@@ -15,7 +15,7 @@ export class BaseObj {
     shieldHP: number;
     size: number;
     border: string;
-    color: string;
+    team: string;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
@@ -29,7 +29,7 @@ export class BaseObj {
         this.shieldHP = 0;
         this.size = 50;
         this.border = ""
-        this.color = "neutral"
+        this.team = "neutral"
     }
     click(){
         console.log('clicked an empty space');
@@ -79,7 +79,7 @@ export class Fighter extends BaseObj {
     constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 50, 4, 6);
         this.img = `assets/img/playerShip1_${color}.png`;
-        this.color = color;
+        this.team = color;
     }
     fireMissile(targetRow: number, targetCol: number){
         if (this.missile.firing == false && this.ammo > 0) {
@@ -122,7 +122,7 @@ export class Scout extends BaseObj {
         super(row, col, rotate, 25, 5, 3);
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
-        this.color = color;
+        this.team = color;
     }
     fireEMP(){
         if (this.empAmmo > 0) {
@@ -167,7 +167,7 @@ export class Sniper extends BaseObj {
         super(row, col, rotate, 20, 2, 12);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
-        this.color = color;
+        this.team = color;
     }
     charge(){
         if (this.ammo > 0 && this.charged == false) {
@@ -219,7 +219,7 @@ export class Capitol extends BaseObj {
         this.shieldHP = 100;
         this.ammo = 2;
         this.img = `assets/img/ufo${color}.png`;
-        this.color = color;
+        this.team = color;
     }
     newTurn(){
         this.ammo = 2;

@@ -148,7 +148,7 @@ export class GameComponent implements OnInit {
       this.gameInfo['desc'] = 'Empty Space';
     }
     else{
-      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp}`
+      this.gameInfo['desc'] = ` Unit Type: ${unit.constructor.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
       if (!(unit instanceof Asteroid)) {
         this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
       }

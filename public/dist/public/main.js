@@ -557,7 +557,7 @@ let GameComponent = class GameComponent {
             this.gameInfo['desc'] = 'Empty Space';
         }
         else {
-            this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp}`;
+            this.gameInfo['desc'] = ` Unit Type: ${unit.constructor.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`;
             if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
                 this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
             }
@@ -646,6 +646,7 @@ class BaseObj {
         this.shieldHP = 0;
         this.size = 50;
         this.border = "";
+        this.team = "neutral";
     }
     click() {
         console.log('clicked an empty space');
@@ -693,6 +694,7 @@ class Fighter extends BaseObj {
             },
         };
         this.img = `assets/img/playerShip1_${color}.png`;
+        this.team = color;
     }
     fireMissile(targetRow, targetCol) {
         if (this.missile.firing == false && this.ammo > 0) {
@@ -733,6 +735,7 @@ class Scout extends BaseObj {
         super(row, col, rotate, 25, 5, 3);
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
+        this.team = color;
     }
     fireEMP() {
         if (this.empAmmo > 0) {
@@ -776,6 +779,7 @@ class Sniper extends BaseObj {
         super(row, col, rotate, 20, 2, 12);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
+        this.team = color;
     }
     charge() {
         if (this.ammo > 0 && this.charged == false) {
@@ -827,6 +831,7 @@ class Capitol extends BaseObj {
         this.shieldHP = 100;
         this.ammo = 2;
         this.img = `assets/img/ufo${color}.png`;
+        this.team = color;
     }
     newTurn() {
         this.ammo = 2;
