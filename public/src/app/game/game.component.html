@@ -15,9 +15,9 @@
     <div style="display: inline-block; vertical-align: top;">
         <button (click)="cancel(currentPlayer)">Cancel Selection</button>
         <button (click)="enableMove(currentPlayer)">Move</button>
-        <button>Shoot</button>
+        <button (click)="enableShoot(currentPlayer)">Shoot</button>
         <button>Special Ability</button>
-        <button>End Turn</button>
+        <button (click)="endTurn(currentPlayer)">End Turn</button>
         <div *ngIf="actionText">
             <p>{{actionText}}</p>
         </div>

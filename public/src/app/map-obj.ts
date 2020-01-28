@@ -8,6 +8,7 @@ export class BaseObj {
     hp: number;
     img: String;
     imgTop: any;
+    imgTopLast: any;
     bg: String;
     speed: number;
     range: number;
@@ -84,20 +85,14 @@ export class Fighter extends BaseObj {
         this.team = color;
     }
     fireMissile(targetRow: number, targetCol: number){
-        if (this.missile.firing == false && this.ammo > 0) {
-            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-            if (distance <= this.range) {
-                this.missile.firing = true;
-                this.missile.target.row = targetRow;
-                this.missile.target.col = targetCol;
-                this.ammo = 0;
-            }
-            else {
-                console.log('Missile target out of range');
-            }
-        }
-        else {
-            console.log('Missile already firing or out of ammo');
+        this.missile.firing = true;
+        this.missile.target.row = targetRow;
+        this.missile.target.col = targetCol;
+        this.ammo = 0;
+        this.imgTop = {
+            'img': 'assets/img/Power-ups/pill_yellow.png',
+            'alpha': 1,
+            'transform': '',
         }
         return this;
     }
@@ -136,22 +131,12 @@ export class Scout extends BaseObj {
         this.empAmmo = 0;
         return this;
     }
-    shoot(targetRow: number, targetCol: number, targetObj: any) {
-        if (this.ammo == 0) {
-            console.log('Cannot fire more than once per turn');
-            return this;
-        }
-        let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-        if (distance <= this.range) {
-            try {
-                targetObj.takeDmg(10);
-                this.ammo = 0;
-            } catch (error) {
-                console.log('Error reducing health of target')
-            }
-        }
-        else {
-            console.log('Target out of range');
+    shoot(targetObj: any) {
+        try {
+            targetObj.takeDmg(10);
+            this.ammo = 0;
+        } catch (error) {
+            console.log('Error reducing health of target')
         }
     }
     newTurn(){
@@ -181,29 +166,18 @@ export class Sniper extends BaseObj {
         }
         return this;
     }
-    shoot(targetRow: number, targetCol: number, targetObj: any) {
-        if (this.ammo > 0) {
-            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-            if (distance <= this.range) {
-                try {
-                    if (this.charged == true) {
-                        targetObj.takeDmg(60);
-                        this.charged = false;
-                    }
-                    else {
-                        targetObj.takeDmg(30);
-                    }
-                    this.ammo = 0;
-                } catch (error) {
-                    console.log('Error reducing health of target')
-                }
+    shoot(targetObj: any) {
+        try {
+            if (this.charged == true) {
+                targetObj.takeDmg(60);
+                this.charged = false;
             }
             else {
-                console.log('Target out of range');
+                targetObj.takeDmg(30);
             }
-        }
-        else {
-            console.log('Out of ammo');
+            this.ammo = 0;
+        } catch (error) {
+            console.log('Error reducing health of target')
         }
     }
     newTurn(){
@@ -223,11 +197,16 @@ export class Capitol extends BaseObj {
         this.img = `assets/img/ufo${color}.png`;
         this.team = color;
     }
+    shoot(targetObj: any) {
+        try {
+            targetObj.takeDmg(15);
+            this.ammo -= 1;
+        } catch (error) {
+            console.log('Error reducing health of target')
+        }
+    }
     newTurn(){
         this.ammo = 2;
-        while (this.ammo > 0) {
-            // have logic to shoot anything within range and do low damage, like 15 or something
-        }
         this.shieldHP += 10;
     }
     die(){

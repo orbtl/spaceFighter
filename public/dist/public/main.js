@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button>Shoot</button>\n        <button>Special Ability</button>\n        <button>End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button>Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -534,20 +534,48 @@ let GameComponent = class GameComponent {
     }
     enableMove(player) {
         // need logic for if it's the player's turn
-        if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
-            if (player == 'blue') { // blue player
-                this.unitToAct = this.lastBlueClicked;
+        if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
+            if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+                if (player == 'blue') { // blue player
+                    this.unitToAct = this.lastBlueClicked;
+                }
+                else { // red player
+                    this.unitToAct = this.lastRedClicked;
+                }
+                if (this.unitToAct.moved == false) {
+                    this.inMove = true;
+                    this.actionText = "Select a position marked by a green background to move to";
+                }
+                else {
+                    this.actionText = "That unit has already moved";
+                }
             }
-            else { // red player
-                this.unitToAct = this.lastRedClicked;
+        }
+        else {
+            this.actionText = "It is not your turn!";
+        }
+    }
+    enableShoot(player) {
+        // need logic for if it's the player's turn
+        if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
+            if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+                if (player == 'blue') { // blue player
+                    this.unitToAct = this.lastBlueClicked;
+                }
+                else { // red player
+                    this.unitToAct = this.lastRedClicked;
+                }
+                if (this.unitToAct.ammo > 0) {
+                    this.inShoot = true;
+                    this.actionText = "Select a target marked by an X to shoot (range illustrated by green border)";
+                }
+                else {
+                    this.actionText = "That unit does not have any ammo";
+                }
             }
-            if (this.unitToAct.moved == false) {
-                this.inMove = true;
-                this.actionText = "Select a position to move to";
-            }
-            else {
-                this.actionText = "That unit has already moved";
-            }
+        }
+        else {
+            this.actionText = "It is not your turn!";
         }
     }
     moveUnit(clicked, player) {
@@ -597,6 +625,15 @@ let GameComponent = class GameComponent {
         this.unitToAct.moved = true;
         this.cancel(player);
     }
+    shootUnit(clicked, player) {
+        if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
+            this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
+        }
+        else {
+            this.unitToAct.shoot(clicked);
+        }
+        this.cancel(player);
+    }
     clickGame(clicked, player) {
         // need logic for if it's the player's turn, etc
         if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
@@ -639,6 +676,11 @@ let GameComponent = class GameComponent {
                 this.moveUnit(clicked, player);
             }
         }
+        else if (this.inShoot) { // Player has selected Shoot
+            if (this.shootable.indexOf(clicked) != -1) { // item is in the shootable list of spaces
+                this.shootUnit(clicked, player);
+            }
+        }
         // logic for moving the highlight border
         if (player == 'blue') { // blue player's click
             if (this.lastBlueClicked) {
@@ -663,6 +705,9 @@ let GameComponent = class GameComponent {
                     item.border = '1px solid yellow';
                     this.shootInRange.push(item);
                     if (item.hp > 0 || missile == true) { // it's a shootable unit or user is firing missiles which can target any location
+                        if (item.imgTop && item.imgTop.img != 'assets/img/UI/numeralX.png') {
+                            item.imgTopLast = item.imgTop; // this saves whatever the old imgTop was like a missile or powerup so it will be restored later when the X target is removed
+                        }
                         item.imgTop = {
                             'img': 'assets/img/UI/numeralX.png',
                             'alpha': '0.8',
@@ -779,9 +824,20 @@ let GameComponent = class GameComponent {
             }
             if (this.shootable) {
                 for (let item of this.shootable) {
-                    item.imgTop = null;
+                    if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
+                        if (item.imgTopLast) {
+                            item.imgTop = item.imgTopLast;
+                            item.imgTopLast = null;
+                        }
+                        else {
+                            item.imgTop = null;
+                        }
+                    }
                 }
             }
+            this.moveable = [];
+            this.shootInRange = [];
+            this.shootable = [];
         }
         if (player == 'blue' && this.lastBlueClicked) {
             this.lastBlueClicked.border = "";
@@ -790,6 +846,28 @@ let GameComponent = class GameComponent {
             this.lastRedClicked.border = "";
         }
         this.actionText = "";
+    }
+    endTurn(player) {
+        this.cancel(player);
+        if (player == this.gameMap.playerTurn) { // it's this player's turn and they have the right to end it
+            this.gameMap.turn += 1;
+            if (this.gameMap.playerTurn == 'red') {
+                this.gameMap.playerTurn = 'blue';
+            }
+            else {
+                this.gameMap.playerTurn = 'red';
+            }
+            for (let row of this.gameMap.map) {
+                for (let col of row) {
+                    if (col.team == this.gameMap.playerTurn) {
+                        col.newTurn();
+                    }
+                }
+            }
+        }
+        return this;
+    }
+    newTurn(player) {
     }
     unitInfo(unit) {
         if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
@@ -937,21 +1015,15 @@ class Fighter extends BaseObj {
         this.team = color;
     }
     fireMissile(targetRow, targetCol) {
-        if (this.missile.firing == false && this.ammo > 0) {
-            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-            if (distance <= this.range) {
-                this.missile.firing = true;
-                this.missile.target.row = targetRow;
-                this.missile.target.col = targetCol;
-                this.ammo = 0;
-            }
-            else {
-                console.log('Missile target out of range');
-            }
-        }
-        else {
-            console.log('Missile already firing or out of ammo');
-        }
+        this.missile.firing = true;
+        this.missile.target.row = targetRow;
+        this.missile.target.col = targetCol;
+        this.ammo = 0;
+        this.imgTop = {
+            'img': 'assets/img/Power-ups/pill_yellow.png',
+            'alpha': 1,
+            'transform': '',
+        };
         return this;
     }
     newTurn() {
@@ -987,23 +1059,13 @@ class Scout extends BaseObj {
         this.empAmmo = 0;
         return this;
     }
-    shoot(targetRow, targetCol, targetObj) {
-        if (this.ammo == 0) {
-            console.log('Cannot fire more than once per turn');
-            return this;
+    shoot(targetObj) {
+        try {
+            targetObj.takeDmg(10);
+            this.ammo = 0;
         }
-        let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-        if (distance <= this.range) {
-            try {
-                targetObj.takeDmg(10);
-                this.ammo = 0;
-            }
-            catch (error) {
-                console.log('Error reducing health of target');
-            }
-        }
-        else {
-            console.log('Target out of range');
+        catch (error) {
+            console.log('Error reducing health of target');
         }
     }
     newTurn() {
@@ -1031,30 +1093,19 @@ class Sniper extends BaseObj {
         }
         return this;
     }
-    shoot(targetRow, targetCol, targetObj) {
-        if (this.ammo > 0) {
-            let distance = (Math.abs(targetRow - this.location.row) + Math.abs(targetCol - this.location.col));
-            if (distance <= this.range) {
-                try {
-                    if (this.charged == true) {
-                        targetObj.takeDmg(60);
-                        this.charged = false;
-                    }
-                    else {
-                        targetObj.takeDmg(30);
-                    }
-                    this.ammo = 0;
-                }
-                catch (error) {
-                    console.log('Error reducing health of target');
-                }
+    shoot(targetObj) {
+        try {
+            if (this.charged == true) {
+                targetObj.takeDmg(60);
+                this.charged = false;
             }
             else {
-                console.log('Target out of range');
+                targetObj.takeDmg(30);
             }
+            this.ammo = 0;
         }
-        else {
-            console.log('Out of ammo');
+        catch (error) {
+            console.log('Error reducing health of target');
         }
     }
     newTurn() {
@@ -1073,11 +1124,17 @@ class Capitol extends BaseObj {
         this.img = `assets/img/ufo${color}.png`;
         this.team = color;
     }
+    shoot(targetObj) {
+        try {
+            targetObj.takeDmg(15);
+            this.ammo -= 1;
+        }
+        catch (error) {
+            console.log('Error reducing health of target');
+        }
+    }
     newTurn() {
         this.ammo = 2;
-        while (this.ammo > 0) {
-            // have logic to shoot anything within range and do low damage, like 15 or something
-        }
         this.shieldHP += 10;
     }
     die() {

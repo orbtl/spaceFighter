@@ -127,70 +127,109 @@ export class GameComponent implements OnInit {
   }
   enableMove(player: any) {
     // need logic for if it's the player's turn
-    if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
-      if (player == 'blue') { // blue player
-        this.unitToAct = this.lastBlueClicked;
-      }
-      else { // red player
-        this.unitToAct = this.lastRedClicked;
-      }
-      if (this.unitToAct.moved == false) {
-        this.inMove = true;
-        this.actionText = "Select a position to move to";
-      }
-      else {
-        this.actionText = "That unit has already moved";
+    if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
+      if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+        if (player == 'blue') { // blue player
+          this.unitToAct = this.lastBlueClicked;
+        }
+        else { // red player
+          this.unitToAct = this.lastRedClicked;
+        }
+        if (this.unitToAct.moved == false) {
+          this.inMove = true;
+          this.actionText = "Select a position marked by a green background to move to";
+        }
+        else {
+          this.actionText = "That unit has already moved";
+        }
       }
     }
+    else {
+      this.actionText = "It is not your turn!"
+    }
   }
+  enableShoot(player: any){
+    // need logic for if it's the player's turn
+    if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
+      if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+        if (player == 'blue') { // blue player
+          this.unitToAct = this.lastBlueClicked;
+        }
+        else { // red player
+          this.unitToAct = this.lastRedClicked;
+        }
+        if (this.unitToAct.ammo > 0) {
+          this.inShoot = true;
+          this.actionText = "Select a target marked by an X to shoot (range illustrated by green border)"
+        }
+        else {
+          this.actionText = "That unit does not have any ammo";
+        }
+      }
+    }
+    else {
+      this.actionText = "It is not your turn!"
+    }
+  }
+
   moveUnit(clicked: any, player: any){ // actually move a unit once validations are fine
     // logic to move the unit
-        //logic to figure out rotation
-        let row2 = clicked.location.row;
-        let row1 = this.unitToAct.location.row;
-        let col2 = clicked.location.col;
-        let col1 = this.unitToAct.location.col;
-        let rotation = 0;
-        if (col2 == col1) { // they are above each other, don't want to divide by 0
-          if (row2 >= row1 ) { // new position is below
-            rotation = 180;
-          }
-          else { // new position is above
-            rotation = 0;
-          }
-        }
-        else if (col2 > col1) { // new position is to the right
-          if (row2 > row1) { // position below and to the right
-            rotation = 135;
-          }
-          else if (row2 < row1) { //position above and to the right
-            rotation = 45;
-          }
-          else { // position directly to the right
-            rotation = 90;
-          }
-        }
-        else { // position is to the left
-          if (row2 > row1) { // position below and to the left
-            rotation = 225;
-          }
-          else if (row2 < row1) { //position above and to the left
-            rotation = 315;
-          }
-          else { // position directly to the left
-            rotation = 270;
-          }
-        }
+    //logic to figure out rotation
+    let row2 = clicked.location.row;
+    let row1 = this.unitToAct.location.row;
+    let col2 = clicked.location.col;
+    let col1 = this.unitToAct.location.col;
+    let rotation = 0;
+    if (col2 == col1) { // they are above each other, don't want to divide by 0
+      if (row2 >= row1 ) { // new position is below
+        rotation = 180;
+      }
+      else { // new position is above
+        rotation = 0;
+      }
+    }
+    else if (col2 > col1) { // new position is to the right
+      if (row2 > row1) { // position below and to the right
+        rotation = 135;
+      }
+      else if (row2 < row1) { //position above and to the right
+        rotation = 45;
+      }
+      else { // position directly to the right
+        rotation = 90;
+      }
+    }
+    else { // position is to the left
+      if (row2 > row1) { // position below and to the left
+        rotation = 225;
+      }
+      else if (row2 < row1) { //position above and to the left
+        rotation = 315;
+      }
+      else { // position directly to the left
+        rotation = 270;
+      }
+    }
 
-        this.unitToAct.location.row = clicked.location.row;
-        this.unitToAct.location.col = clicked.location.col;
-        this.unitToAct.location.rotate = rotation;
-        this.unitToAct.location.transform = `rotate(${rotation}deg)`;
-        this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
-        this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
-        this.unitToAct.moved = true;
-        this.cancel(player);
+    this.unitToAct.location.row = clicked.location.row;
+    this.unitToAct.location.col = clicked.location.col;
+    this.unitToAct.location.rotate = rotation;
+    this.unitToAct.location.transform = `rotate(${rotation}deg)`;
+    this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
+    this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
+    this.unitToAct.moved = true;
+    this.cancel(player);
   }
+  shootUnit(clicked: any, player: any) {
+    if (this.unitToAct instanceof Fighter) {
+      this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
+    }
+    else {
+      this.unitToAct.shoot(clicked);
+    }
+    this.cancel(player);
+  }
+
 
   clickGame(clicked: any, player: any){
     // need logic for if it's the player's turn, etc
@@ -236,6 +275,13 @@ export class GameComponent implements OnInit {
         this.moveUnit(clicked, player);
       }
     }
+    else if (this.inShoot) { // Player has selected Shoot
+      if (this.shootable.indexOf(clicked) != -1) { // item is in the shootable list of spaces
+        this.shootUnit(clicked, player);
+      }
+    }
+
+
     // logic for moving the highlight border
     if (player == 'blue') { // blue player's click
       if (this.lastBlueClicked) {
@@ -262,6 +308,9 @@ export class GameComponent implements OnInit {
           item.border = '1px solid yellow';
           this.shootInRange.push(item);
           if (item.hp > 0 || missile == true) { // it's a shootable unit or user is firing missiles which can target any location
+            if (item.imgTop && item.imgTop.img != 'assets/img/UI/numeralX.png') {
+              item.imgTopLast = item.imgTop; // this saves whatever the old imgTop was like a missile or powerup so it will be restored later when the X target is removed
+            }
             item.imgTop = {
               'img': 'assets/img/UI/numeralX.png',
               'alpha': '0.8',
@@ -379,9 +428,20 @@ export class GameComponent implements OnInit {
       }
       if (this.shootable) {
         for (let item of this.shootable) {
-          item.imgTop = null;
+          if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
+            if (item.imgTopLast) {
+              item.imgTop = item.imgTopLast;
+              item.imgTopLast = null;
+            }
+            else {
+              item.imgTop = null;
+            }
+          }
         }
       }
+      this.moveable = [];
+      this.shootInRange = [];
+      this.shootable = [];
     }
     if (player == 'blue' && this.lastBlueClicked) {
       this.lastBlueClicked.border = "";
@@ -391,6 +451,34 @@ export class GameComponent implements OnInit {
     }
     this.actionText = "";
   }
+  endTurn(player: any) {
+    this.cancel(player);
+    if (player == this.gameMap.playerTurn) { // it's this player's turn and they have the right to end it
+      this.gameMap.turn += 1;
+      if (this.gameMap.playerTurn == 'red') {
+        this.gameMap.playerTurn = 'blue';
+      }
+      else {
+        this.gameMap.playerTurn = 'red';
+      }
+      for (let row of this.gameMap.map) {
+        for (let col of row) {
+          if (col.team == this.gameMap.playerTurn) {
+            col.newTurn();
+          }
+        }
+      }
+    }
+    return this;
+  }
+  newTurn(player: any) {
+
+  }
+
+
+
+
+
   unitInfo(unit: any){
     if (!(unit instanceof Fighter) && !(unit instanceof Scout) && !(unit instanceof Sniper) && !(unit instanceof Capitol) && !(unit instanceof Asteroid)){
       this.gameInfo['desc'] = 'Empty Space';
