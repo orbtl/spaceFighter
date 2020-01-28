@@ -16,6 +16,7 @@ export class BaseObj {
     size: number;
     border: string;
     team: string;
+    moved: boolean;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
@@ -28,8 +29,9 @@ export class BaseObj {
         this.ammo = 1;
         this.shieldHP = 0;
         this.size = 50;
-        this.border = ""
-        this.team = "neutral"
+        this.border = "";
+        this.team = "neutral";
+        this.moved = false;
     }
     click(){
         console.log('clicked an empty space');

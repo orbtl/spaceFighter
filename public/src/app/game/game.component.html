@@ -14,9 +14,12 @@
     </div>
     <div style="display: inline-block; vertical-align: top;">
         <button (click)="cancel(currentPlayer)">Cancel Selection</button>
-        <button>Move</button>
+        <button (click)="enableMove(currentPlayer)">Move</button>
         <button>Shoot</button>
         <button>Special Ability</button>
+        <div *ngIf="actionText">
+            <p>{{actionText}}</p>
+        </div>
     </div>
 </div>
 <div *ngIf="gameInfo">

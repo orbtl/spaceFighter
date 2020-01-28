@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button>Move</button>\n        <button>Shoot</button>\n        <button>Special Ability</button>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button>Shoot</button>\n        <button>Special Ability</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -532,8 +532,93 @@ let GameComponent = class GameComponent {
         }
         return blueprint;
     }
+    enableMove(player) {
+        // need logic for if it's the player's turn
+        if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+            if (player == 'blue') { // blue player
+                this.unitToAct = this.lastBlueClicked;
+            }
+            else { // red player
+                this.unitToAct = this.lastRedClicked;
+            }
+            if (this.unitToAct.moved == false) {
+                this.inMove = true;
+                this.actionText = "Select a position to move to";
+            }
+            else {
+                this.actionText = "That unit has already moved";
+            }
+        }
+    }
+    moveUnit(clicked, player) {
+        // logic to move the unit
+        //logic to figure out rotation
+        let row2 = clicked.location.row;
+        let row1 = this.unitToAct.location.row;
+        let col2 = clicked.location.col;
+        let col1 = this.unitToAct.location.col;
+        let rotation = 0;
+        if (col2 == col1) { // they are above each other, don't want to divide by 0
+            if (row2 >= row1) { // new position is below
+                rotation = 180;
+            }
+            else { // new position is above
+                rotation = 0;
+            }
+        }
+        else if (col2 > col1) { // new position is to the right
+            if (row2 > row1) { // position below and to the right
+                rotation = 135;
+            }
+            else if (row2 < row1) { //position above and to the right
+                rotation = 45;
+            }
+            else { // position directly to the right
+                rotation = 90;
+            }
+        }
+        else { // position is to the left
+            if (row2 > row1) { // position below and to the left
+                rotation = 225;
+            }
+            else if (row2 < row1) { //position above and to the left
+                rotation = 315;
+            }
+            else { // position directly to the left
+                rotation = 270;
+            }
+        }
+        this.unitToAct.location.row = clicked.location.row;
+        this.unitToAct.location.col = clicked.location.col;
+        this.unitToAct.location.rotate = rotation;
+        this.unitToAct.location.transform = `rotate(${rotation}deg)`;
+        this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
+        this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
+        this.unitToAct.moved = true;
+        this.cancel(player);
+    }
     clickGame(clicked, player) {
         // need logic for if it's the player's turn, etc
+        if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+            this.unitInfo(clicked);
+            this.actionText = "";
+            if (this.moveable) { // clear old green bg highlights
+                for (let item of this.moveable) {
+                    item.bg = '';
+                }
+            }
+            this.shootable = [];
+            this.moveable = [];
+            if (clicked.moved == false && player == clicked.team) {
+                this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
+            }
+        }
+        else if (this.inMove) { // Player has selected Move
+            if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
+                this.moveUnit(clicked, player);
+            }
+        }
+        // logic for moving the highlight border
         if (player == 'blue') { // blue player's click
             if (this.lastBlueClicked) {
                 this.lastBlueClicked.border = "";
@@ -547,20 +632,6 @@ let GameComponent = class GameComponent {
             }
             clicked.border = "1px solid red";
             this.lastRedClicked = clicked;
-        }
-        if (!this.inMove && !this.inShoot && !this.inSpecial) {
-            this.unitInfo(clicked);
-            if (this.moveable) { // clear old green bg highlights
-                for (let item of this.moveable) {
-                    item.bg = '';
-                }
-            }
-            this.moveable = [];
-            this.shootable = [];
-            if (player == clicked.team) {
-                this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
-                console.log(this.moveable);
-            }
         }
     }
     moveRange(startRow, startCol, range, currRow = startRow, currCol = startCol) {
@@ -593,6 +664,11 @@ let GameComponent = class GameComponent {
             this.inMove = false;
             this.inShoot = false;
             this.inSpecial = false;
+            if (this.moveable) {
+                for (let item of this.moveable) {
+                    item.bg = '';
+                }
+            }
         }
         if (player == 'blue' && this.lastBlueClicked) {
             this.lastBlueClicked.border = "";
@@ -600,6 +676,7 @@ let GameComponent = class GameComponent {
         else if (player == 'red' && this.lastRedClicked) {
             this.lastRedClicked.border = "";
         }
+        this.actionText = "";
     }
     unitInfo(unit) {
         if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
@@ -696,6 +773,7 @@ class BaseObj {
         this.size = 50;
         this.border = "";
         this.team = "neutral";
+        this.moved = false;
     }
     click() {
         console.log('clicked an empty space');
