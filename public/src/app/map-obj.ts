@@ -14,6 +14,8 @@ export class BaseObj {
     ammo: number;
     shieldHP: number;
     size: number;
+    border: string;
+    color: string;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
@@ -26,9 +28,12 @@ export class BaseObj {
         this.ammo = 1;
         this.shieldHP = 0;
         this.size = 50;
+        this.border = ""
+        this.color = "neutral"
     }
     click(){
-        console.log('clicked a BaseObj');
+        console.log('clicked an empty space');
+        this.border = "1px solid red";
         return this;
     }
     move(targetRow: number, targetCol: number) {
@@ -74,6 +79,7 @@ export class Fighter extends BaseObj {
     constructor (row: number, col: number, rotate: number, color: string) {
         super(row, col, rotate, 50, 4, 6);
         this.img = `assets/img/playerShip1_${color}.png`;
+        this.color = color;
     }
     fireMissile(targetRow: number, targetCol: number){
         if (this.missile.firing == false && this.ammo > 0) {
@@ -116,6 +122,7 @@ export class Scout extends BaseObj {
         super(row, col, rotate, 25, 5, 3);
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
+        this.color = color;
     }
     fireEMP(){
         if (this.empAmmo > 0) {
@@ -160,6 +167,7 @@ export class Sniper extends BaseObj {
         super(row, col, rotate, 20, 2, 12);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
+        this.color = color;
     }
     charge(){
         if (this.ammo > 0 && this.charged == false) {
@@ -211,6 +219,7 @@ export class Capitol extends BaseObj {
         this.shieldHP = 100;
         this.ammo = 2;
         this.img = `assets/img/ufo${color}.png`;
+        this.color = color;
     }
     newTurn(){
         this.ammo = 2;
@@ -247,6 +256,8 @@ export class Asteroid extends BaseObj {
         else { // small meteor
             this.size = (Math.floor(Math.random()*15)+20);
         }
+        this.location.rotate = (Math.floor(Math.random()*360));
+        this.location.transform = `rotate(${this.location.rotate}deg)`;
     }
     newTurn(){
         let rotate = (this.location.rotate + (Math.floor(Math.random()*60)-30));

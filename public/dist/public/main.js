@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"col.click()\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.rotate' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>\n<div *ngIf=\"gameInfo\">\n\n    <div *ngIf=\"gameInfo['desc']\">\n        \n    </div>\n</div>");
 
 /***/ }),
 
@@ -430,25 +430,22 @@ __webpack_require__.r(__webpack_exports__);
 
 let GameComponent = class GameComponent {
     constructor() {
-        // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
-        this.exampleGameMap = [
-            [0, 0, 0, 'a', 'rFighter', 'rScout', 'rSniper', 'rCapitol'],
-            ['bFighter', 0, 0, 0, 0, 0, 0, 0],
-            [0, 'a', 0, 0, 'a', 'a', 0, 0],
-            [0, 0, 0, 0, 'a', 'a', 0, 0],
-            [0, 'bScout', 'bScout', 0, 0, 0, 'a', 0],
-            [0, 0, 0, 'bSniper', 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 'a', 0, 0, 0, 0, 'bCapitol', 0],
-        ];
         this.gameScale = '50'; // affects height and width of table blocks
         this.gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
-        this.numAsteroids = 8;
-        this.numRows = 8;
-        this.numColumns = 8;
+        this.numAsteroids = 10; // maximum number of asteroids on map
+        this.numRows = 8; // width of map
+        this.numColumns = 8; // height of map
+        this.inMove = false;
+        this.inShoot = false;
+        this.inSpecial = false;
     }
     ngOnInit() {
         this.newGame(this.randomMap());
+        this.currentPlayer = 'blue'; // going to need logic to figure out which player this is...
+        this.gameInfo = {
+            'turnNumber': this.gameMap.turn,
+            'turnPlayer': this.gameMap.playerTurn,
+        };
     }
     newGame(map) {
         this.gameMap = new _map_obj__WEBPACK_IMPORTED_MODULE_2__["MapObj"]();
@@ -469,16 +466,16 @@ let GameComponent = class GameComponent {
                     this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"](+row, +col, 0, 20)); // + operator converts string to number
                 }
                 else if (map[row][col] == 'bFighter') {
-                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"](+row, +col, 0, 'blue'));
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"](+row, +col, 180, 'blue'));
                 }
                 else if (map[row][col] == 'bScout') {
-                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"](+row, +col, 0, 'blue'));
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"](+row, +col, 180, 'blue'));
                 }
                 else if (map[row][col] == 'bSniper') {
-                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"](+row, +col, 0, 'blue'));
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"](+row, +col, 180, 'blue'));
                 }
                 else if (map[row][col] == 'bCapitol') {
-                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"](+row, +col, 0, 'blue'));
+                    this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"](+row, +col, 180, 'blue'));
                 }
                 else if (map[row][col] == 'rFighter') {
                     this.gameMap.map[row].push(new _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"](+row, +col, 0, 'red'));
@@ -536,6 +533,46 @@ let GameComponent = class GameComponent {
         console.log(blueprint);
         return blueprint;
     }
+    clickGame(clicked, player) {
+        // need logic for if it's the player's turn, etc
+        if (player == 'blue') { // blue player's click
+            if (this.lastBlueClicked) {
+                this.lastBlueClicked.border = "";
+            }
+            clicked.border = "1px solid cyan";
+            this.lastBlueClicked = clicked;
+        }
+        else { // red player's click
+            if (this.lastRedClicked) {
+                this.lastRedClicked.border = "";
+            }
+            clicked.border = "1px solid red";
+            this.lastRedClicked = clicked;
+        }
+        if (!this.inMove && !this.inShoot && !this.inSpecial) {
+            this.unitInfo(clicked);
+        }
+    }
+    unitInfo(unit) {
+        if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["BaseObj"]) {
+            this.gameInfo['desc'] = 'Empty Space';
+        }
+        else {
+            this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp} \n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+            if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
+                this.gameInfo['desc'] += `\n Missile Available: `;
+                if (unit.ammo == 1) {
+                    this.gameInfo['desc'] += `Yes`;
+                }
+                else {
+                    this.gameInfo['desc'] += `No`;
+                }
+                if (unit.missile.firing == true) {
+                    this.gameInfo['desc'] += ` (Missile en route)`;
+                }
+            }
+        }
+    }
 };
 GameComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
@@ -585,9 +622,11 @@ class BaseObj {
         this.ammo = 1;
         this.shieldHP = 0;
         this.size = 50;
+        this.border = "";
     }
     click() {
-        console.log('clicked a BaseObj');
+        console.log('clicked an empty space');
+        this.border = "1px solid red";
         return this;
     }
     move(targetRow, targetCol) {
@@ -800,6 +839,8 @@ class Asteroid extends BaseObj {
         else { // small meteor
             this.size = (Math.floor(Math.random() * 15) + 20);
         }
+        this.location.rotate = (Math.floor(Math.random() * 360));
+        this.location.transform = `rotate(${this.location.rotate}deg)`;
     }
     newTurn() {
         let rotate = (this.location.rotate + (Math.floor(Math.random() * 60) - 30));

@@ -1,12 +1,18 @@
 <div *ngIf="gameMap">
     <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
         <tr *ngFor="let row of gameMap.map">
-            <td *ngFor="let col of row" (click)="col.click()" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale">
+            <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
                 <div [style.background-color]="col.bg" style="display: flex; justify-content: center; align-items: center;">
-                    <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size">
-                    <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.rotate' style="position: absolute;">
+                    <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.transform]="col.location.transform">
+                    <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
                 </div>
             </td>
         </tr>
     </table>
+</div>
+<div *ngIf="gameInfo">
+
+    <div *ngIf="gameInfo['desc']">
+        
+    </div>
 </div>

@@ -10,29 +10,31 @@ import { BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj } from '../m
 
 
 export class GameComponent implements OnInit {
-  // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
-  exampleGameMap = [
-    [0,0,0,'a','rFighter','rScout','rSniper','rCapitol'],
-    ['bFighter',0,0,0,0,0,0,0],
-    [0,'a',0,0,'a','a',0,0],
-    [0,0,0,0,'a','a',0,0],
-    [0,'bScout','bScout',0,0,0,'a',0],
-    [0,0,0,'bSniper',0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,'a',0,0,0,0,'bCapitol',0],
-  ];
   // actual game map placeholder
   gameMap: any;
   gameScale = '50'; // affects height and width of table blocks
   gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
-  numAsteroids: number = 8;
-  numRows: number = 8;
-  numColumns: number = 8;
+  numAsteroids: number = 10; // maximum number of asteroids on map
+  numRows: number = 8; // width of map
+  numColumns: number = 8; // height of map
+  lastBlueClicked: any; // keep track of the last thing selected to remove its selection border
+  lastRedClicked: any;
+  currentPlayer: any;
+  inMove: any = false;
+  inShoot: any = false;
+  inSpecial: any = false;
+  gameInfo: any;
+
 
   constructor() { }
 
   ngOnInit() {
     this.newGame(this.randomMap());
+    this.currentPlayer = 'blue'; // going to need logic to figure out which player this is...
+    this.gameInfo = {
+      'turnNumber': this.gameMap.turn,
+      'turnPlayer': this.gameMap.playerTurn,
+    }
   }
   newGame(map: any) {
     this.gameMap = new MapObj();
@@ -53,16 +55,16 @@ export class GameComponent implements OnInit {
           this.gameMap.map[row].push(new Asteroid(+row, +col, 0, 20)); // + operator converts string to number
         }
         else if (map[row][col] == 'bFighter') {
-          this.gameMap.map[row].push(new Fighter(+row, +col, 0, 'blue'));
+          this.gameMap.map[row].push(new Fighter(+row, +col, 180, 'blue'));
         }
         else if (map[row][col] == 'bScout') {
-          this.gameMap.map[row].push(new Scout(+row, +col, 0, 'blue'));
+          this.gameMap.map[row].push(new Scout(+row, +col, 180, 'blue'));
         }
         else if (map[row][col] == 'bSniper') {
-          this.gameMap.map[row].push(new Sniper(+row, +col, 0, 'blue'));
+          this.gameMap.map[row].push(new Sniper(+row, +col, 180, 'blue'));
         }
         else if (map[row][col] == 'bCapitol') {
-          this.gameMap.map[row].push(new Capitol(+row, +col, 0, 'blue'));
+          this.gameMap.map[row].push(new Capitol(+row, +col, 180, 'blue'));
         }
         else if (map[row][col] == 'rFighter') {
           this.gameMap.map[row].push(new Fighter(+row, +col, 0, 'red'));
@@ -119,5 +121,47 @@ export class GameComponent implements OnInit {
     }
     console.log(blueprint);
     return blueprint;
+  }
+  clickGame(clicked: any, player: any){
+    // need logic for if it's the player's turn, etc
+    if (player == 'blue') { // blue player's click
+      if (this.lastBlueClicked) {
+        this.lastBlueClicked.border = "";
+      }
+      clicked.border = "1px solid cyan";
+      this.lastBlueClicked = clicked;
+
+    }
+    else { // red player's click
+      if (this.lastRedClicked) {
+        this.lastRedClicked.border = "";
+      }
+      clicked.border = "1px solid red";
+      this.lastRedClicked = clicked;
+    }
+    if (!this.inMove && !this.inShoot && !this.inSpecial) {
+      this.unitInfo(clicked);
+    }
+  }
+
+  unitInfo(unit: any){
+    if (unit instanceof BaseObj){
+      this.gameInfo['desc'] = 'Empty Space';
+    }
+    else{
+      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp} \n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+      if (unit instanceof Fighter) {
+        this.gameInfo['desc'] += `\n Missile Available: `;
+        if (unit.ammo == 1) {
+          this.gameInfo ['desc'] += `Yes`;
+        }
+        else {
+          this.gameInfo ['desc'] += `No`;
+        }
+        if (unit.missile.firing == true) {
+          this.gameInfo ['desc'] += ` (Missile en route)`;
+        }
+      }
+    }
   }
 }
