@@ -16,7 +16,7 @@
         <button (click)="cancel(currentPlayer)">Cancel Selection</button>
         <button (click)="enableMove(currentPlayer)">Move</button>
         <button (click)="enableShoot(currentPlayer)">Shoot</button>
-        <button>Special Ability</button>
+        <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
         <button (click)="endTurn(currentPlayer)">End Turn</button>
         <div *ngIf="actionText">
             <p>{{actionText}}</p>

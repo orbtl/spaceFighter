@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button>Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -533,7 +533,6 @@ let GameComponent = class GameComponent {
         return blueprint;
     }
     enableMove(player) {
-        // need logic for if it's the player's turn
         if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
             if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
                 if (player == 'blue') { // blue player
@@ -554,9 +553,9 @@ let GameComponent = class GameComponent {
         else {
             this.actionText = "It is not your turn!";
         }
+        return this;
     }
     enableShoot(player) {
-        // need logic for if it's the player's turn
         if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
             if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
                 if (player == 'blue') { // blue player
@@ -577,6 +576,73 @@ let GameComponent = class GameComponent {
         else {
             this.actionText = "It is not your turn!";
         }
+        return this;
+    }
+    enableSpecial(player) {
+        if (player == this.gameMap.playerTurn) {
+            if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+                if (player == 'blue') { // blue player
+                    this.unitToAct = this.lastBlueClicked;
+                }
+                else { // red player
+                    this.unitToAct = this.lastRedClicked;
+                }
+                if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+                    if (this.unitToAct.charged == false) {
+                        this.unitToAct.charged = true;
+                        this.unitToAct.ammo = 0;
+                        this.unitToAct.moved = true;
+                        this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
+                    }
+                }
+                else if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) {
+                    if (this.unitToAct.empAmmo > 0) {
+                        // emp stuff
+                        let row = this.unitToAct.location.row;
+                        let minRow = row;
+                        let maxRow = row;
+                        let col = this.unitToAct.location.col;
+                        let minCol = col;
+                        let maxCol = col;
+                        if ((row - 1) >= 0) {
+                            minRow = row - 1;
+                        }
+                        if ((col - 1) >= 0) {
+                            minCol = col - 1;
+                        }
+                        if ((row + 1) < this.gameMap.map.length) {
+                            maxRow = row + 1;
+                        }
+                        if ((col + 1) < this.gameMap.map[0].length) {
+                            maxCol = col + 1;
+                        }
+                        for (let i = minRow; i <= maxRow; i++) {
+                            for (let j = minCol; j <= maxCol; j++) {
+                                if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) {
+                                    this.gameMap.map[i][j].shieldHP = 0;
+                                }
+                                else if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+                                    this.gameMap.map[i][j].charged = false;
+                                }
+                            }
+                        }
+                        this.unitToAct.empAmmo = 0;
+                        this.cancel(player);
+                        this.actionText = "EMP Successfully Detonated!  All adjacent Snipers are discharged and Capitols have no shields!";
+                    }
+                    else {
+                        this.actionText = "That scout's EMP is not available";
+                    }
+                }
+                else {
+                    this.actionText = "That unit does not have a special ability";
+                }
+            }
+        }
+        else {
+            this.actionText = "It is not your turn!";
+        }
+        return this;
     }
     moveUnit(clicked, player) {
         // logic to move the unit
@@ -1044,7 +1110,7 @@ class Fighter extends BaseObj {
 }
 class Scout extends BaseObj {
     constructor(row, col, rotate, color) {
-        super(row, col, rotate, 25, 5, 3);
+        super(row, col, rotate, 25, 5, 2);
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
         this.team = color;
@@ -1078,7 +1144,7 @@ class Scout extends BaseObj {
 }
 class Sniper extends BaseObj {
     constructor(row, col, rotate, color) {
-        super(row, col, rotate, 20, 2, 12);
+        super(row, col, rotate, 20, 2, 5);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;

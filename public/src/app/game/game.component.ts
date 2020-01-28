@@ -126,7 +126,6 @@ export class GameComponent implements OnInit {
     return blueprint;
   }
   enableMove(player: any) {
-    // need logic for if it's the player's turn
     if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
       if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
         if (player == 'blue') { // blue player
@@ -145,11 +144,11 @@ export class GameComponent implements OnInit {
       }
     }
     else {
-      this.actionText = "It is not your turn!"
+      this.actionText = "It is not your turn!";
     }
+    return this;
   }
   enableShoot(player: any){
-    // need logic for if it's the player's turn
     if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
       if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
         if (player == 'blue') { // blue player
@@ -168,10 +167,77 @@ export class GameComponent implements OnInit {
       }
     }
     else {
-      this.actionText = "It is not your turn!"
+      this.actionText = "It is not your turn!";
     }
+    return this;
   }
+  enableSpecial(player: any) {
+    if (player == this.gameMap.playerTurn) {
+      if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
+        if (player == 'blue') { // blue player
+          this.unitToAct = this.lastBlueClicked;
+        }
+        else { // red player
+          this.unitToAct = this.lastRedClicked;
+        }
+        if (this.unitToAct instanceof Sniper) {
+          if (this.unitToAct.charged == false) {
+            this.unitToAct.charged = true;
+            this.unitToAct.ammo = 0;
+            this.unitToAct.moved = true;
+            this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
+          }
+        }
+        else if (this.unitToAct instanceof Scout) {
+          if (this.unitToAct.empAmmo > 0) {
+            // emp stuff
+            let row = this.unitToAct.location.row;
+            let minRow = row;
+            let maxRow = row;
+            let col = this.unitToAct.location.col;
+            let minCol = col;
+            let maxCol = col;
+            if ((row-1) >= 0) {
+              minRow = row-1;
+            }
+            if ((col-1) >= 0) {
+              minCol = col-1;
+            }
+            if ((row+1) < this.gameMap.map.length) {
+              maxRow = row+1;
+            }
+            if ((col+1) < this.gameMap.map[0].length) {
+              maxCol = col+1;
+            }
+            for (let i=minRow; i<=maxRow; i++) {
+              for (let j=minCol; j<=maxCol; j++) {
+                if (this.gameMap.map[i][j] instanceof Capitol){
+                  this.gameMap.map[i][j].shieldHP = 0;
+                }
+                else if (this.gameMap.map[i][j] instanceof Sniper) {
+                  this.gameMap.map[i][j].charged = false;
+                }
+              }
+            }
 
+            this.unitToAct.empAmmo = 0;
+            this.cancel(player);
+            this.actionText = "EMP Successfully Detonated!  All adjacent Snipers are discharged and Capitols have no shields!"
+          }
+          else {
+            this.actionText = "That scout's EMP is not available";
+          }
+        }
+        else {
+          this.actionText = "That unit does not have a special ability";
+        }
+      }
+    }
+    else {
+      this.actionText = "It is not your turn!";
+    }
+    return this;
+  }
   moveUnit(clicked: any, player: any){ // actually move a unit once validations are fine
     // logic to move the unit
     //logic to figure out rotation

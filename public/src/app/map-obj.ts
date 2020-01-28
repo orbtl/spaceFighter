@@ -116,7 +116,7 @@ export class Fighter extends BaseObj {
 export class Scout extends BaseObj {
     empAmmo: number;
     constructor (row: number, col: number, rotate: number, color: string) {
-        super(row, col, rotate, 25, 5, 3);
+        super(row, col, rotate, 25, 5, 2);
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
         this.team = color;
@@ -151,7 +151,7 @@ export class Scout extends BaseObj {
 export class Sniper extends BaseObj {
     charged: Boolean;
     constructor (row: number, col: number, rotate: number, color: string) {
-        super(row, col, rotate, 20, 2, 12);
+        super(row, col, rotate, 20, 2, 5);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;
