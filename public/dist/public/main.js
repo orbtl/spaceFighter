@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>\n<div *ngIf=\"gameInfo\">\n\n    <div *ngIf=\"gameInfo['desc']\">\n        \n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -530,7 +530,6 @@ let GameComponent = class GameComponent {
                 blueprint[mirrorCoordRow][mirrorCoordCol] = 'a';
             }
         }
-        console.log(blueprint);
         return blueprint;
     }
     clickGame(clicked, player) {
@@ -554,11 +553,14 @@ let GameComponent = class GameComponent {
         }
     }
     unitInfo(unit) {
-        if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["BaseObj"]) {
+        if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
             this.gameInfo['desc'] = 'Empty Space';
         }
         else {
-            this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp} \n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+            this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp}`;
+            if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
+                this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+            }
             if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
                 this.gameInfo['desc'] += `\n Missile Available: `;
                 if (unit.ammo == 1) {
@@ -570,6 +572,27 @@ let GameComponent = class GameComponent {
                 if (unit.missile.firing == true) {
                     this.gameInfo['desc'] += ` (Missile en route)`;
                 }
+            }
+            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) {
+                this.gameInfo['desc'] += `\n EMP Available: `;
+                if (unit.empAmmo == 1) {
+                    this.gameInfo['desc'] += `Yes`;
+                }
+                else {
+                    this.gameInfo['desc'] += `No`;
+                }
+            }
+            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+                this.gameInfo['desc'] += `\n Charged: `;
+                if (unit.charged == true) {
+                    this.gameInfo['desc'] += `Yes`;
+                }
+                else {
+                    this.gameInfo['desc'] += `No`;
+                }
+            }
+            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) {
+                this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
             }
         }
     }

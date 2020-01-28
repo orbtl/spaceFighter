@@ -11,8 +11,8 @@
     </table>
 </div>
 <div *ngIf="gameInfo">
-
-    <div *ngIf="gameInfo['desc']">
-        
+    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>
+    <div *ngIf="gameInfo['desc']" style="white-space: pre-line;">
+        <p>{{gameInfo['desc']}}</p>
     </div>
 </div>

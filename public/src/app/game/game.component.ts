@@ -119,7 +119,6 @@ export class GameComponent implements OnInit {
         blueprint[mirrorCoordRow][mirrorCoordCol] = 'a';
       }
     }
-    console.log(blueprint);
     return blueprint;
   }
   clickGame(clicked: any, player: any){
@@ -145,22 +144,46 @@ export class GameComponent implements OnInit {
   }
 
   unitInfo(unit: any){
-    if (unit instanceof BaseObj){
+    if (!(unit instanceof Fighter) && !(unit instanceof Scout) && !(unit instanceof Sniper) && !(unit instanceof Capitol) && !(unit instanceof Asteroid)){
       this.gameInfo['desc'] = 'Empty Space';
     }
     else{
-      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp} \n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.color} \n Health: ${unit.hp}`
+      if (!(unit instanceof Asteroid)) {
+        this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+      }
       if (unit instanceof Fighter) {
         this.gameInfo['desc'] += `\n Missile Available: `;
         if (unit.ammo == 1) {
-          this.gameInfo ['desc'] += `Yes`;
+          this.gameInfo['desc'] += `Yes`;
         }
         else {
-          this.gameInfo ['desc'] += `No`;
+          this.gameInfo['desc'] += `No`;
         }
         if (unit.missile.firing == true) {
-          this.gameInfo ['desc'] += ` (Missile en route)`;
+          this.gameInfo['desc'] += ` (Missile en route)`;
         }
+      }
+      else if (unit instanceof Scout) {
+        this.gameInfo['desc'] += `\n EMP Available: `;
+        if (unit.empAmmo == 1) {
+          this.gameInfo['desc'] += `Yes`;
+        }
+        else {
+          this.gameInfo['desc'] += `No`;
+        }
+      }
+      else if (unit instanceof Sniper) {
+        this.gameInfo['desc'] += `\n Charged: `;
+        if (unit.charged == true) {
+          this.gameInfo['desc'] += `Yes`;
+        }
+        else {
+          this.gameInfo['desc'] += `No`;
+        }
+      }
+      else if (unit instanceof Capitol) {
+        this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
       }
     }
   }
