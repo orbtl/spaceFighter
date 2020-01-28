@@ -12,64 +12,44 @@ import { BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj } from '../m
 export class GameComponent implements OnInit {
   // example game map example placeholder -- will need to be changed to be dynamically randomized at the start of a game
   exampleGameMap = [
-    [0,0,0,'m','rFighter','rScout','rSniper','rCapitol'],
+    [0,0,0,'a','rFighter','rScout','rSniper','rCapitol'],
     ['bFighter',0,0,0,0,0,0,0],
-    [0,'m',0,0,'m','m',0,0],
-    [0,0,0,0,'m','m',0,0],
-    [0,'bScout','bScout',0,0,0,'m',0],
+    [0,'a',0,0,'a','a',0,0],
+    [0,0,0,0,'a','a',0,0],
+    [0,'bScout','bScout',0,0,0,'a',0],
     [0,0,0,'bSniper',0,0,0,0],
     [0,0,0,0,0,0,0,0],
-    [0,'m',0,0,0,0,'bCapitol',0],
+    [0,'a',0,0,0,0,'bCapitol',0],
   ];
   // actual game map placeholder
   gameMap: any;
-  // map definitions:
-  gameMapDef = {
-    // empty space
-    0: {'name': 'empty', 'img': null},
-    // empty placeholding space for big meteors
-    'met': {'name': 'Big Meteor', 'img': null},
-    // meteors
-    'mbb1': {'name': 'meteorBrownBig1', 'img': 'assets/img/Meteors/meteorBrown_big1.png', 'size': '100'},
-    'mbb2': {'name': 'meteorBrownBig2', 'img': 'assets/img/Meteors/meteorBrown_big2.png', 'size': '100'},
-    'mbb3': {'name': 'meteorBrownBig3', 'img': 'assets/img/Meteors/meteorBrown_big3.png', 'size': '100'},
-    'mbb4': {'name': 'meteorBrownBig4', 'img': 'assets/img/Meteors/meteorBrown_big4.png', 'size': '100'},
-    'mgb1': {'name': 'meteorGreyBig1', 'img': 'assets/img/Meteors/meteorGrey_big1.png', 'size': '100'},
-    'mgb2': {'name': 'meteorGreyBig2', 'img': 'assets/img/Meteors/meteorGrey_big2.png', 'size': '100'},
-    'mgb3': {'name': 'meteorGreyBig3', 'img': 'assets/img/Meteors/meteorGrey_big3.png', 'size': '100'},
-    'mgb4': {'name': 'meteorGreyBig4', 'img': 'assets/img/Meteors/meteorGrey_big4.png', 'size': '100'},
-    'mbm1': {'name': 'meteorBrownMedium1', 'img': 'assets/img/Meteors/meteorBrown_med1.png', 'size': '50'},
-    'mbm2': {'name': 'meteorBrownMedium2', 'img': 'assets/img/Meteors/meteorBrown_med2.png', 'size': '50'},
-    'mgm1': {'name': 'meteorGreyMedium1', 'img': 'assets/img/Meteors/meteorGrey_med1.png', 'size': '50'},
-    'mgm2': {'name': 'meteorGreyMedium2', 'img': 'assets/img/Meteors/meteorGrey_med2.png', 'size': '50', 'bg': ''},
-    // player ships
-    'bFighter': {'name': 'blue fighter', 'img': 'assets/img/playerShip1_blue.png', 'size': '50'},
-    'bScout': {'name': 'blue scout', 'img': 'assets/img/playerShip2_blue.png', 'size': '50', 'imgTop': 'assets/img/Lasers/laserGreen02.png', 'imgTopPosX': '20px', 'imgTopPosY': '0px', 'imgTopAlpha': '0.7', 'imgTopRotate': 'rotate(45deg)'},
-    'bSniper': {'name': 'blue sniper', 'img': 'assets/img/playerShip3_blue.png', 'size': '50'},
-    'bCapitol': {'name': 'blue capitol', 'img': 'assets/img/ufoBlue.png', 'size': '50'},
-    'rFighter': {'name': 'red fighter', 'img': 'assets/img/playerShip1_red.png', 'size': '50'},
-    'rScout': {'name': 'red scout', 'img': 'assets/img/playerShip2_red.png', 'size': '50'},
-    'rSniper': {'name': 'red sniper', 'img': 'assets/img/playerShip3_red.png', 'size': '50'},
-    'rCapitol': {'name': 'red capitol', 'img': 'assets/img/ufored.png', 'size': '50'},
-  }
   gameScale = '50'; // affects height and width of table blocks
   gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
+  numAsteroids: number = 8;
+  numRows: number = 8;
+  numColumns: number = 8;
 
   constructor() { }
 
   ngOnInit() {
-    this.newGame(this.exampleGameMap);
+    this.newGame(this.randomMap());
   }
   newGame(map: any) {
     this.gameMap = new MapObj();
     this.generateMap(map);
+    //debugging
+    // this.gameMap.map[4][1].imgTop = {
+    //   'img': 'assets/img/Lasers/laserGreen02.png',
+    //   'alpha': 0.7,
+    //   'rotate': 'rotate(45deg)',
+    // };
   }
   generateMap(map: any){
     this.gameMap.map = [];
     for (let row in map){
       this.gameMap.map.push([]);
       for (let col in map[row]){
-        if (map[row][col] == 'm') {
+        if (map[row][col] == 'a') {
           this.gameMap.map[row].push(new Asteroid(+row, +col, 0, 20)); // + operator converts string to number
         }
         else if (map[row][col] == 'bFighter') {
@@ -102,5 +82,42 @@ export class GameComponent implements OnInit {
       }
     }
   }
-  
+  randomMap(){
+    let blueprint = [];
+    for (let i=0; i<this.numRows; i++) {
+      blueprint.push([]);
+      for (let j=0; j<this.numColumns; j++) {
+        blueprint[i].push(0);
+      }
+    }
+    blueprint[0][0] = "bCapitol";
+    blueprint[0][1] = "bSniper";
+    blueprint[1][0] = "bFighter";
+    blueprint[1][1] = "bScout";
+    blueprint[blueprint.length-1][blueprint[0].length-1] = "rCapitol";
+    blueprint[blueprint.length-1][blueprint[0].length-2] = "rSniper";
+    blueprint[blueprint.length-2][blueprint[0].length-1] = "rFighter";
+    blueprint[blueprint.length-2][blueprint[0].length-2] = "rScout";
+    // random asteroids
+    let asteroidsMade = 0;
+    let asteroidArray = [];
+    while (asteroidsMade < (this.numAsteroids/2)) { // only go to half hte number of asteroids to mirro the playing field
+      let randRow = (Math.floor(Math.random()*blueprint.length));
+      let randCol = (Math.floor(Math.random()*blueprint[0].length));
+      if (blueprint[randRow][randCol] == 0) {
+        blueprint[randRow][randCol] = 'a';
+        asteroidsMade ++;
+        asteroidArray.push([randRow, randCol]);
+      }
+    }
+    for (let asteroidToMirror of asteroidArray){ // mirroring the playing field for balance
+      let mirrorCoordRow = (blueprint.length - asteroidToMirror[0] - 1);
+      let mirrorCoordCol = (blueprint[0].length - asteroidToMirror[1] - 1);
+      if (blueprint[mirrorCoordRow][mirrorCoordCol] == 0) {
+        blueprint[mirrorCoordRow][mirrorCoordCol] = 'a';
+      }
+    }
+    console.log(blueprint);
+    return blueprint;
+  }
 }

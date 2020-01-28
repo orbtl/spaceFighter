@@ -4,7 +4,7 @@
             <td *ngFor="let col of row" (click)="col.click()" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale">
                 <div [style.background-color]="col.bg" style="display: flex; justify-content: center; align-items: center;">
                     <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size">
-                    <img *ngIf="col.imgTop" [src]="col.imgTop" [style.right]='col.imgTopPosX' [style.top]='col.imgTopPosY' [style.opacity]='col.imgTopAlpha' [style.transform]='col.imgTopRotate' style="position: absolute;">
+                    <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.rotate' style="position: absolute;">
                 </div>
             </td>
         </tr>

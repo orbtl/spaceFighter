@@ -7,7 +7,7 @@ export class BaseObj {
     }
     hp: number;
     img: String;
-    imgTop: String;
+    imgTop: any;
     bg: String;
     speed: number;
     range: number;
