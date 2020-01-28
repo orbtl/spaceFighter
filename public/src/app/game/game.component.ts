@@ -25,6 +25,7 @@ export class GameComponent implements OnInit {
   inSpecial: any = false;
   gameInfo: any;
   moveable: any;
+  shootInRange: any;
   shootable: any;
   unitToAct: any;
   actionText: any;
@@ -203,10 +204,26 @@ export class GameComponent implements OnInit {
           item.bg = '';
         }
       }
+      if (this.shootInRange) { // clear old yellow border highlights
+        for (let item of this.shootInRange){
+          item.border = '';
+        }
+      }
       this.shootable = [];
+      this.shootInRange = [];
       this.moveable = [];
-      if (clicked.moved == false && player == clicked.team) {
-        this.moveRange(clicked.location.row, clicked.location.col, clicked.speed)
+      if (player == clicked.team) {
+        if (clicked.moved == false) {
+          this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
+        }
+        if (clicked.ammo > 0) {
+          if (clicked instanceof Fighter) {
+            this.shootRange(clicked.location.row, clicked.location.col, clicked.range, true);
+          }
+          else {
+            this.shootRange(clicked.location.row, clicked.location.col, clicked.range, false);
+          }
+        }
       }
     }
     else if (this.inMove) { // Player has selected Move
@@ -232,27 +249,102 @@ export class GameComponent implements OnInit {
     }
   }
 
+  shootRange(startRow: number, startCol: number, range: number, missile: boolean, currRow=startRow, currCol=startCol, dir='') { // using dir to keep track of direction so we are just traveling in one direction to deal with line of sight
+    if (!(currRow == startRow && currCol == startCol)) { // make sure we don't make the ship able to fire on itself
+      let item = this.gameMap.map[currRow][currCol];
+      if (this.shootInRange.indexOf(item) == -1) { // add item to in shooting range list if not already there
+        item.border = '1px solid yellow';
+        this.shootInRange.push(item);
+        if (item.hp > 0 && item.team != this.currentPlayer) { // it's a shootable unit not on the player's team
+          item.bg = 'rgba(255,255,0,0.3)'
+          this.shootable.push(item);
+          return this; // break out and stop moving forward if you hit an actual shootable object
+        }
+      }
+    }
+    if (range < 1) { // break case when range gets down to 0
+      return this;
+    }
+    if (missile) { // missiles can go around rocks don't need line of sight
+      if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){ // check up
+        this.shootRange(startRow, startCol, range-1, true, currRow-1, currCol);
+      }
+      if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){ // check left
+        this.shootRange(startRow, startCol, range-1, true, currRow, currCol-1);
+      }
+      if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){ // check down
+        this.shootRange(startRow, startCol, range-1, true, currRow+1, currCol);
+      }
+      if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){ // check right
+        this.shootRange(startRow, startCol, range-1, true, currRow, currCol+1);
+      }
+    }
+    else { // regular guns
+      if (dir == '' || dir == 'N') {
+        if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){ // check N
+          this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol, 'N');
+        }
+      }
+      if (dir == '' || dir == 'NW') {
+        if ((currRow-1) >= 0 && (currCol-1) >= 0 && this.gameMap.map[currRow-1][currCol-1].hp == 0){ // check NW
+          this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol-1, 'NW');
+        }
+      }
+      if (dir == '' || dir == 'W') {
+        if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){ // check W
+          this.shootRange(startRow, startCol, range-1, false, currRow, currCol-1, 'W');
+        }
+      }
+      if (dir == '' || dir == 'SW') {
+        if ((currCol-1) >= 0 && (currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol-1].hp == 0){ // check SW
+          this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol-1, 'SW');
+        }
+      }
+      if (dir == '' || dir == 'S') {
+        if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){ // check S
+          this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol, 'S');
+        }
+      }
+      if (dir == '' || dir == 'SE') {
+        if ((currRow+1) < this.gameMap.map.length && (currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow+1][currCol+1].hp == 0){ // check SE
+          this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol+1, 'SE');
+        }
+      }
+      if (dir == '' || dir == 'E') {
+        if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){ // check E
+          this.shootRange(startRow, startCol, range-1, false, currRow, currCol+1, 'E');
+        }
+      }
+      if (dir == '' || dir == 'NE') {
+        if ((currCol+1) < this.gameMap.map[0].length && (currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol+1].hp == 0){ // check NE
+          this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol+1, 'NE');
+        }
+      }
+    }
+    return this;
+  }
+
   moveRange(startRow: number, startCol: number, range: number, currRow=startRow, currCol=startCol) { // recursive function to check which spaces a given unit can move to
     if (!(currRow == startRow && currCol == startCol)) { // make sure we aren't making the start location moveable to
       let item = this.gameMap.map[currRow][currCol];
       if (this.moveable.indexOf(item) == -1) { // add item to moveable list if not already in there
-        item.bg = 'green';
+        item.bg = 'rgba(0,255,0,0.3)';
         this.moveable.push(item);
       }
     }
     if (range < 1) { // break case when range gets down to 0
       return this;
     }
-    if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){
+    if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){ // check up
       this.moveRange(startRow, startCol, range-1, currRow-1, currCol);
     }
-    if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){
+    if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){ // check left
       this.moveRange(startRow, startCol, range-1, currRow, currCol-1);
     }
-    if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){
+    if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){ // check down
       this.moveRange(startRow, startCol, range-1, currRow+1, currCol);
     }
-    if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){
+    if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){ // check right
       this.moveRange(startRow, startCol, range-1, currRow, currCol+1);
     }
     return this;
@@ -265,6 +357,11 @@ export class GameComponent implements OnInit {
       if (this.moveable) {
         for (let item of this.moveable) {
           item.bg = '';
+        }
+      }
+      if (this.shootInRange) {
+        for (let item of this.shootInRange) {
+          item.border = '';
         }
       }
     }
