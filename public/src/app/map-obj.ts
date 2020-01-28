@@ -55,6 +55,10 @@ export class BaseObj {
             else {
                 amount = 0;
             }
+            if (this.shieldHP <= 0) {
+                this.shieldHP = 0;
+                this.imgTop = null;
+            }
         }
         this.hp -= amount;
         if (this.hp <= 0) {
@@ -65,21 +69,34 @@ export class BaseObj {
     die() {
         this.hp = 0;
         var self = this;
+        var exploded = 0;
         var fade = setInterval(function() {
-            let alpha = parseFloat(self.imgAlpha);
-            console.log(alpha);
-            if (alpha <= 0) {
-                clearInterval(fade);
+            if (exploded <= 40) { // explosion gif
+                self.imgTop = {
+                    'img': 'assets/img/Effects/explosion.gif',
+                    'alpha': 1,
+                    'transform': `rotate(${exploded*2}deg)`,
+                    'size': 50,
+                };
+                exploded ++;
+            }
+            if (exploded >= 30) { // fade
+                let alpha = parseFloat(self.imgAlpha);
+                if (alpha <= 0) {
+                    clearInterval(fade);
+                    self.bg = '';
+                    return this;
+                }
+                else {
+                    alpha -= 0.03;
+                    self.imgAlpha = alpha.toString();
+                    console.log(self.imgAlpha);
+                }
+            }
+            if (exploded > 40) {
                 self.imgTop = null;
-                self.bg = '';
-                return this;
             }
-            else {
-                alpha -= 0.03;
-                self.imgAlpha = alpha.toString();
-                console.log(self.imgAlpha);
-            }
-        }, 10);
+        }, 10); // interval ms
     }
 }
 
@@ -106,6 +123,7 @@ export class Fighter extends BaseObj {
             'img': 'assets/img/Power-ups/pill_yellow.png',
             'alpha': 1,
             'transform': '',
+            'size': 22,
         }
         return this;
     }
@@ -209,6 +227,12 @@ export class Capitol extends BaseObj {
         this.ammo = 2;
         this.img = `assets/img/ufo${color}.png`;
         this.team = color;
+        this.imgTop = {
+            'img': 'assets/img/Effects/shield3.png',
+            'alpha': '1',
+            'transform': '',
+            'size': 60,
+        };
     }
     shoot(targetObj: any) {
         try {
@@ -221,6 +245,15 @@ export class Capitol extends BaseObj {
     newTurn(){
         this.ammo = 2;
         this.shieldHP += 10;
+        if (this.shieldHP > 100) {
+            this.shieldHP = 100;
+        }
+        this.imgTop = {
+            'img': 'assets/img/Effects/shield3.png',
+            'alpha': (this.shieldHP / 100),
+            'transform': '',
+            'size': 60,
+        }
     }
     die(){
         console.log('Game over');

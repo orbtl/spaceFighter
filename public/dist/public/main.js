@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -656,6 +656,8 @@ let GameComponent = class GameComponent {
                             for (let j = minCol; j <= maxCol; j++) {
                                 if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) {
                                     this.gameMap.map[i][j].shieldHP = 0;
+                                    this.gameMap.map[i][j].imgTop = null;
+                                    this.gameMap.map[i][j].imgTopLast = null;
                                 }
                                 else if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
                                     this.gameMap.map[i][j].charged = false;
@@ -814,6 +816,7 @@ let GameComponent = class GameComponent {
                             'img': 'assets/img/UI/numeralX.png',
                             'alpha': '0.8',
                             'transform': '',
+                            'size': 17,
                         };
                         this.shootable.push(item);
                     }
@@ -1092,6 +1095,10 @@ class BaseObj {
             else {
                 amount = 0;
             }
+            if (this.shieldHP <= 0) {
+                this.shieldHP = 0;
+                this.imgTop = null;
+            }
         }
         this.hp -= amount;
         if (this.hp <= 0) {
@@ -1102,21 +1109,34 @@ class BaseObj {
     die() {
         this.hp = 0;
         var self = this;
+        var exploded = 0;
         var fade = setInterval(function () {
-            let alpha = parseFloat(self.imgAlpha);
-            console.log(alpha);
-            if (alpha <= 0) {
-                clearInterval(fade);
+            if (exploded <= 40) { // explosion gif
+                self.imgTop = {
+                    'img': 'assets/img/Effects/explosion.gif',
+                    'alpha': 1,
+                    'transform': `rotate(${exploded * 2}deg)`,
+                    'size': 50,
+                };
+                exploded++;
+            }
+            if (exploded >= 30) { // fade
+                let alpha = parseFloat(self.imgAlpha);
+                if (alpha <= 0) {
+                    clearInterval(fade);
+                    self.bg = '';
+                    return this;
+                }
+                else {
+                    alpha -= 0.03;
+                    self.imgAlpha = alpha.toString();
+                    console.log(self.imgAlpha);
+                }
+            }
+            if (exploded > 40) {
                 self.imgTop = null;
-                self.bg = '';
-                return this;
             }
-            else {
-                alpha -= 0.03;
-                self.imgAlpha = alpha.toString();
-                console.log(self.imgAlpha);
-            }
-        }, 10);
+        }, 10); // interval ms
     }
 }
 class Fighter extends BaseObj {
@@ -1141,6 +1161,7 @@ class Fighter extends BaseObj {
             'img': 'assets/img/Power-ups/pill_yellow.png',
             'alpha': 1,
             'transform': '',
+            'size': 22,
         };
         return this;
     }
@@ -1241,6 +1262,12 @@ class Capitol extends BaseObj {
         this.ammo = 2;
         this.img = `assets/img/ufo${color}.png`;
         this.team = color;
+        this.imgTop = {
+            'img': 'assets/img/Effects/shield3.png',
+            'alpha': '1',
+            'transform': '',
+            'size': 60,
+        };
     }
     shoot(targetObj) {
         try {
@@ -1254,6 +1281,15 @@ class Capitol extends BaseObj {
     newTurn() {
         this.ammo = 2;
         this.shieldHP += 10;
+        if (this.shieldHP > 100) {
+            this.shieldHP = 100;
+        }
+        this.imgTop = {
+            'img': 'assets/img/Effects/shield3.png',
+            'alpha': (this.shieldHP / 100),
+            'transform': '',
+            'size': 60,
+        };
     }
     die() {
         console.log('Game over');

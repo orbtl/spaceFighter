@@ -249,6 +249,8 @@ export class GameComponent implements OnInit {
               for (let j=minCol; j<=maxCol; j++) {
                 if (this.gameMap.map[i][j] instanceof Capitol){
                   this.gameMap.map[i][j].shieldHP = 0;
+                  this.gameMap.map[i][j].imgTop = null;
+                  this.gameMap.map[i][j].imgTopLast = null;
                 }
                 else if (this.gameMap.map[i][j] instanceof Sniper) {
                   this.gameMap.map[i][j].charged = false;
@@ -417,6 +419,7 @@ export class GameComponent implements OnInit {
               'img': 'assets/img/UI/numeralX.png',
               'alpha': '0.8',
               'transform': '',
+              'size': 17,
             }
             this.shootable.push(item);
           }
