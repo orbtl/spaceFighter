@@ -6,10 +6,11 @@ export class BaseObj {
         'transform': 'rotate(0deg)',
     }
     hp: number;
-    img: String;
+    img: string;
+    imgAlpha: string;
     imgTop: any;
     imgTopLast: any;
-    bg: String;
+    bg: string;
     speed: number;
     range: number;
     ammo: number;
@@ -33,6 +34,7 @@ export class BaseObj {
         this.border = "";
         this.team = "neutral";
         this.moved = false;
+        this.imgAlpha = "1";
     }
     click(){
         console.log('clicked an empty space');
@@ -62,11 +64,22 @@ export class BaseObj {
     }
     die() {
         this.hp = 0;
-        this.img = null;
-        this.imgTop = null;
-        this.bg = null;
-        // maybe have code in here to change the entry to a different map null object?
-        return this;
+        var self = this;
+        var fade = setInterval(function() {
+            let alpha = parseFloat(self.imgAlpha);
+            console.log(alpha);
+            if (alpha <= 0) {
+                clearInterval(fade);
+                self.imgTop = null;
+                self.bg = '';
+                return this;
+            }
+            else {
+                alpha -= 0.03;
+                self.imgAlpha = alpha.toString();
+                console.log(self.imgAlpha);
+            }
+        }, 10);
     }
 }
 

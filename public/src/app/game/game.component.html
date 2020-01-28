@@ -4,7 +4,7 @@
             <tr *ngFor="let row of gameMap.map">
                 <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.background-color]="col.bg" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
                     <div [style.width]="gameScale" [style.height]="gameScale" style="display: flex; justify-content: center; align-items: center;">
-                        <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.transform]="col.location.transform">
+                        <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.opacity]="col.imgAlpha" [style.transform]="col.location.transform">
                         <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
                         
                     </div>
