@@ -536,10 +536,22 @@ let GameComponent = class GameComponent {
         if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
             if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
                 if (player == 'blue') { // blue player
-                    this.unitToAct = this.lastBlueClicked;
+                    if (this.lastBlueClicked) {
+                        this.unitToAct = this.lastBlueClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 else { // red player
-                    this.unitToAct = this.lastRedClicked;
+                    if (this.lastRedClicked) {
+                        this.unitToAct = this.lastRedClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 if (this.unitToAct.moved == false) {
                     this.inMove = true;
@@ -559,10 +571,22 @@ let GameComponent = class GameComponent {
         if (player == this.gameMap.playerTurn) { // it's this player's turn and they should be able to move
             if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
                 if (player == 'blue') { // blue player
-                    this.unitToAct = this.lastBlueClicked;
+                    if (this.lastBlueClicked) {
+                        this.unitToAct = this.lastBlueClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 else { // red player
-                    this.unitToAct = this.lastRedClicked;
+                    if (this.lastRedClicked) {
+                        this.unitToAct = this.lastRedClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 if (this.unitToAct.ammo > 0) {
                     this.inShoot = true;
@@ -582,10 +606,22 @@ let GameComponent = class GameComponent {
         if (player == this.gameMap.playerTurn) {
             if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
                 if (player == 'blue') { // blue player
-                    this.unitToAct = this.lastBlueClicked;
+                    if (this.lastBlueClicked) {
+                        this.unitToAct = this.lastBlueClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 else { // red player
-                    this.unitToAct = this.lastRedClicked;
+                    if (this.lastRedClicked) {
+                        this.unitToAct = this.lastRedClicked;
+                    }
+                    else {
+                        this.actionText = "You must first select a unit";
+                        return this;
+                    }
                 }
                 if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
                     if (this.unitToAct.charged == false) {
@@ -904,14 +940,18 @@ let GameComponent = class GameComponent {
             this.moveable = [];
             this.shootInRange = [];
             this.shootable = [];
+            this.unitToAct = null;
         }
         if (player == 'blue' && this.lastBlueClicked) {
             this.lastBlueClicked.border = "";
+            this.lastBlueClicked = null;
         }
         else if (player == 'red' && this.lastRedClicked) {
             this.lastRedClicked.border = "";
+            this.lastRedClicked = null;
         }
         this.actionText = "";
+        return this;
     }
     endTurn(player) {
         this.cancel(player);
