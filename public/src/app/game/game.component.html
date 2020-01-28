@@ -1,14 +1,23 @@
-<div *ngIf="gameMap">
-    <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
-        <tr *ngFor="let row of gameMap.map">
-            <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
-                <div [style.background-color]="col.bg" style="display: flex; justify-content: center; align-items: center;">
-                    <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.transform]="col.location.transform">
-                    <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
-                </div>
-            </td>
-        </tr>
-    </table>
+<div style="display: block;">
+    <div *ngIf="gameMap" style="display: inline-block">
+        <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
+            <tr *ngFor="let row of gameMap.map">
+                <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.background-color]="col.bg" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
+                    <div [style.width]="gameScale" [style.height]="gameScale" style="display: flex; justify-content: center; align-items: center;">
+                        <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.transform]="col.location.transform">
+                        <img *ngIf="col.imgTop" [src]="col.imgTop.img" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
+                        
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="display: inline-block; vertical-align: top;">
+        <button (click)="cancel(currentPlayer)">Cancel Selection</button>
+        <button>Move</button>
+        <button>Shoot</button>
+        <button>Special Ability</button>
+    </div>
 </div>
 <div *ngIf="gameInfo">
     <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>

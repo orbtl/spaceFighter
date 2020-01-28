@@ -24,7 +24,8 @@ export class GameComponent implements OnInit {
   inShoot: any = false;
   inSpecial: any = false;
   gameInfo: any;
-
+  moveable: any;
+  shootable: any;
 
   constructor() { }
 
@@ -140,9 +141,58 @@ export class GameComponent implements OnInit {
     }
     if (!this.inMove && !this.inShoot && !this.inSpecial) {
       this.unitInfo(clicked);
+      if (this.moveable) { // clear old green bg highlights
+        for (let item of this.moveable) {
+          item.bg = '';
+        }
+      }
+      this.moveable = [];
+      this.shootable = [];
+      if (player == clicked.team){
+        this.moveRange(clicked.location.row, clicked.location.col, clicked.speed)
+        console.log(this.moveable);
+      }
     }
   }
+  moveRange(startRow: number, startCol: number, range: number, currRow=startRow, currCol=startCol) { // recursive function to check which spaces a given unit can move to
+    if (!(currRow == startRow && currCol == startCol)) { // make sure we aren't making the start location moveable to
+      let item = this.gameMap.map[currRow][currCol];
+      if (this.moveable.indexOf(item) == -1) { // add item to moveable list if not already in there
+        item.bg = 'green';
+        this.moveable.push(item);
+      }
+    }
+    if (range < 1) { // break case when range gets down to 0
+      return this;
+    }
+    if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){
+      this.moveRange(startRow, startCol, range-1, currRow-1, currCol);
+    }
+    if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){
+      this.moveRange(startRow, startCol, range-1, currRow, currCol-1);
+    }
+    if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){
+      this.moveRange(startRow, startCol, range-1, currRow+1, currCol);
+    }
+    if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){
+      this.moveRange(startRow, startCol, range-1, currRow, currCol+1);
+    }
+    return this;
+  }
+  cancel(player: any){
+    if (player == this.gameMap.playerTurn){
+      this.inMove = false;
+      this.inShoot = false;
+      this.inSpecial = false;
+    }
+    if (player == 'blue' && this.lastBlueClicked) {
+      this.lastBlueClicked.border = "";
+    }
+    else if (player == 'red' && this.lastRedClicked) {
+      this.lastRedClicked.border = "";
+    }
 
+  }
   unitInfo(unit: any){
     if (!(unit instanceof Fighter) && !(unit instanceof Scout) && !(unit instanceof Sniper) && !(unit instanceof Capitol) && !(unit instanceof Asteroid)){
       this.gameInfo['desc'] = 'Empty Space';

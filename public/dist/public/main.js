@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div *ngIf=\"gameMap\">\n    <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n        <tr *ngFor=\"let row of gameMap.map\">\n            <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                <div [style.background-color]=\"col.bg\" style=\"display: flex; justify-content: center; align-items: center;\">\n                    <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                    <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                </div>\n            </td>\n        </tr>\n    </table>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button>Move</button>\n        <button>Shoot</button>\n        <button>Special Ability</button>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
 
 /***/ }),
 
@@ -550,6 +550,55 @@ let GameComponent = class GameComponent {
         }
         if (!this.inMove && !this.inShoot && !this.inSpecial) {
             this.unitInfo(clicked);
+            if (this.moveable) { // clear old green bg highlights
+                for (let item of this.moveable) {
+                    item.bg = '';
+                }
+            }
+            this.moveable = [];
+            this.shootable = [];
+            if (player == clicked.team) {
+                this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
+                console.log(this.moveable);
+            }
+        }
+    }
+    moveRange(startRow, startCol, range, currRow = startRow, currCol = startCol) {
+        if (!(currRow == startRow && currCol == startCol)) { // make sure we aren't making the start location moveable to
+            let item = this.gameMap.map[currRow][currCol];
+            if (this.moveable.indexOf(item) == -1) { // add item to moveable list if not already in there
+                item.bg = 'green';
+                this.moveable.push(item);
+            }
+        }
+        if (range < 1) { // break case when range gets down to 0
+            return this;
+        }
+        if ((currRow - 1) >= 0 && this.gameMap.map[currRow - 1][currCol].hp == 0) {
+            this.moveRange(startRow, startCol, range - 1, currRow - 1, currCol);
+        }
+        if ((currCol - 1) >= 0 && this.gameMap.map[currRow][currCol - 1].hp == 0) {
+            this.moveRange(startRow, startCol, range - 1, currRow, currCol - 1);
+        }
+        if ((currRow + 1) < this.gameMap.map.length && this.gameMap.map[currRow + 1][currCol].hp == 0) {
+            this.moveRange(startRow, startCol, range - 1, currRow + 1, currCol);
+        }
+        if ((currCol + 1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol + 1].hp == 0) {
+            this.moveRange(startRow, startCol, range - 1, currRow, currCol + 1);
+        }
+        return this;
+    }
+    cancel(player) {
+        if (player == this.gameMap.playerTurn) {
+            this.inMove = false;
+            this.inShoot = false;
+            this.inSpecial = false;
+        }
+        if (player == 'blue' && this.lastBlueClicked) {
+            this.lastBlueClicked.border = "";
+        }
+        else if (player == 'red' && this.lastRedClicked) {
+            this.lastRedClicked.border = "";
         }
     }
     unitInfo(unit) {
