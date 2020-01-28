@@ -209,6 +209,11 @@ export class GameComponent implements OnInit {
           item.border = '';
         }
       }
+      if (this.shootable) { // clear old bg highlights
+        for (let item of this.shootable) {
+          item.imgTop = null;
+        }
+      }
       this.shootable = [];
       this.shootInRange = [];
       this.moveable = [];
@@ -253,70 +258,78 @@ export class GameComponent implements OnInit {
     if (!(currRow == startRow && currCol == startCol)) { // make sure we don't make the ship able to fire on itself
       let item = this.gameMap.map[currRow][currCol];
       if (this.shootInRange.indexOf(item) == -1) { // add item to in shooting range list if not already there
-        item.border = '1px solid yellow';
-        this.shootInRange.push(item);
-        if (item.hp > 0 && item.team != this.currentPlayer) { // it's a shootable unit not on the player's team
-          item.bg = 'rgba(255,255,0,0.3)'
-          this.shootable.push(item);
-          return this; // break out and stop moving forward if you hit an actual shootable object
+        if (item.team != this.currentPlayer || missile == true) { // only allow targeting of one's own ships if it's a missile
+          item.border = '1px solid yellow';
+          this.shootInRange.push(item);
+          if (item.hp > 0 || missile == true) { // it's a shootable unit or user is firing missiles which can target any location
+            item.imgTop = {
+              'img': 'assets/img/UI/numeralX.png',
+              'alpha': '0.8',
+              'transform': '',
+            }
+            this.shootable.push(item);
+          }
         }
+      }
+      if (item.hp > 0) { // break out and stop moving forward if you hit an actual shootable object regardless of which team
+        return this;
       }
     }
     if (range < 1) { // break case when range gets down to 0
       return this;
     }
     if (missile) { // missiles can go around rocks don't need line of sight
-      if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){ // check up
+      if ((currRow-1) >= 0){ // check up
         this.shootRange(startRow, startCol, range-1, true, currRow-1, currCol);
       }
-      if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){ // check left
+      if ((currCol-1) >= 0){ // check left
         this.shootRange(startRow, startCol, range-1, true, currRow, currCol-1);
       }
-      if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){ // check down
+      if ((currRow+1) < this.gameMap.map.length){ // check down
         this.shootRange(startRow, startCol, range-1, true, currRow+1, currCol);
       }
-      if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){ // check right
+      if ((currCol+1) < this.gameMap.map[0].length){ // check right
         this.shootRange(startRow, startCol, range-1, true, currRow, currCol+1);
       }
     }
     else { // regular guns
       if (dir == '' || dir == 'N') {
-        if ((currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol].hp == 0){ // check N
+        if ((currRow-1) >= 0){ // check N
           this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol, 'N');
         }
       }
       if (dir == '' || dir == 'NW') {
-        if ((currRow-1) >= 0 && (currCol-1) >= 0 && this.gameMap.map[currRow-1][currCol-1].hp == 0){ // check NW
+        if ((currRow-1) >= 0 && (currCol-1) >= 0){ // check NW
           this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol-1, 'NW');
         }
       }
       if (dir == '' || dir == 'W') {
-        if ((currCol-1) >= 0 && this.gameMap.map[currRow][currCol-1].hp == 0){ // check W
+        if ((currCol-1) >= 0){ // check W
           this.shootRange(startRow, startCol, range-1, false, currRow, currCol-1, 'W');
         }
       }
       if (dir == '' || dir == 'SW') {
-        if ((currCol-1) >= 0 && (currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol-1].hp == 0){ // check SW
+        if ((currCol-1) >= 0 && (currRow+1) < this.gameMap.map.length){ // check SW
           this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol-1, 'SW');
         }
       }
       if (dir == '' || dir == 'S') {
-        if ((currRow+1) < this.gameMap.map.length && this.gameMap.map[currRow+1][currCol].hp == 0){ // check S
+        if ((currRow+1) < this.gameMap.map.length){ // check S
           this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol, 'S');
         }
       }
       if (dir == '' || dir == 'SE') {
-        if ((currRow+1) < this.gameMap.map.length && (currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow+1][currCol+1].hp == 0){ // check SE
+        if ((currRow+1) < this.gameMap.map.length && (currCol+1) < this.gameMap.map[0].length){ // check SE
           this.shootRange(startRow, startCol, range-1, false, currRow+1, currCol+1, 'SE');
         }
       }
       if (dir == '' || dir == 'E') {
-        if ((currCol+1) < this.gameMap.map[0].length && this.gameMap.map[currRow][currCol+1].hp == 0){ // check E
+        if ((currCol+1) < this.gameMap.map[0].length){ // check E
           this.shootRange(startRow, startCol, range-1, false, currRow, currCol+1, 'E');
         }
       }
       if (dir == '' || dir == 'NE') {
-        if ((currCol+1) < this.gameMap.map[0].length && (currRow-1) >= 0 && this.gameMap.map[currRow-1][currCol+1].hp == 0){ // check NE
+        if ((currCol+1) < this.gameMap.map[0].length && (currRow-1) >= 0){ // check NE
           this.shootRange(startRow, startCol, range-1, false, currRow-1, currCol+1, 'NE');
         }
       }
@@ -362,6 +375,11 @@ export class GameComponent implements OnInit {
       if (this.shootInRange) {
         for (let item of this.shootInRange) {
           item.border = '';
+        }
+      }
+      if (this.shootable) {
+        for (let item of this.shootable) {
+          item.imgTop = null;
         }
       }
     }
