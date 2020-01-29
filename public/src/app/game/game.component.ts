@@ -125,6 +125,7 @@ export class GameComponent implements OnInit {
       'turnPlayer': this.gameMap.playerTurn,
     }
     console.log('Finished processing map data received and generating new object instances');
+    this.actionText = `Map Loaded from Server.  Your team is: ${this.currentPlayer}`;
     return this;
   }
 
@@ -132,6 +133,7 @@ export class GameComponent implements OnInit {
     this.gameMap = new MapObj();
     this.generateMap(map);
     this._gameService.sendMap(this.gameMap);
+    this.actionText = `New Map/Game started.  Your team is ${this.currentPlayer}`;
     return this;
   }
   generateMap(map: any){
@@ -323,10 +325,23 @@ export class GameComponent implements OnInit {
   doSpecial(specialFrom: any, player: any){
     if (specialFrom.name == 'Sniper') {
       if (specialFrom.charged == false) {
-        specialFrom.charged = true;
-        specialFrom.ammo = 0;
-        specialFrom.moved = true;
-        this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
+        if (specialFrom.moved == false) {
+          if (specialFrom.ammo > 0) {
+            specialFrom.charged = true;
+            specialFrom.ammo = 0;
+            specialFrom.moved = true;
+            this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
+          }
+          else {
+            this.actionText = "A sniper cannot charge in the same turn that it shoots!";
+          }
+        }
+        else {
+          this.actionText = "A sniper cannot charge in the same turn that it moves!";
+        }
+      }
+      else {
+        this.actionText = "This sniper is already charged!";
       }
     }
     else if (specialFrom.name == 'Scout') {
@@ -374,6 +389,7 @@ export class GameComponent implements OnInit {
     else {
       this.actionText = "That unit does not have a special ability";
     }
+    return this;
   }
 
   moveUnitLocal(moveTo: any, moveFrom: any, player: any){
@@ -747,9 +763,16 @@ export class GameComponent implements OnInit {
         this.actionText = "You (blue) ended your turn.  It is now your opponent (red)'s turn.";
       }
     }
+    this.newTurn(player);
+    return this;
+  }
+  newTurn(player: any) {
     for (let row of this.gameMap.map) {
       for (let col of row) {
         if (col.team == this.gameMap.playerTurn) {
+          if (col.name == "Fighter" && col.missile.firing == true) {
+            this.detonateMissile(col.missile.target.row, col.missile.target.col);
+          }
           col.newTurn();
         }
       }
@@ -758,8 +781,38 @@ export class GameComponent implements OnInit {
     this.gameInfo['turnPlayer'] = this.gameMap.playerTurn;
     return this;
   }
-  newTurn(player: any) {
-
+  detonateMissile(targetRow, targetCol){
+    let minRow = targetRow;
+    let maxRow = targetRow;
+    let minCol = targetCol;
+    let maxCol = targetCol;
+    if ((targetRow-1) >= 0) {
+      minRow = targetRow-1;
+    }
+    if ((targetRow+1) < this.gameMap.map.length) {
+      maxRow = targetRow+1;
+    }
+    if ((targetCol-1) >= 0) {
+      minCol = targetCol-1;
+    }
+    if ((targetCol+1) < this.gameMap.map[0].length) {
+      maxCol = targetCol+1;
+    }
+    let totalDmg = 0;
+    let targetsHit = 0;
+    for (let row=minRow; row<=maxRow; row++){
+      for (let col=minCol; col<=maxCol; col++) {
+        let originalHP = this.gameMap.map[row][col].hp;
+        this.gameMap.map[row][col].takeDmg(60);
+        let missileDmg = originalHP - this.gameMap.map[row][col].hp;
+        totalDmg += missileDmg;
+        if (missileDmg > 0) {
+          targetsHit += 1;
+        }
+      }
+    }
+    this.actionText = `Missile detonated, hitting ${targetsHit} targets for a sum total of ${totalDmg} Damage!`;
+    return this;
   }
 
   unitInfo(unit: any){

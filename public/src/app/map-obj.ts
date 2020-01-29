@@ -131,13 +131,13 @@ export class Fighter extends BaseObj {
     }
     newTurn(){
         if (this.missile.firing == true) {
-            // do missile exploding stuff here
-            //
             this.missile.firing = false;
+            this.imgTop = null;
         }
         else if (this.ammo == 0) {
             this.ammo = 1;
         }
+        this.moved = false;
         return this;
     }
     click(){
@@ -174,6 +174,7 @@ export class Scout extends BaseObj {
         }
     }
     newTurn(){
+        this.moved = false;
         this.ammo = 1;
     }
     click(){
@@ -192,9 +193,10 @@ export class Sniper extends BaseObj {
         this.name = "Sniper";
     }
     charge(){
-        if (this.ammo > 0 && this.charged == false) {
+        if (this.ammo > 0 && this.moved == false && this.charged == false) {
             this.charged = true;
             this.ammo = 0;
+            this.moved = true;
         }
         else {
             console.log('Either out of ammo or already charged');
@@ -204,7 +206,7 @@ export class Sniper extends BaseObj {
     shoot(targetObj: any) {
         try {
             if (this.charged == true) {
-                targetObj.takeDmg(60);
+                targetObj.takeDmg(70);
                 this.charged = false;
             }
             else {
@@ -216,6 +218,7 @@ export class Sniper extends BaseObj {
         }
     }
     newTurn(){
+        this.moved = false;
         this.ammo = 1;
     }
     click(){
@@ -248,6 +251,7 @@ export class Capitol extends BaseObj {
         }
     }
     newTurn(){
+        this.moved = false;
         this.ammo = 2;
         this.shieldHP += 10;
         if (this.shieldHP > 100) {
