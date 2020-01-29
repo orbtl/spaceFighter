@@ -434,6 +434,9 @@ let GameService = class GameService {
     sendMap(blueprint) {
         this._socket.emit('newMap', blueprint);
     }
+    sendMove(moveData) {
+        this._socket.emit('newClientMove', moveData);
+    }
 };
 GameService.ctorParameters = () => [
     { type: ngx_socket_io__WEBPACK_IMPORTED_MODULE_2__["Socket"] }
@@ -493,8 +496,6 @@ let GameComponent = class GameComponent {
         this.debugMode = true;
     }
     ngOnInit() {
-        // this._testSocketData = this._gameService.testData.subscribe(data => {this.testSocketData = data; console.log(data);})
-        // this._gameService.testMySocketFromClient();
         this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
             this.selectClick(data.row, data.col, data.player);
         });
@@ -795,13 +796,13 @@ let GameComponent = class GameComponent {
         }
         return this;
     }
-    moveUnit(clicked, player) {
+    moveUnit(moveTo, moveFrom, player) {
         // logic to move the unit
         //logic to figure out rotation
-        let row2 = clicked.location.row;
-        let row1 = this.unitToAct.location.row;
-        let col2 = clicked.location.col;
-        let col1 = this.unitToAct.location.col;
+        let row2 = moveTo.location.row;
+        let row1 = moveFrom.location.row;
+        let col2 = moveTo.location.col;
+        let col1 = moveFrom.location.col;
         let rotation = 0;
         if (col2 == col1) { // they are above each other, don't want to divide by 0
             if (row2 >= row1) { // new position is below
@@ -833,15 +834,17 @@ let GameComponent = class GameComponent {
                 rotation = 270;
             }
         }
-        this.unitToAct.location.row = clicked.location.row;
-        this.unitToAct.location.col = clicked.location.col;
-        this.unitToAct.location.rotate = rotation;
-        this.unitToAct.location.transform = `rotate(${rotation}deg)`;
-        this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
-        this.gameMap.map[row1][col1].location.row = row1; // need this and next line to adjust its location property to reflect its new location
-        this.gameMap.map[row1][col1].location.col = col1;
-        this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
-        this.unitToAct.moved = true;
+        let unit1 = this.gameMap.map[row1][col1]; // these lines are so we can swap them even from socket connection and keep track of them as we swap
+        let unit2 = this.gameMap.map[row2][col2];
+        unit1.location.row = row2;
+        unit1.location.col = col2;
+        unit1.location.rotate = rotation;
+        unit1.location.transform = `rotate(${rotation}deg)`;
+        unit2.location.row = row1;
+        unit2.location.col = col1;
+        this.gameMap.map[row1][col1] = unit2; // move empty space object that was at destination to origin
+        this.gameMap.map[row2][col2] = unit1; // move ship to destination
+        unit1.moved = true;
         this.cancel(player);
         return this;
     }
@@ -850,7 +853,6 @@ let GameComponent = class GameComponent {
             this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
         }
         else {
-            console.log('tried to shoot, unit info:', this.unitToAct.name);
             this.unitToAct.shoot(clicked);
         }
         this.cancel(player);
@@ -910,7 +912,7 @@ let GameComponent = class GameComponent {
         }
         else if (this.inMove) { // Player has selected Move
             if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
-                this.moveUnit(clicked, player);
+                this.moveUnit(clicked, this.unitToAct, player);
                 this.clickGame(this.gameMap.map[row][col], player);
             }
         }

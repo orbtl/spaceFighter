@@ -18,7 +18,9 @@ export class GameService {
   sendMap(blueprint: any){
     this._socket.emit('newMap', blueprint);
   }
-  
+  sendMove(moveData){
+    this._socket.emit('newClientMove', moveData);
+  }
   
   // testMySocketFromClient(){
   //   this._socket.emit('testSocketFromClient', {'lookAtThisKey': 'WowAValueOMG'});

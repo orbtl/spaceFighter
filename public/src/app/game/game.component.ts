@@ -43,8 +43,6 @@ export class GameComponent implements OnInit {
   constructor(private _gameService: GameService) { }
 
   ngOnInit() {
-    // this._testSocketData = this._gameService.testData.subscribe(data => {this.testSocketData = data; console.log(data);})
-    // this._gameService.testMySocketFromClient();
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
       this.selectClick(data.row, data.col, data.player);
     })
@@ -347,13 +345,13 @@ export class GameComponent implements OnInit {
     }
     return this;
   }
-  moveUnit(clicked: any, player: any){ // actually move a unit once validations are fine
+  moveUnit(moveTo: any, moveFrom: any, player: any){ // actually move a unit once validations are fine
     // logic to move the unit
     //logic to figure out rotation
-    let row2 = clicked.location.row;
-    let row1 = this.unitToAct.location.row;
-    let col2 = clicked.location.col;
-    let col1 = this.unitToAct.location.col;
+    let row2 = moveTo.location.row;
+    let row1 = moveFrom.location.row;
+    let col2 = moveTo.location.col;
+    let col1 = moveFrom.location.col;
     let rotation = 0;
     if (col2 == col1) { // they are above each other, don't want to divide by 0
       if (row2 >= row1 ) { // new position is below
@@ -385,16 +383,18 @@ export class GameComponent implements OnInit {
         rotation = 270;
       }
     }
-
-    this.unitToAct.location.row = clicked.location.row;
-    this.unitToAct.location.col = clicked.location.col;
-    this.unitToAct.location.rotate = rotation;
-    this.unitToAct.location.transform = `rotate(${rotation}deg)`;
-    this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
-    this.gameMap.map[row1][col1].location.row = row1; // need this and next line to adjust its location property to reflect its new location
-    this.gameMap.map[row1][col1].location.col = col1;
-    this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
-    this.unitToAct.moved = true;
+    
+    let unit1 = this.gameMap.map[row1][col1]; // these lines are so we can swap them even from socket connection and keep track of them as we swap
+    let unit2 = this.gameMap.map[row2][col2];
+    unit1.location.row = row2;
+    unit1.location.col = col2;
+    unit1.location.rotate = rotation;
+    unit1.location.transform = `rotate(${rotation}deg)`;
+    unit2.location.row = row1;
+    unit2.location.col = col1;
+    this.gameMap.map[row1][col1] = unit2; // move empty space object that was at destination to origin
+    this.gameMap.map[row2][col2] = unit1; // move ship to destination
+    unit1.moved = true;
     this.cancel(player);
     return this;
   }
@@ -403,7 +403,6 @@ export class GameComponent implements OnInit {
       this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
     }
     else {
-      console.log('tried to shoot, unit info:', this.unitToAct.name)
       this.unitToAct.shoot(clicked);
     }
     this.cancel(player);
@@ -466,7 +465,7 @@ export class GameComponent implements OnInit {
     }
     else if (this.inMove) { // Player has selected Move
       if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
-        this.moveUnit(clicked, player);
+        this.moveUnit(clicked, this.unitToAct, player);
         this.clickGame(this.gameMap.map[row][col], player);
       }
     }
