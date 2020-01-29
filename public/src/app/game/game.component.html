@@ -14,10 +14,15 @@
     </div>
     <div style="display: inline-block; vertical-align: top;">
         <button (click)="cancel(currentPlayer)">Cancel Selection</button>
+        <br>
         <button (click)="enableMove(currentPlayer)">Move</button>
+        <br>
         <button (click)="enableShoot(currentPlayer)">Shoot</button>
+        <br>
         <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
+        <br>
         <button (click)="endTurn(currentPlayer)">End Turn</button>
+        <br>
         <div *ngIf="actionText">
             <p>{{actionText}}</p>
         </div>
@@ -31,4 +36,7 @@
 </div>
 <div>
     <button (click)='newGame()'>Start New Game</button>
+</div>
+<div *ngIf="debugMode == true">
+    <button (click)="debugInfo()">Print Debug Info</button>
 </div>

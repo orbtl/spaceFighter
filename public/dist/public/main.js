@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>\n<div>\n    <button (click)='newGame()'>Start New Game</button>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <br>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <br>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <br>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <br>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <br>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>\n<div>\n    <button (click)='newGame()'>Start New Game</button>\n</div>\n<div *ngIf=\"debugMode == true\">\n    <button (click)=\"debugInfo()\">Print Debug Info</button>\n</div>");
 
 /***/ }),
 
@@ -490,6 +490,7 @@ let GameComponent = class GameComponent {
         this.inMove = false;
         this.inShoot = false;
         this.inSpecial = false;
+        this.debugMode = true;
     }
     ngOnInit() {
         // this._testSocketData = this._gameService.testData.subscribe(data => {this.testSocketData = data; console.log(data);})
@@ -841,9 +842,7 @@ let GameComponent = class GameComponent {
         this.gameMap.map[row1][col1].location.col = col1;
         this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
         this.unitToAct.moved = true;
-        let temp = { 'row': this.unitToAct.location.row, 'col': this.unitToAct.location.col };
         this.cancel(player);
-        this.clickGame(this.gameMap.map[temp.row][temp.col], this.currentPlayer);
         return this;
     }
     shootUnit(clicked, player) {
@@ -857,8 +856,23 @@ let GameComponent = class GameComponent {
         this.cancel(player);
         return this;
     }
+    debugInfo() {
+        console.log('Printing Debug Info:');
+        console.log(`lastBlueClicked: ${this.lastBlueClicked}, lastRedClicked: ${this.lastRedClicked}`);
+        if (this.lastBlueClicked) {
+            console.log(`lastBlueClicked row: ${this.lastBlueClicked.location.row}, col: ${this.lastBlueClicked.location.col}`);
+        }
+        if (this.lastRedClicked) {
+            console.log(`lastRedClicked row: ${this.lastRedClicked.location.row}, col: ${this.lastRedClicked.location.col}`);
+        }
+        console.log(`currentPlayer: ${this.currentPlayer}, unitToAct: ${this.unitToAct}`);
+        console.log(`inMove: ${this.inMove}, inShoot: ${this.inShoot}, inSpecial: ${this.inSpecial}`);
+        return this;
+    }
     clickGame(clicked, player) {
         // need logic for if it's the player's turn, etc
+        let row = clicked.location.row; // these are so that the clicked row and col are kept clean for after other methods are called
+        let col = clicked.location.col;
         if (!this.inMove && !this.inShoot && !this.inSpecial) { // no actions currently being done
             this.unitInfo(clicked);
             this.actionText = "";
@@ -897,16 +911,19 @@ let GameComponent = class GameComponent {
         else if (this.inMove) { // Player has selected Move
             if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
                 this.moveUnit(clicked, player);
+                this.clickGame(this.gameMap.map[row][col], player);
             }
         }
         else if (this.inShoot) { // Player has selected Shoot
             if (this.shootable.indexOf(clicked) != -1) { // item is in the shootable list of spaces
                 this.shootUnit(clicked, player);
+                this.clickGame(this.gameMap.map[row][col], player);
             }
         }
         // logic for moving the highlight border
-        this.selectClick(clicked.location.row, clicked.location.col, player);
-        this._gameService.sendClick(clicked.location.row, clicked.location.col, player);
+        this.selectClick(row, col, player);
+        this._gameService.sendClick(row, col, player);
+        return this;
     }
     selectClick(row, col, player) {
         let clicked = this.gameMap.map[row][col];
@@ -1146,6 +1163,7 @@ let GameComponent = class GameComponent {
                 this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
             }
         }
+        return this;
     }
 };
 GameComponent.ctorParameters = () => [
