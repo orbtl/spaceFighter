@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj } from '../map-obj';
+import { Observable, Subscription } from 'rxjs';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-game',
@@ -29,18 +31,40 @@ export class GameComponent implements OnInit {
   shootable: any;
   unitToAct: any;
   actionText: any;
+  blueprint: any;
+  // private _testSocketData: Subscription;
+  private _clickObs: Subscription;
+  private _teamObs: Subscription;
+  private _existingMapObs: Subscription;
+  private _needNewMapObs: Subscription;
 
-  constructor() { }
+  constructor(private _gameService: GameService) { }
 
   ngOnInit() {
-    this.newGame(this.randomMap());
-    this.currentPlayer = 'blue'; // going to need logic to figure out which player this is...
-    this.gameInfo = {
-      'turnNumber': this.gameMap.turn,
-      'turnPlayer': this.gameMap.playerTurn,
-    }
+    // this._testSocketData = this._gameService.testData.subscribe(data => {this.testSocketData = data; console.log(data);})
+    // this._gameService.testMySocketFromClient();
+    this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
+      this.selectClick(data.row, data.col, data.player);
+    })
+    this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
+      this.currentPlayer = data.team;
+    })
+    this._existingMapObs = this._gameService.existingMap.subscribe(data => {
+      this.renderGame(data);
+    })
+    this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
+      this.newGame();
+    })
+    this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
-  newGame(map: any) {
+  newGame(){
+    this.blueprint = this.randomMap();
+    this._gameService.sendMap(this.blueprint);
+    this.renderGame(this.blueprint);
+    return this;
+  }
+
+  renderGame(map: any) {
     this.gameMap = new MapObj();
     this.generateMap(map);
     //debugging
@@ -49,6 +73,11 @@ export class GameComponent implements OnInit {
     //   'alpha': 0.7,
     //   'rotate': 'rotate(45deg)',
     // };
+    this.gameInfo = {
+      'turnNumber': this.gameMap.turn,
+      'turnPlayer': this.gameMap.playerTurn,
+    }
+    return this;
   }
   generateMap(map: any){
     this.gameMap.map = [];
@@ -87,6 +116,7 @@ export class GameComponent implements OnInit {
         }
       }
     }
+    return this;
   }
   randomMap(){
     let blueprint = [];
@@ -323,6 +353,7 @@ export class GameComponent implements OnInit {
     this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
     this.unitToAct.moved = true;
     this.cancel(player);
+    return this;
   }
   shootUnit(clicked: any, player: any) {
     if (this.unitToAct instanceof Fighter) {
@@ -332,6 +363,7 @@ export class GameComponent implements OnInit {
       this.unitToAct.shoot(clicked);
     }
     this.cancel(player);
+    return this;
   }
 
 
@@ -387,13 +419,17 @@ export class GameComponent implements OnInit {
 
 
     // logic for moving the highlight border
+    this.selectClick(clicked.location.row, clicked.location.col, player);
+    this._gameService.sendClick(clicked.location.row, clicked.location.col, player);
+  }
+  selectClick(row: number, col: number, player: string){
+    let clicked = this.gameMap.map[row][col];
     if (player == 'blue') { // blue player's click
       if (this.lastBlueClicked) {
         this.lastBlueClicked.border = "";
       }
       clicked.border = "1px solid cyan";
       this.lastBlueClicked = clicked;
-
     }
     else { // red player's click
       if (this.lastRedClicked) {
@@ -402,6 +438,7 @@ export class GameComponent implements OnInit {
       clicked.border = "1px solid red";
       this.lastRedClicked = clicked;
     }
+    return this;
   }
 
   shootRange(startRow: number, startCol: number, range: number, missile: boolean, currRow=startRow, currCol=startCol, dir='') { // using dir to keep track of direction so we are just traveling in one direction to deal with line of sight

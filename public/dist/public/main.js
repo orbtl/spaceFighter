@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>\n<div>\n    <button (click)='newGame()'>Start New Game</button>\n</div>");
 
 /***/ }),
 
@@ -372,12 +372,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
 /* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
 /* harmony import */ var _game_game_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./game/game.component */ "./src/app/game/game.component.ts");
+/* harmony import */ var ngx_socket_io__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ngx-socket-io */ "./node_modules/ngx-socket-io/fesm2015/ngx-socket-io.js");
 
 
 
 
 
 
+
+const config = { url: 'http://localhost:8000', options: {} };
 let AppModule = class AppModule {
 };
 AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
@@ -388,12 +391,58 @@ AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         ],
         imports: [
             _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["BrowserModule"],
-            _app_routing_module__WEBPACK_IMPORTED_MODULE_3__["AppRoutingModule"]
+            _app_routing_module__WEBPACK_IMPORTED_MODULE_3__["AppRoutingModule"],
+            ngx_socket_io__WEBPACK_IMPORTED_MODULE_6__["SocketIoModule"].forRoot(config)
         ],
         providers: [],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_4__["AppComponent"]]
     })
 ], AppModule);
+
+
+
+/***/ }),
+
+/***/ "./src/app/game.service.ts":
+/*!*********************************!*\
+  !*** ./src/app/game.service.ts ***!
+  \*********************************/
+/*! exports provided: GameService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GameService", function() { return GameService; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var ngx_socket_io__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ngx-socket-io */ "./node_modules/ngx-socket-io/fesm2015/ngx-socket-io.js");
+
+
+
+let GameService = class GameService {
+    // testData = this._socket.fromEvent<any>('testSocketFromServer');
+    constructor(_socket) {
+        this._socket = _socket;
+        this.myTeamAssignment = this._socket.fromEvent('teamAssignment');
+        this.otherPlayerClicks = this._socket.fromEvent('newServerClick');
+        this.existingMap = this._socket.fromEvent('sendMap');
+        this.needNewMap = this._socket.fromEvent('needNewGame');
+    }
+    sendClick(row, col, player) {
+        this._socket.emit('newClientClick', { 'row': row, 'col': col, 'player': player });
+    }
+    sendMap(blueprint) {
+        this._socket.emit('newMap', blueprint);
+    }
+};
+GameService.ctorParameters = () => [
+    { type: ngx_socket_io__WEBPACK_IMPORTED_MODULE_2__["Socket"] }
+];
+GameService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
+    Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
+        providedIn: 'root'
+    })
+], GameService);
 
 
 
@@ -425,11 +474,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
 /* harmony import */ var _map_obj__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../map-obj */ "./src/app/map-obj.ts");
+/* harmony import */ var _game_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../game.service */ "./src/app/game.service.ts");
+
 
 
 
 let GameComponent = class GameComponent {
-    constructor() {
+    constructor(_gameService) {
+        this._gameService = _gameService;
         this.gameScale = '50'; // affects height and width of table blocks
         this.gameBG = 'assets/img/Backgrounds/darkPurple.png'; // overall map background
         this.numAsteroids = 10; // maximum number of asteroids on map
@@ -440,14 +492,29 @@ let GameComponent = class GameComponent {
         this.inSpecial = false;
     }
     ngOnInit() {
-        this.newGame(this.randomMap());
-        this.currentPlayer = 'blue'; // going to need logic to figure out which player this is...
-        this.gameInfo = {
-            'turnNumber': this.gameMap.turn,
-            'turnPlayer': this.gameMap.playerTurn,
-        };
+        // this._testSocketData = this._gameService.testData.subscribe(data => {this.testSocketData = data; console.log(data);})
+        // this._gameService.testMySocketFromClient();
+        this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
+            this.selectClick(data.row, data.col, data.player);
+        });
+        this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
+            this.currentPlayer = data.team;
+        });
+        this._existingMapObs = this._gameService.existingMap.subscribe(data => {
+            this.renderGame(data);
+        });
+        this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
+            this.newGame();
+        });
+        this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
     }
-    newGame(map) {
+    newGame() {
+        this.blueprint = this.randomMap();
+        this._gameService.sendMap(this.blueprint);
+        this.renderGame(this.blueprint);
+        return this;
+    }
+    renderGame(map) {
         this.gameMap = new _map_obj__WEBPACK_IMPORTED_MODULE_2__["MapObj"]();
         this.generateMap(map);
         //debugging
@@ -456,6 +523,11 @@ let GameComponent = class GameComponent {
         //   'alpha': 0.7,
         //   'rotate': 'rotate(45deg)',
         // };
+        this.gameInfo = {
+            'turnNumber': this.gameMap.turn,
+            'turnPlayer': this.gameMap.playerTurn,
+        };
+        return this;
     }
     generateMap(map) {
         this.gameMap.map = [];
@@ -494,6 +566,7 @@ let GameComponent = class GameComponent {
                 }
             }
         }
+        return this;
     }
     randomMap() {
         let blueprint = [];
@@ -728,6 +801,7 @@ let GameComponent = class GameComponent {
         this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
         this.unitToAct.moved = true;
         this.cancel(player);
+        return this;
     }
     shootUnit(clicked, player) {
         if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
@@ -737,6 +811,7 @@ let GameComponent = class GameComponent {
             this.unitToAct.shoot(clicked);
         }
         this.cancel(player);
+        return this;
     }
     clickGame(clicked, player) {
         // need logic for if it's the player's turn, etc
@@ -786,6 +861,11 @@ let GameComponent = class GameComponent {
             }
         }
         // logic for moving the highlight border
+        this.selectClick(clicked.location.row, clicked.location.col, player);
+        this._gameService.sendClick(clicked.location.row, clicked.location.col, player);
+    }
+    selectClick(row, col, player) {
+        let clicked = this.gameMap.map[row][col];
         if (player == 'blue') { // blue player's click
             if (this.lastBlueClicked) {
                 this.lastBlueClicked.border = "";
@@ -800,6 +880,7 @@ let GameComponent = class GameComponent {
             clicked.border = "1px solid red";
             this.lastRedClicked = clicked;
         }
+        return this;
     }
     shootRange(startRow, startCol, range, missile, currRow = startRow, currCol = startCol, dir = '') {
         if (!(currRow == startRow && currCol == startCol)) { // make sure we don't make the ship able to fire on itself
@@ -1023,6 +1104,9 @@ let GameComponent = class GameComponent {
         }
     }
 };
+GameComponent.ctorParameters = () => [
+    { type: _game_service__WEBPACK_IMPORTED_MODULE_3__["GameService"] }
+];
 GameComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
         selector: 'app-game',
@@ -1410,6 +1494,17 @@ Object(_angular_platform_browser_dynamic__WEBPACK_IMPORTED_MODULE_2__["platformB
 
 module.exports = __webpack_require__(/*! C:\Users\Charles\Desktop\CodingDojo\meanStack\Project Week\space fighter\public\src\main.ts */"./src/main.ts");
 
+
+/***/ }),
+
+/***/ 1:
+/*!********************!*\
+  !*** ws (ignored) ***!
+  \********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/* (ignored) */
 
 /***/ })
 
