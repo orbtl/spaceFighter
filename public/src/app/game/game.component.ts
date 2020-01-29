@@ -523,7 +523,7 @@ export class GameComponent implements OnInit {
       this.shootable = [];
       this.shootInRange = [];
       this.moveable = [];
-      if (player == clicked.team) {
+      if (player == clicked.team && clicked.hp > 0) {
         if (clicked.moved == false) {
           this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
         }
