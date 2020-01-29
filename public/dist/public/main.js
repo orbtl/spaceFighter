@@ -699,7 +699,7 @@ let GameComponent = class GameComponent {
                         return this;
                     }
                 }
-                if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+                if (this.unitToAct.name == 'Sniper') {
                     if (this.unitToAct.charged == false) {
                         this.unitToAct.charged = true;
                         this.unitToAct.ammo = 0;
@@ -707,7 +707,7 @@ let GameComponent = class GameComponent {
                         this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
                     }
                 }
-                else if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) {
+                else if (this.unitToAct.name == 'Scout') {
                     if (this.unitToAct.empAmmo > 0) {
                         // emp stuff
                         let row = this.unitToAct.location.row;
@@ -730,12 +730,12 @@ let GameComponent = class GameComponent {
                         }
                         for (let i = minRow; i <= maxRow; i++) {
                             for (let j = minCol; j <= maxCol; j++) {
-                                if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) {
+                                if (this.gameMap.map[i][j].name == 'Capitol') {
                                     this.gameMap.map[i][j].shieldHP = 0;
                                     this.gameMap.map[i][j].imgTop = null;
                                     this.gameMap.map[i][j].imgTopLast = null;
                                 }
-                                else if (this.gameMap.map[i][j] instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+                                else if (this.gameMap.map[i][j].name == 'Sniper') {
                                     this.gameMap.map[i][j].charged = false;
                                 }
                             }
@@ -803,11 +803,13 @@ let GameComponent = class GameComponent {
         this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
         this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
         this.unitToAct.moved = true;
+        let temp = { 'row': this.unitToAct.location.row, 'col': this.unitToAct.location.col };
         this.cancel(player);
+        this.clickGame(this.gameMap.map[temp.row][temp.col], this.currentPlayer);
         return this;
     }
     shootUnit(clicked, player) {
-        if (this.unitToAct instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
+        if (this.unitToAct.name == 'Fighter') {
             this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
         }
         else {
@@ -844,7 +846,7 @@ let GameComponent = class GameComponent {
                     this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
                 }
                 if (clicked.ammo > 0) {
-                    if (clicked instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
+                    if (clicked.name == 'Fighter') {
                         this.shootRange(clicked.location.row, clicked.location.col, clicked.range, true);
                     }
                     else {
@@ -1063,15 +1065,16 @@ let GameComponent = class GameComponent {
     newTurn(player) {
     }
     unitInfo(unit) {
-        if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) && !(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
+        console.log('entered unit info method');
+        if (unit.hp <= 0) {
             this.gameInfo['desc'] = 'Empty Space';
         }
         else {
-            this.gameInfo['desc'] = ` Unit Type: ${unit.constructor.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`;
-            if (!(unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Asteroid"])) {
+            this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`;
+            if (unit.name != 'Asteroid') {
                 this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
             }
-            if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Fighter"]) {
+            if (unit.name == 'Fighter') {
                 this.gameInfo['desc'] += `\n Missile Available: `;
                 if (unit.ammo == 1) {
                     this.gameInfo['desc'] += `Yes`;
@@ -1083,7 +1086,7 @@ let GameComponent = class GameComponent {
                     this.gameInfo['desc'] += ` (Missile en route)`;
                 }
             }
-            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Scout"]) {
+            else if (unit.name == 'Scout') {
                 this.gameInfo['desc'] += `\n EMP Available: `;
                 if (unit.empAmmo == 1) {
                     this.gameInfo['desc'] += `Yes`;
@@ -1092,7 +1095,7 @@ let GameComponent = class GameComponent {
                     this.gameInfo['desc'] += `No`;
                 }
             }
-            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Sniper"]) {
+            else if (unit.name == 'Sniper') {
                 this.gameInfo['desc'] += `\n Charged: `;
                 if (unit.charged == true) {
                     this.gameInfo['desc'] += `Yes`;
@@ -1101,7 +1104,7 @@ let GameComponent = class GameComponent {
                     this.gameInfo['desc'] += `No`;
                 }
             }
-            else if (unit instanceof _map_obj__WEBPACK_IMPORTED_MODULE_2__["Capitol"]) {
+            else if (unit.name == 'Capitol') {
                 this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
             }
         }
@@ -1162,6 +1165,7 @@ class BaseObj {
         this.team = "neutral";
         this.moved = false;
         this.imgAlpha = "1";
+        this.name = "Empty Space";
     }
     click() {
         console.log('clicked an empty space');
@@ -1238,6 +1242,7 @@ class Fighter extends BaseObj {
         };
         this.img = `assets/img/playerShip1_${color}.png`;
         this.team = color;
+        this.name = "Fighter";
     }
     fireMissile(targetRow, targetCol) {
         this.missile.firing = true;
@@ -1274,6 +1279,7 @@ class Scout extends BaseObj {
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
         this.team = color;
+        this.name = "Scout";
     }
     fireEMP() {
         if (this.empAmmo > 0) {
@@ -1308,6 +1314,7 @@ class Sniper extends BaseObj {
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;
+        this.name = "Sniper";
     }
     charge() {
         if (this.ammo > 0 && this.charged == false) {
@@ -1355,6 +1362,7 @@ class Capitol extends BaseObj {
             'transform': '',
             'size': 60,
         };
+        this.name = "Capitol";
     }
     shoot(targetObj) {
         try {
@@ -1407,6 +1415,7 @@ class Asteroid extends BaseObj {
         }
         this.location.rotate = (Math.floor(Math.random() * 360));
         this.location.transform = `rotate(${this.location.rotate}deg)`;
+        this.name = "Asteroid";
     }
     newTurn() {
         let rotate = (this.location.rotate + (Math.floor(Math.random() * 60) - 30));

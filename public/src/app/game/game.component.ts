@@ -249,7 +249,7 @@ export class GameComponent implements OnInit {
             return this;
           }
         }
-        if (this.unitToAct instanceof Sniper) {
+        if (this.unitToAct.name == 'Sniper') {
           if (this.unitToAct.charged == false) {
             this.unitToAct.charged = true;
             this.unitToAct.ammo = 0;
@@ -257,7 +257,7 @@ export class GameComponent implements OnInit {
             this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
           }
         }
-        else if (this.unitToAct instanceof Scout) {
+        else if (this.unitToAct.name == 'Scout') {
           if (this.unitToAct.empAmmo > 0) {
             // emp stuff
             let row = this.unitToAct.location.row;
@@ -280,12 +280,12 @@ export class GameComponent implements OnInit {
             }
             for (let i=minRow; i<=maxRow; i++) {
               for (let j=minCol; j<=maxCol; j++) {
-                if (this.gameMap.map[i][j] instanceof Capitol){
+                if (this.gameMap.map[i][j].name == 'Capitol'){
                   this.gameMap.map[i][j].shieldHP = 0;
                   this.gameMap.map[i][j].imgTop = null;
                   this.gameMap.map[i][j].imgTopLast = null;
                 }
-                else if (this.gameMap.map[i][j] instanceof Sniper) {
+                else if (this.gameMap.map[i][j].name == 'Sniper') {
                   this.gameMap.map[i][j].charged = false;
                 }
               }
@@ -355,11 +355,13 @@ export class GameComponent implements OnInit {
     this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
     this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
     this.unitToAct.moved = true;
+    let temp = {'row': this.unitToAct.location.row, 'col': this.unitToAct.location.col};
     this.cancel(player);
+    this.clickGame(this.gameMap.map[temp.row][temp.col], this.currentPlayer);
     return this;
   }
   shootUnit(clicked: any, player: any) {
-    if (this.unitToAct instanceof Fighter) {
+    if (this.unitToAct.name == 'Fighter') {
       this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
     }
     else {
@@ -400,7 +402,7 @@ export class GameComponent implements OnInit {
           this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
         }
         if (clicked.ammo > 0) {
-          if (clicked instanceof Fighter) {
+          if (clicked.name == 'Fighter') {
             this.shootRange(clicked.location.row, clicked.location.col, clicked.range, true);
           }
           else {
@@ -625,15 +627,16 @@ export class GameComponent implements OnInit {
   }
 
   unitInfo(unit: any){
-    if (!(unit instanceof Fighter) && !(unit instanceof Scout) && !(unit instanceof Sniper) && !(unit instanceof Capitol) && !(unit instanceof Asteroid)){
+    console.log('entered unit info method');
+    if (unit.hp <= 0){
       this.gameInfo['desc'] = 'Empty Space';
     }
     else{
-      this.gameInfo['desc'] = ` Unit Type: ${unit.constructor.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
-      if (!(unit instanceof Asteroid)) {
+      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
+      if (unit.name != 'Asteroid') {
         this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
       }
-      if (unit instanceof Fighter) {
+      if (unit.name == 'Fighter') {
         this.gameInfo['desc'] += `\n Missile Available: `;
         if (unit.ammo == 1) {
           this.gameInfo['desc'] += `Yes`;
@@ -645,7 +648,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += ` (Missile en route)`;
         }
       }
-      else if (unit instanceof Scout) {
+      else if (unit.name ==  'Scout') {
         this.gameInfo['desc'] += `\n EMP Available: `;
         if (unit.empAmmo == 1) {
           this.gameInfo['desc'] += `Yes`;
@@ -654,7 +657,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += `No`;
         }
       }
-      else if (unit instanceof Sniper) {
+      else if (unit.name == 'Sniper') {
         this.gameInfo['desc'] += `\n Charged: `;
         if (unit.charged == true) {
           this.gameInfo['desc'] += `Yes`;
@@ -663,7 +666,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += `No`;
         }
       }
-      else if (unit instanceof Capitol) {
+      else if (unit.name == 'Capitol') {
         this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
       }
     }

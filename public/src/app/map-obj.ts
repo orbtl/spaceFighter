@@ -19,6 +19,7 @@ export class BaseObj {
     border: string;
     team: string;
     moved: boolean;
+    name: string;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
@@ -35,6 +36,7 @@ export class BaseObj {
         this.team = "neutral";
         this.moved = false;
         this.imgAlpha = "1";
+        this.name = "Empty Space";
     }
     click(){
         console.log('clicked an empty space');
@@ -113,6 +115,7 @@ export class Fighter extends BaseObj {
         super(row, col, rotate, 50, 4, 6);
         this.img = `assets/img/playerShip1_${color}.png`;
         this.team = color;
+        this.name = "Fighter";
     }
     fireMissile(targetRow: number, targetCol: number){
         this.missile.firing = true;
@@ -151,6 +154,7 @@ export class Scout extends BaseObj {
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
         this.team = color;
+        this.name = "Scout";
     }
     fireEMP(){
         if (this.empAmmo > 0) {
@@ -186,6 +190,7 @@ export class Sniper extends BaseObj {
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;
+        this.name = "Sniper";
     }
     charge(){
         if (this.ammo > 0 && this.charged == false) {
@@ -233,6 +238,7 @@ export class Capitol extends BaseObj {
             'transform': '',
             'size': 60,
         };
+        this.name = "Capitol";
     }
     shoot(targetObj: any) {
         try {
@@ -285,6 +291,7 @@ export class Asteroid extends BaseObj {
         }
         this.location.rotate = (Math.floor(Math.random()*360));
         this.location.transform = `rotate(${this.location.rotate}deg)`;
+        this.name = "Asteroid";
     }
     newTurn(){
         let rotate = (this.location.rotate + (Math.floor(Math.random()*60)-30));
