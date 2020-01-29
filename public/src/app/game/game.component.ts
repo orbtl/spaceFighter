@@ -51,12 +51,7 @@ export class GameComponent implements OnInit {
       this.currentPlayer = data.team;
     })
     this._existingMapObs = this._gameService.existingMap.subscribe(data => {
-      console.log('got existing map data');
-      this.gameMap = data;
-      this.gameInfo = {
-        'turnNumber': this.gameMap.turn,
-        'turnPlayer': this.gameMap.playerTurn,
-      }
+      this.processExistingMap(data);
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
       console.log('creating new map data');
@@ -68,6 +63,47 @@ export class GameComponent implements OnInit {
     this.blueprint = this.randomMap();
     // this._gameService.sendMap(this.blueprint);
     this.renderGame(this.blueprint);
+    return this;
+  }
+  processExistingMap(mapData){
+    console.log('got existing map data, beginning processing');
+    this.gameMap = new MapObj();
+    this.gameMap.map = mapData.map;
+    for (let row in mapData.map) {
+      for (let col in mapData.map[row]) {
+        if (mapData.map[row][col].name == 'Empty Space') {
+          this.gameMap.map[row][col] = new BaseObj(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].hp, mapData.map[row][col].speed, mapData.map[row][col].range);
+        }
+        else if (mapData.map[row][col].name == 'Fighter') {
+          this.gameMap.map[row][col] = new Fighter(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+        }
+        else if (mapData.map[row][col].name == 'Scout') {
+          this.gameMap.map[row][col] = new Scout(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+        }
+        else if (mapData.map[row][col].name == 'Sniper') {
+          this.gameMap.map[row][col] = new Sniper(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+        }
+        else if (mapData.map[row][col].name == 'Capitol') {
+          this.gameMap.map[row][col] = new Capitol(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+        }
+        else if (mapData.map[row][col].name == 'Asteroid') {
+          var asteroid = new Asteroid(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].hp);
+          asteroid.size = mapData.map[row][col].size;
+          asteroid.img = mapData.map[row][col].img;
+          asteroid.location.rotate = mapData.map[row][col].location.rotate;
+          asteroid.location.transform = mapData.map[row][col].location.transform;
+          this.gameMap.map[row][col] = asteroid; //
+        }
+        else {
+          console.log('error: unknown object type in map data');
+        }
+      }
+    }
+    this.gameInfo = {
+      'turnNumber': this.gameMap.turn,
+      'turnPlayer': this.gameMap.playerTurn,
+    }
+    console.log('Finished processing map data received and generating new object instances');
     return this;
   }
 
@@ -353,6 +389,8 @@ export class GameComponent implements OnInit {
     this.unitToAct.location.rotate = rotation;
     this.unitToAct.location.transform = `rotate(${rotation}deg)`;
     this.gameMap.map[row1][col1] = this.gameMap.map[row2][col2]; // move empty space object that was at destination to origin
+    this.gameMap.map[row1][col1].location.row = row1; // need this and next line to adjust its location property to reflect its new location
+    this.gameMap.map[row1][col1].location.col = col1;
     this.gameMap.map[row2][col2] = this.unitToAct; // move ship to destination
     this.unitToAct.moved = true;
     let temp = {'row': this.unitToAct.location.row, 'col': this.unitToAct.location.col};
@@ -365,6 +403,7 @@ export class GameComponent implements OnInit {
       this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
     }
     else {
+      console.log('tried to shoot, unit info:', this.unitToAct.name)
       this.unitToAct.shoot(clicked);
     }
     this.cancel(player);
@@ -627,7 +666,6 @@ export class GameComponent implements OnInit {
   }
 
   unitInfo(unit: any){
-    console.log('entered unit info method');
     if (unit.hp <= 0){
       this.gameInfo['desc'] = 'Empty Space';
     }

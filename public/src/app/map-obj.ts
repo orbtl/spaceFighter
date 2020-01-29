@@ -92,7 +92,6 @@ export class BaseObj {
                 else {
                     alpha -= 0.03;
                     self.imgAlpha = alpha.toString();
-                    console.log(self.imgAlpha);
                 }
             }
             if (exploded > 40) {
