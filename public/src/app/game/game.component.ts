@@ -40,6 +40,7 @@ export class GameComponent implements OnInit {
   private _existingMapObs: Subscription;
   private _needNewMapObs: Subscription;
   private _moveObs: Subscription;
+  private _shootObs: Subscription;
 
   constructor(private _gameService: GameService) { }
 
@@ -62,6 +63,11 @@ export class GameComponent implements OnInit {
       let moveFrom = this.gameMap.map[data.moveFromRow][data.moveFromCol];
       let moveTo = this.gameMap.map[data.moveToRow][data.moveToCol];
       this.moveUnit(moveTo, moveFrom, data.player);
+    })
+    this._shootObs = this._gameService.otherPlayerShoots.subscribe(data => {
+      let shootFrom = this.gameMap.map[data.shootFromRow][data.shootFromCol];
+      let shootTo = this.gameMap.map[data.shootToRow][data.shootToCol];
+      this.shootUnit(shootTo, shootFrom, data.player);
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
@@ -416,12 +422,27 @@ export class GameComponent implements OnInit {
     this.cancel(player);
     return this;
   }
-  shootUnit(clicked: any, player: any) {
-    if (this.unitToAct.name == 'Fighter') {
-      this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
+  shootUnitLocal(clicked: any, player: any){
+    let shootFrom = this.unitToAct;
+    let shootTo = clicked;
+    let shootData = {
+      'shootFromRow': shootFrom.location.row,
+      'shootFromCol': shootFrom.location.col,
+      'shootToRow': shootTo.location.row,
+      'shootToCol': shootTo.location.col,
+      'player': player
+    };
+    this.shootUnit(shootTo, shootFrom, player);
+    this._gameService.sendShoot(shootData);
+    return this;
+  }
+
+  shootUnit(shootTo: any, shootFrom: any, player: any) {
+    if (shootFrom.name == 'Fighter') {
+      shootFrom.fireMissile(shootTo.location.row, shootTo.location.col);
     }
     else {
-      this.unitToAct.shoot(clicked);
+      shootFrom.shoot(shootTo);
     }
     this.cancel(player);
     return this;
@@ -489,7 +510,7 @@ export class GameComponent implements OnInit {
     }
     else if (this.inShoot) { // Player has selected Shoot
       if (this.shootable.indexOf(clicked) != -1) { // item is in the shootable list of spaces
-        this.shootUnit(clicked, player);
+        this.shootUnitLocal(clicked, player);
         this.clickGame(this.gameMap.map[row][col], player);
       }
     }

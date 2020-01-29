@@ -428,6 +428,7 @@ let GameService = class GameService {
         this.existingMap = this._socket.fromEvent('sendMap');
         this.needNewMap = this._socket.fromEvent('needNewGame');
         this.otherPlayerMoves = this._socket.fromEvent('newServerMove');
+        this.otherPlayerShoots = this._socket.fromEvent('newServerShoot');
     }
     sendClick(row, col, player) {
         this._socket.emit('newClientClick', { 'row': row, 'col': col, 'player': player });
@@ -437,6 +438,9 @@ let GameService = class GameService {
     }
     sendMove(moveData) {
         this._socket.emit('newClientMove', moveData);
+    }
+    sendShoot(shootData) {
+        this._socket.emit('newClientShoot', shootData);
     }
 };
 GameService.ctorParameters = () => [
@@ -515,6 +519,11 @@ let GameComponent = class GameComponent {
             let moveFrom = this.gameMap.map[data.moveFromRow][data.moveFromCol];
             let moveTo = this.gameMap.map[data.moveToRow][data.moveToCol];
             this.moveUnit(moveTo, moveFrom, data.player);
+        });
+        this._shootObs = this._gameService.otherPlayerShoots.subscribe(data => {
+            let shootFrom = this.gameMap.map[data.shootFromRow][data.shootFromCol];
+            let shootTo = this.gameMap.map[data.shootToRow][data.shootToCol];
+            this.shootUnit(shootTo, shootFrom, data.player);
         });
         this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
     }
@@ -866,12 +875,26 @@ let GameComponent = class GameComponent {
         this.cancel(player);
         return this;
     }
-    shootUnit(clicked, player) {
-        if (this.unitToAct.name == 'Fighter') {
-            this.unitToAct.fireMissile(clicked.location.row, clicked.location.col);
+    shootUnitLocal(clicked, player) {
+        let shootFrom = this.unitToAct;
+        let shootTo = clicked;
+        let shootData = {
+            'shootFromRow': shootFrom.location.row,
+            'shootFromCol': shootFrom.location.col,
+            'shootToRow': shootTo.location.row,
+            'shootToCol': shootTo.location.col,
+            'player': player
+        };
+        this.shootUnit(shootTo, shootFrom, player);
+        this._gameService.sendShoot(shootData);
+        return this;
+    }
+    shootUnit(shootTo, shootFrom, player) {
+        if (shootFrom.name == 'Fighter') {
+            shootFrom.fireMissile(shootTo.location.row, shootTo.location.col);
         }
         else {
-            this.unitToAct.shoot(clicked);
+            shootFrom.shoot(shootTo);
         }
         this.cancel(player);
         return this;
@@ -936,7 +959,7 @@ let GameComponent = class GameComponent {
         }
         else if (this.inShoot) { // Player has selected Shoot
             if (this.shootable.indexOf(clicked) != -1) { // item is in the shootable list of spaces
-                this.shootUnit(clicked, player);
+                this.shootUnitLocal(clicked, player);
                 this.clickGame(this.gameMap.map[row][col], player);
             }
         }

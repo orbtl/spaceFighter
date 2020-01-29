@@ -56,6 +56,10 @@ io.on('connection', socket => {
         console.log('Got move data');
         socket.broadcast.emit('newServerMove', data);
     })
+    socket.on('newClientShoot', function(data) {
+        console.log('Got shoot data');
+        socket.broadcast.emit('newServerShoot', data);
+    })
 
 
 
