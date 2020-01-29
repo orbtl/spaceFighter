@@ -9,6 +9,7 @@ export class GameService {
   otherPlayerClicks = this._socket.fromEvent<any>('newServerClick');
   existingMap = this._socket.fromEvent<any>('sendMap');
   needNewMap = this._socket.fromEvent<any>('needNewGame');
+  otherPlayerMoves = this._socket.fromEvent<any>('newServerMove');
   // testData = this._socket.fromEvent<any>('testSocketFromServer');
   constructor(private _socket: Socket) { }
 

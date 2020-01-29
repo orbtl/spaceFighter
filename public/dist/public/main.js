@@ -427,6 +427,7 @@ let GameService = class GameService {
         this.otherPlayerClicks = this._socket.fromEvent('newServerClick');
         this.existingMap = this._socket.fromEvent('sendMap');
         this.needNewMap = this._socket.fromEvent('needNewGame');
+        this.otherPlayerMoves = this._socket.fromEvent('newServerMove');
     }
     sendClick(row, col, player) {
         this._socket.emit('newClientClick', { 'row': row, 'col': col, 'player': player });
@@ -509,6 +510,11 @@ let GameComponent = class GameComponent {
         this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
             console.log('creating new map data');
             this.newGame();
+        });
+        this._moveObs = this._gameService.otherPlayerMoves.subscribe(data => {
+            let moveFrom = this.gameMap.map[data.moveFromRow][data.moveFromCol];
+            let moveTo = this.gameMap.map[data.moveToRow][data.moveToCol];
+            this.moveUnit(moveTo, moveFrom, data.player);
         });
         this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
     }
@@ -796,6 +802,18 @@ let GameComponent = class GameComponent {
         }
         return this;
     }
+    moveUnitLocal(moveTo, moveFrom, player) {
+        let moveData = {
+            'moveToRow': moveTo.location.row,
+            'moveToCol': moveTo.location.col,
+            'moveFromRow': moveFrom.location.row,
+            'moveFromCol': moveFrom.location.col,
+            'player': player
+        };
+        this.moveUnit(moveTo, moveFrom, player);
+        this._gameService.sendMove(moveData);
+        return this;
+    }
     moveUnit(moveTo, moveFrom, player) {
         // logic to move the unit
         //logic to figure out rotation
@@ -912,7 +930,7 @@ let GameComponent = class GameComponent {
         }
         else if (this.inMove) { // Player has selected Move
             if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
-                this.moveUnit(clicked, this.unitToAct, player);
+                this.moveUnitLocal(clicked, this.unitToAct, player);
                 this.clickGame(this.gameMap.map[row][col], player);
             }
         }

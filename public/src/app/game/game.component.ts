@@ -39,6 +39,7 @@ export class GameComponent implements OnInit {
   private _teamObs: Subscription;
   private _existingMapObs: Subscription;
   private _needNewMapObs: Subscription;
+  private _moveObs: Subscription;
 
   constructor(private _gameService: GameService) { }
 
@@ -56,6 +57,11 @@ export class GameComponent implements OnInit {
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
       console.log('creating new map data');
       this.newGame();
+    })
+    this._moveObs = this._gameService.otherPlayerMoves.subscribe(data => {
+      let moveFrom = this.gameMap.map[data.moveFromRow][data.moveFromCol];
+      let moveTo = this.gameMap.map[data.moveToRow][data.moveToCol];
+      this.moveUnit(moveTo, moveFrom, data.player);
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
@@ -345,6 +351,18 @@ export class GameComponent implements OnInit {
     }
     return this;
   }
+  moveUnitLocal(moveTo: any, moveFrom: any, player: any){
+    let moveData = {
+      'moveToRow': moveTo.location.row,
+      'moveToCol': moveTo.location.col,
+      'moveFromRow': moveFrom.location.row,
+      'moveFromCol': moveFrom.location.col,
+      'player': player
+    }
+    this.moveUnit(moveTo, moveFrom, player);
+    this._gameService.sendMove(moveData);
+    return this;
+  }
   moveUnit(moveTo: any, moveFrom: any, player: any){ // actually move a unit once validations are fine
     // logic to move the unit
     //logic to figure out rotation
@@ -465,7 +483,7 @@ export class GameComponent implements OnInit {
     }
     else if (this.inMove) { // Player has selected Move
       if (this.moveable.indexOf(clicked) != -1) { // item is in the moveable list of spaces
-        this.moveUnit(clicked, this.unitToAct, player);
+        this.moveUnitLocal(clicked, this.unitToAct, player);
         this.clickGame(this.gameMap.map[row][col], player);
       }
     }

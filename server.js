@@ -52,6 +52,13 @@ io.on('connection', socket => {
         console.log('got new map: ', data);
         socket.broadcast.emit('sendMap', currentGameMap);
     })
+    socket.on('newClientMove', function(data) {
+        console.log('Got move data');
+        socket.broadcast.emit('newServerMove', data);
+    })
+
+
+
     socket.on('disconnect', function() {
         console.log(`Socket disconnected with id ${socket.id}`)
         if (players.blue && players.blue.socketID == socket.id) {
