@@ -731,9 +731,21 @@ export class GameComponent implements OnInit {
     this.gameMap.turn += 1;
     if (this.gameMap.playerTurn == 'red') {
       this.gameMap.playerTurn = 'blue';
+      if (this.currentPlayer == 'red') {
+        this.actionText = "You (red) ended your turn.  It is now your opponent (blue)'s turn.";
+      }
+      else {
+        this.actionText = "Your opponent (red) ended their turn.  It is now your (blue) turn."
+      }
     }
     else {
       this.gameMap.playerTurn = 'red';
+      if (this.currentPlayer == 'red') {
+        this.actionText = "Your opponent (blue) ended their turn.  It is now your (red) turn."
+      }
+      else {
+        this.actionText = "You (blue) ended your turn.  It is now your opponent (red)'s turn.";
+      }
     }
     for (let row of this.gameMap.map) {
       for (let col of row) {
@@ -742,6 +754,8 @@ export class GameComponent implements OnInit {
         }
       }
     }
+    this.gameInfo['turnNumber'] = this.gameMap.turn;
+    this.gameInfo['turnPlayer'] = this.gameMap.playerTurn;
     return this;
   }
   newTurn(player: any) {
