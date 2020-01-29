@@ -15,7 +15,7 @@ export class GameService {
   sendClick(row: number, col: number, player: string){
     this._socket.emit('newClientClick', {'row': row, 'col': col, 'player': player})
   }
-  sendMap(blueprint){
+  sendMap(blueprint: any){
     this._socket.emit('newMap', blueprint);
   }
   

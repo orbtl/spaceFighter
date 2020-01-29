@@ -47,19 +47,26 @@ export class GameComponent implements OnInit {
       this.selectClick(data.row, data.col, data.player);
     })
     this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
+      console.log('was assigned to team', data.team)
       this.currentPlayer = data.team;
     })
     this._existingMapObs = this._gameService.existingMap.subscribe(data => {
-      this.renderGame(data);
+      console.log('got existing map data');
+      this.gameMap = data;
+      this.gameInfo = {
+        'turnNumber': this.gameMap.turn,
+        'turnPlayer': this.gameMap.playerTurn,
+      }
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
+      console.log('creating new map data');
       this.newGame();
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
   newGame(){
     this.blueprint = this.randomMap();
-    this._gameService.sendMap(this.blueprint);
+    // this._gameService.sendMap(this.blueprint);
     this.renderGame(this.blueprint);
     return this;
   }
@@ -67,16 +74,7 @@ export class GameComponent implements OnInit {
   renderGame(map: any) {
     this.gameMap = new MapObj();
     this.generateMap(map);
-    //debugging
-    // this.gameMap.map[4][1].imgTop = {
-    //   'img': 'assets/img/Lasers/laserGreen02.png',
-    //   'alpha': 0.7,
-    //   'rotate': 'rotate(45deg)',
-    // };
-    this.gameInfo = {
-      'turnNumber': this.gameMap.turn,
-      'turnPlayer': this.gameMap.playerTurn,
-    }
+    this._gameService.sendMap(this.gameMap);
     return this;
   }
   generateMap(map: any){
@@ -116,6 +114,11 @@ export class GameComponent implements OnInit {
         }
       }
     }
+    this.gameInfo = {
+      'turnNumber': this.gameMap.turn,
+      'turnPlayer': this.gameMap.playerTurn,
+    }
+    console.log('generated map and game info');
     return this;
   }
   randomMap(){
@@ -620,10 +623,6 @@ export class GameComponent implements OnInit {
   newTurn(player: any) {
 
   }
-
-
-
-
 
   unitInfo(unit: any){
     if (!(unit instanceof Fighter) && !(unit instanceof Scout) && !(unit instanceof Sniper) && !(unit instanceof Capitol) && !(unit instanceof Asteroid)){
