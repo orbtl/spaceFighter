@@ -42,6 +42,7 @@ export class GameComponent implements OnInit {
   private _moveObs: Subscription;
   private _shootObs: Subscription;
   private _specialObs: Subscription;
+  private _endTurnObs: Subscription;
 
   constructor(private _gameService: GameService) { }
 
@@ -73,6 +74,9 @@ export class GameComponent implements OnInit {
     this._specialObs = this._gameService.otherPlayerSpecial.subscribe(data => {
       let specialFrom = this.gameMap.map[data.specialFromRow][data.specialFromCol];
       this.doSpecial(specialFrom, data.player);
+    })
+    this._endTurnObs = this._gameService.otherPlayerEndsTurn.subscribe(data => {
+      this.endTurn(data.player);
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
@@ -711,21 +715,30 @@ export class GameComponent implements OnInit {
     this.actionText = "";
     return this;
   }
-  endTurn(player: any) {
+  endTurnLocal(player: any){
+    if (player == this.gameMap.playerTurn) {// it's this player's turn and they have the right to end it
     this.cancel(player);
-    if (player == this.gameMap.playerTurn) { // it's this player's turn and they have the right to end it
-      this.gameMap.turn += 1;
-      if (this.gameMap.playerTurn == 'red') {
-        this.gameMap.playerTurn = 'blue';
-      }
-      else {
-        this.gameMap.playerTurn = 'red';
-      }
-      for (let row of this.gameMap.map) {
-        for (let col of row) {
-          if (col.team == this.gameMap.playerTurn) {
-            col.newTurn();
-          }
+    this.endTurn(player);
+    this._gameService.sendEndTurn(player);
+    }
+    else {
+      this.actionText = "It is not currently your turn to end.";
+    }
+    return this;
+  }
+
+  endTurn(player: any) {
+    this.gameMap.turn += 1;
+    if (this.gameMap.playerTurn == 'red') {
+      this.gameMap.playerTurn = 'blue';
+    }
+    else {
+      this.gameMap.playerTurn = 'red';
+    }
+    for (let row of this.gameMap.map) {
+      for (let col of row) {
+        if (col.team == this.gameMap.playerTurn) {
+          col.newTurn();
         }
       }
     }

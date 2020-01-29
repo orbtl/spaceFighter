@@ -12,6 +12,7 @@ export class GameService {
   otherPlayerMoves = this._socket.fromEvent<any>('newServerMove');
   otherPlayerShoots = this._socket.fromEvent<any>('newServerShoot');
   otherPlayerSpecial = this._socket.fromEvent<any>('newServerSpecial');
+  otherPlayerEndsTurn = this._socket.fromEvent<any>('serverEndTurn');
   // testData = this._socket.fromEvent<any>('testSocketFromServer');
   constructor(private _socket: Socket) { }
 
@@ -30,7 +31,10 @@ export class GameService {
   sendSpecial(specialData){
     this._socket.emit('newClientSpecial', specialData);
   }
-  
+  sendEndTurn(player){
+    this._socket.emit('clientEndTurn', {'player': player});
+  }
+
   // testMySocketFromClient(){
   //   this._socket.emit('testSocketFromClient', {'lookAtThisKey': 'WowAValueOMG'});
   // }

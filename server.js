@@ -64,6 +64,10 @@ io.on('connection', socket => {
         console.log('Got Special Ability Data');
         socket.broadcast.emit('newServerSpecial', data);
     })
+    socket.on('clientEndTurn', function(data) {
+        console.log('Got End Turn data');
+        socket.broadcast.emit('serverEndTurn', data);
+    })
 
 
 

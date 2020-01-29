@@ -45,7 +45,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <br>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <br>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <br>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <br>\n        <button (click)=\"endTurn(currentPlayer)\">End Turn</button>\n        <br>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>\n<div>\n    <button (click)='newGame()'>Start New Game</button>\n</div>\n<div *ngIf=\"debugMode == true\">\n    <button (click)=\"debugInfo()\">Print Debug Info</button>\n</div>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div style=\"display: block;\">\n    <div *ngIf=\"gameMap\" style=\"display: inline-block\">\n        <table *ngIf=\"gameMap.map\" class=\"borderTable\" [style.backgroundImage]=\"'url('+ gameBG + ')'\">\n            <tr *ngFor=\"let row of gameMap.map\">\n                <td *ngFor=\"let col of row\" (click)=\"clickGame(col, currentPlayer)\" [style.background-color]=\"col.bg\" [style.width]=\"gameScale\" [style.height]=\"gameScale\" [style.max-width]=\"gameScale\" [style.max-height]=\"gameScale\" [style.outline]=\"col.border\">\n                    <div [style.width]=\"gameScale\" [style.height]=\"gameScale\" style=\"display: flex; justify-content: center; align-items: center;\">\n                        <img *ngIf=\"col.img\" [src]=\"col.img\" [width]=\"col.size\" [height]=\"col.size\" [style.opacity]=\"col.imgAlpha\" [style.transform]=\"col.location.transform\">\n                        <img *ngIf=\"col.imgTop\" [src]=\"col.imgTop.img\" [width]=\"col.imgTop.size\" [height]=\"col.imgTop.size\" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style=\"position: absolute;\">\n                        \n                    </div>\n                </td>\n            </tr>\n        </table>\n    </div>\n    <div style=\"display: inline-block; vertical-align: top;\">\n        <button (click)=\"cancel(currentPlayer)\">Cancel Selection</button>\n        <br>\n        <button (click)=\"enableMove(currentPlayer)\">Move</button>\n        <br>\n        <button (click)=\"enableShoot(currentPlayer)\">Shoot</button>\n        <br>\n        <button (click)=\"enableSpecial(currentPlayer)\">Special Ability</button>\n        <br>\n        <button (click)=\"endTurnLocal(currentPlayer)\">End Turn</button>\n        <br>\n        <div *ngIf=\"actionText\">\n            <p>{{actionText}}</p>\n        </div>\n    </div>\n</div>\n<div *ngIf=\"gameInfo\">\n    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>\n    <div *ngIf=\"gameInfo['desc']\" style=\"white-space: pre-line;\">\n        <p>{{gameInfo['desc']}}</p>\n    </div>\n</div>\n<div>\n    <button (click)='newGame()'>Start New Game</button>\n</div>\n<div *ngIf=\"debugMode == true\">\n    <button (click)=\"debugInfo()\">Print Debug Info</button>\n</div>");
 
 /***/ }),
 
@@ -430,6 +430,7 @@ let GameService = class GameService {
         this.otherPlayerMoves = this._socket.fromEvent('newServerMove');
         this.otherPlayerShoots = this._socket.fromEvent('newServerShoot');
         this.otherPlayerSpecial = this._socket.fromEvent('newServerSpecial');
+        this.otherPlayerEndsTurn = this._socket.fromEvent('serverEndTurn');
     }
     sendClick(row, col, player) {
         this._socket.emit('newClientClick', { 'row': row, 'col': col, 'player': player });
@@ -445,6 +446,9 @@ let GameService = class GameService {
     }
     sendSpecial(specialData) {
         this._socket.emit('newClientSpecial', specialData);
+    }
+    sendEndTurn(player) {
+        this._socket.emit('clientEndTurn', { 'player': player });
     }
 };
 GameService.ctorParameters = () => [
@@ -532,6 +536,9 @@ let GameComponent = class GameComponent {
         this._specialObs = this._gameService.otherPlayerSpecial.subscribe(data => {
             let specialFrom = this.gameMap.map[data.specialFromRow][data.specialFromCol];
             this.doSpecial(specialFrom, data.player);
+        });
+        this._endTurnObs = this._gameService.otherPlayerEndsTurn.subscribe(data => {
+            this.endTurn(data.player);
         });
         this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
     }
@@ -1158,21 +1165,29 @@ let GameComponent = class GameComponent {
         this.actionText = "";
         return this;
     }
-    endTurn(player) {
-        this.cancel(player);
+    endTurnLocal(player) {
         if (player == this.gameMap.playerTurn) { // it's this player's turn and they have the right to end it
-            this.gameMap.turn += 1;
-            if (this.gameMap.playerTurn == 'red') {
-                this.gameMap.playerTurn = 'blue';
-            }
-            else {
-                this.gameMap.playerTurn = 'red';
-            }
-            for (let row of this.gameMap.map) {
-                for (let col of row) {
-                    if (col.team == this.gameMap.playerTurn) {
-                        col.newTurn();
-                    }
+            this.cancel(player);
+            this.endTurn(player);
+            this._gameService.sendEndTurn(player);
+        }
+        else {
+            this.actionText = "It is not currently your turn to end.";
+        }
+        return this;
+    }
+    endTurn(player) {
+        this.gameMap.turn += 1;
+        if (this.gameMap.playerTurn == 'red') {
+            this.gameMap.playerTurn = 'blue';
+        }
+        else {
+            this.gameMap.playerTurn = 'red';
+        }
+        for (let row of this.gameMap.map) {
+            for (let col of row) {
+                if (col.team == this.gameMap.playerTurn) {
+                    col.newTurn();
                 }
             }
         }

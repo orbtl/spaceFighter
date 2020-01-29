@@ -2,4 +2,3 @@
 -asteroids all have the same health
 -need to be able to choose a game to join and maybe team color as well
 -need a game over function
--somehow weird  bug moving the ufo after moving something elsE????
