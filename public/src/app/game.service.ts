@@ -11,6 +11,7 @@ export class GameService {
   needNewMap = this._socket.fromEvent<any>('needNewGame');
   otherPlayerMoves = this._socket.fromEvent<any>('newServerMove');
   otherPlayerShoots = this._socket.fromEvent<any>('newServerShoot');
+  otherPlayerSpecial = this._socket.fromEvent<any>('newServerSpecial');
   // testData = this._socket.fromEvent<any>('testSocketFromServer');
   constructor(private _socket: Socket) { }
 
@@ -25,6 +26,9 @@ export class GameService {
   }
   sendShoot(shootData){
     this._socket.emit('newClientShoot', shootData);
+  }
+  sendSpecial(specialData){
+    this._socket.emit('newClientSpecial', specialData);
   }
   
   // testMySocketFromClient(){

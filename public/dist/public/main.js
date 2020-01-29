@@ -429,6 +429,7 @@ let GameService = class GameService {
         this.needNewMap = this._socket.fromEvent('needNewGame');
         this.otherPlayerMoves = this._socket.fromEvent('newServerMove');
         this.otherPlayerShoots = this._socket.fromEvent('newServerShoot');
+        this.otherPlayerSpecial = this._socket.fromEvent('newServerSpecial');
     }
     sendClick(row, col, player) {
         this._socket.emit('newClientClick', { 'row': row, 'col': col, 'player': player });
@@ -441,6 +442,9 @@ let GameService = class GameService {
     }
     sendShoot(shootData) {
         this._socket.emit('newClientShoot', shootData);
+    }
+    sendSpecial(specialData) {
+        this._socket.emit('newClientSpecial', specialData);
     }
 };
 GameService.ctorParameters = () => [
@@ -524,6 +528,10 @@ let GameComponent = class GameComponent {
             let shootFrom = this.gameMap.map[data.shootFromRow][data.shootFromCol];
             let shootTo = this.gameMap.map[data.shootToRow][data.shootToCol];
             this.shootUnit(shootTo, shootFrom, data.player);
+        });
+        this._specialObs = this._gameService.otherPlayerSpecial.subscribe(data => {
+            let specialFrom = this.gameMap.map[data.specialFromRow][data.specialFromCol];
+            this.doSpecial(specialFrom, data.player);
         });
         this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
     }
@@ -752,64 +760,73 @@ let GameComponent = class GameComponent {
                         return this;
                     }
                 }
-                if (this.unitToAct.name == 'Sniper') {
-                    if (this.unitToAct.charged == false) {
-                        this.unitToAct.charged = true;
-                        this.unitToAct.ammo = 0;
-                        this.unitToAct.moved = true;
-                        this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
-                    }
-                }
-                else if (this.unitToAct.name == 'Scout') {
-                    if (this.unitToAct.empAmmo > 0) {
-                        // emp stuff
-                        let row = this.unitToAct.location.row;
-                        let minRow = row;
-                        let maxRow = row;
-                        let col = this.unitToAct.location.col;
-                        let minCol = col;
-                        let maxCol = col;
-                        if ((row - 1) >= 0) {
-                            minRow = row - 1;
-                        }
-                        if ((col - 1) >= 0) {
-                            minCol = col - 1;
-                        }
-                        if ((row + 1) < this.gameMap.map.length) {
-                            maxRow = row + 1;
-                        }
-                        if ((col + 1) < this.gameMap.map[0].length) {
-                            maxCol = col + 1;
-                        }
-                        for (let i = minRow; i <= maxRow; i++) {
-                            for (let j = minCol; j <= maxCol; j++) {
-                                if (this.gameMap.map[i][j].name == 'Capitol') {
-                                    this.gameMap.map[i][j].shieldHP = 0;
-                                    this.gameMap.map[i][j].imgTop = null;
-                                    this.gameMap.map[i][j].imgTopLast = null;
-                                }
-                                else if (this.gameMap.map[i][j].name == 'Sniper') {
-                                    this.gameMap.map[i][j].charged = false;
-                                }
-                            }
-                        }
-                        this.unitToAct.empAmmo = 0;
-                        this.cancel(player);
-                        this.actionText = "EMP Successfully Detonated!  All adjacent Snipers are discharged and Capitols have no shields!";
-                    }
-                    else {
-                        this.actionText = "That scout's EMP is not available";
-                    }
-                }
-                else {
-                    this.actionText = "That unit does not have a special ability";
-                }
+                let specialData = {
+                    'specialFromRow': this.unitToAct.location.row,
+                    'specialFromCol': this.unitToAct.location.col,
+                    'player': player
+                };
+                this.doSpecial(this.unitToAct, player);
+                this._gameService.sendSpecial(specialData);
             }
         }
         else {
             this.actionText = "It is not your turn!";
         }
         return this;
+    }
+    doSpecial(specialFrom, player) {
+        if (specialFrom.name == 'Sniper') {
+            if (specialFrom.charged == false) {
+                specialFrom.charged = true;
+                specialFrom.ammo = 0;
+                specialFrom.moved = true;
+                this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
+            }
+        }
+        else if (specialFrom.name == 'Scout') {
+            if (specialFrom.empAmmo > 0) {
+                // emp stuff
+                let row = specialFrom.location.row;
+                let minRow = row;
+                let maxRow = row;
+                let col = specialFrom.location.col;
+                let minCol = col;
+                let maxCol = col;
+                if ((row - 1) >= 0) {
+                    minRow = row - 1;
+                }
+                if ((col - 1) >= 0) {
+                    minCol = col - 1;
+                }
+                if ((row + 1) < this.gameMap.map.length) {
+                    maxRow = row + 1;
+                }
+                if ((col + 1) < this.gameMap.map[0].length) {
+                    maxCol = col + 1;
+                }
+                for (let i = minRow; i <= maxRow; i++) {
+                    for (let j = minCol; j <= maxCol; j++) {
+                        if (this.gameMap.map[i][j].name == 'Capitol') {
+                            this.gameMap.map[i][j].shieldHP = 0;
+                            this.gameMap.map[i][j].imgTop = null;
+                            this.gameMap.map[i][j].imgTopLast = null;
+                        }
+                        else if (this.gameMap.map[i][j].name == 'Sniper') {
+                            this.gameMap.map[i][j].charged = false;
+                        }
+                    }
+                }
+                specialFrom.empAmmo = 0;
+                this.cancel(player);
+                this.actionText = "EMP Successfully Detonated!  All adjacent Snipers are discharged and Capitols have no shields!";
+            }
+            else {
+                this.actionText = "That scout's EMP is not available";
+            }
+        }
+        else {
+            this.actionText = "That unit does not have a special ability";
+        }
     }
     moveUnitLocal(moveTo, moveFrom, player) {
         let moveData = {

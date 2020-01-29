@@ -60,6 +60,10 @@ io.on('connection', socket => {
         console.log('Got shoot data');
         socket.broadcast.emit('newServerShoot', data);
     })
+    socket.on('newClientSpecial', function(data) {
+        console.log('Got Special Ability Data');
+        socket.broadcast.emit('newServerSpecial', data);
+    })
 
 
 
