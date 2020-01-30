@@ -4,3 +4,4 @@
 -need a game over function
 -players do not persist upon refresh of page.  need to either have login/reg or cookies etc to solve this
 -some kind of image error when using EMP (???)
+-sometimes X's on imgTop seem to stay after using a missile? they disappear on next click tho

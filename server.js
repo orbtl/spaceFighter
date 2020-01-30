@@ -12,7 +12,6 @@ const server = app.listen(8000, () => console.log('listening on port 8000'));
 const io = require('socket.io')(server);
 let exampleGame = new Game('testGame', 1);
 let games = [exampleGame];
-let currentGameMap = null;
 playerGameList = {};
 io.on('connection', socket => {
     let gameFound = false;
@@ -91,15 +90,16 @@ io.on('connection', socket => {
         }
     })
     socket.on('checkForGameMap', function() {
-        for (let game of games) {
-            if ((game.red && game.red.id == socket.id) || (game.blue && game.blue.id == socket.id)) {
-                if (game.gameMap == null) {
-                    socket.emit('needNewGame');
-                }
-                else {
-                    socket.emit('sendMap', game.gameMap);
-                }
+        if (playerGameList[socket.id]) {
+            if (playerGameList[socket.id].gameMap == null) {
+                socket.emit('needNewGame');
             }
+            else {
+                socket.emit('sendMap', playerGameList[socket.id].gameMap);
+            }
+        }
+        else {
+            console.log('Error finding game');
         }
     })
 
@@ -153,7 +153,8 @@ io.on('connection', socket => {
     socket.on('clientEndTurn', function(data) {
         if (playerGameList[socket.id]) {
             console.log('Got End Turn data');
-            socket.to(`game${playerGameList[socket.id].id}`).emit('serverEndTurn', data);
+            socket.to(`game${playerGameList[socket.id].id}`).emit('serverEndTurn', data.player);
+            playerGameList[socket.id].gameMap = data.game;
         }
         else {
             console.log('Error -- player game not found in playerGameList')
@@ -161,26 +162,30 @@ io.on('connection', socket => {
     })
     socket.on('clientEnterGame', function(data) {
         console.log(`client entering game as team ${data.color}`);
-        for (let eachGame of games) {
-            for (let eachPlayer of eachGame.players) {
-                if (socket.id == eachPlayer.id) {
-                    if (data.color == 'red' && eachGame.red == null) {
-                        eachGame.red = eachPlayer;
-                        socket.emit('serverEnterGame');
-                        console.log('player entered game as red');
-                    }
-                    else if (data.color == 'blue' && eachGame.blue == null) {
-                        eachGame.blue = eachPlayer;
-                        socket.emit('serverEnterGame');
-                        console.log('player entered game as blue');
-                    }
-                    else {
-                        console.log('failed to enter game');
-                        io.in(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame});
-                    }
-                    socket.to(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame});
+        if (playerGameList[socket.id]) {
+            for (eachPlayer of playerGameList[socket.id].players){
+                if (eachPlayer.id == socket.id) {
+                    var thisPlayer = eachPlayer;
                 }
             }
+            if (data.color == 'red' && playerGameList[socket.id].red == null) {
+                playerGameList[socket.id].red = thisPlayer;
+                socket.emit('serverEnterGame');
+                console.log('player entered game as red');
+            }
+            else if (data.color == 'blue' && playerGameList[socket.id].blue == null) {
+                playerGameList[socket.id].blue = thisPlayer;
+                socket.emit('serverEnterGame');
+                console.log('player entered game as blue');
+            }
+            else {
+                console.log('failed to enter game');
+                io.in(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
+            }
+            socket.to(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
+        }
+        else {
+            console.log("Player's current game not found");
         }
     })
 

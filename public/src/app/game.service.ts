@@ -42,8 +42,8 @@ export class GameService {
   sendSpecial(specialData){
     this._socket.emit('newClientSpecial', specialData);
   }
-  sendEndTurn(player){
-    this._socket.emit('clientEndTurn', {'player': player});
+  sendEndTurn(player, game){
+    this._socket.emit('clientEndTurn', {'player': player, 'game': game});
   }
   createNewGame(name){
     this._socket.emit('createNewGame', {'name': name});

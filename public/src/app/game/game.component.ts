@@ -82,7 +82,7 @@ export class GameComponent implements OnInit {
       this.doSpecial(specialFrom, data.player);
     })
     this._endTurnObs = this._gameService.otherPlayerEndsTurn.subscribe(data => {
-      this.endTurn(data.player);
+      this.endTurn(data);
     })
     this._goToLobbyObs = this._gameService.goToLobbyListener.subscribe(data => {
       this._router.navigate(['/']);
@@ -114,15 +114,46 @@ export class GameComponent implements OnInit {
         }
         else if (mapData.map[row][col].name == 'Fighter') {
           this.gameMap.map[row][col] = new Fighter(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+          this.gameMap.map[row][col].missile = {
+            'firing': mapData.map[row][col].missile.firing,
+            'target': {
+              'row': mapData.map[row][col].missile.target.row,
+              'col': mapData.map[row][col].missile.target.col,
+            },
+          };
+          this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
+          if (mapData.map[row][col].missile.firing) {
+            this.gameMap.map[row][col].imgTop = {
+              'img': 'assets/img/Power-ups/pill_yellow.png',
+              'alpha': 1,
+              'transform': '',
+              'size': 22,
+            }
+          }
+          this.gameMap[row][col].ammo = mapData.map[row][col].ammo;
         }
         else if (mapData.map[row][col].name == 'Scout') {
           this.gameMap.map[row][col] = new Scout(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+          this.gameMap.map[row][col].empAmmo = mapData.map[row][col].empAmmo;
+          this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
         }
         else if (mapData.map[row][col].name == 'Sniper') {
           this.gameMap.map[row][col] = new Sniper(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+          this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
+          this.gameMap.map[row][col].charged = mapData.map[row][col].charged;
         }
         else if (mapData.map[row][col].name == 'Capitol') {
           this.gameMap.map[row][col] = new Capitol(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
+          this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
+          this.gameMap.map[row][col].shieldHP = mapData.map[row][col].shieldHP;
+          if (mapData.map[row][col].imgTop) {
+            this.gameMap.map[row][col].imgTop = {
+              'img': mapData.map[row][col].imgTop.img,
+              'alpha': mapData.map[row][col].imgTop.alpha,
+              'transform': mapData.map[row][col].imgTop.transform,
+              'size': mapData.map[row][col].imgTop.size
+            }
+          }
         }
         else if (mapData.map[row][col].name == 'Asteroid') {
           var asteroid = new Asteroid(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].hp);
@@ -137,6 +168,9 @@ export class GameComponent implements OnInit {
         }
       }
     }
+    this.gameMap.turn = mapData.turn;
+    this.gameMap.playerTurn = mapData.playerTurn;
+    this.gameMap.activeClick = mapData.activeClick;
     this.gameInfo = {
       'turnNumber': this.gameMap.turn,
       'turnPlayer': this.gameMap.playerTurn,
@@ -767,7 +801,7 @@ export class GameComponent implements OnInit {
     if (player == this.gameMap.playerTurn) {// it's this player's turn and they have the right to end it
     this.cancel(player);
     this.endTurn(player);
-    this._gameService.sendEndTurn(player);
+    this._gameService.sendEndTurn(player, this.gameMap);
     }
     else {
       this.actionText = "It is not currently your turn to end.";
