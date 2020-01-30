@@ -7,6 +7,12 @@ export class Game {
     constructor(name, id) {
         this.name = name;
         this.id = id;
-        this.players = 0;
+        this.players = [];
     }
+}
+export class Player {
+    id;
+    team;
+    constructor(id){
+        this.id = id;
 }

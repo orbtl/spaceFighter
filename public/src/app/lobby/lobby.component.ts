@@ -18,7 +18,8 @@ export class LobbyComponent implements OnInit {
     })
   }
   createGame(){
-    this._gameService.createNewGame();
+    let name = ''
+    this._gameService.createNewGame(name);
   }
   joinGame(gameToJoin){
     this._gameService.joinGame(gameToJoin);

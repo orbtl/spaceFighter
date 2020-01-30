@@ -14,7 +14,7 @@ export class GameService {
   otherPlayerSpecial = this._socket.fromEvent<any>('newServerSpecial');
   otherPlayerEndsTurn = this._socket.fromEvent<any>('serverEndTurn');
   gameListListener = this._socket.fromEvent<any>('gameList');
-  // testData = this._socket.fromEvent<any>('testSocketFromServer');
+  singleGameListener = this._socket.fromEvent<any>('singleGame');
   constructor(private _socket: Socket) { }
 
   sendClick(row: number, col: number, player: string){
@@ -40,6 +40,12 @@ export class GameService {
   }
   joinGame(game){
     this._socket.emit('clientJoinGame', game);
+  }
+  leaveGame(){
+    this._socket.emit('clientLeaveGame');
+  }
+  getAllGames(){
+    this._socket.emit('getAllGames');
   }
 
   // testMySocketFromClient(){

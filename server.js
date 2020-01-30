@@ -1,4 +1,4 @@
-import { Game } from './server/models/game';
+import { Game, Player } from './server/models/game';
 console.log('starting server...');
 const express = require('express');
 const app = express();
@@ -39,7 +39,28 @@ io.on('connection', socket => {
     socket.on('clientJoinGame', function(data) {
         socket.leave('lobby');
         socket.join(`game${data.id}`);
-        
+        for (let eachGame of games){
+            if (eachGame.id == data.id) {
+                let thisPlayer = new Player(socket.id);
+                eachGame.players.push(thisPlayer);
+                io.to('lobby').emit('gameList', {'gameList': games});
+                io.to(`game${data.id}`).emit('singleGame': {'singleGame': eachGame});
+            }
+        }
+    })
+    socket.on('clientLeaveGame', function() {
+        for (let eachGame of games) {
+            for (let playerIndex in eachGame.players) {
+                if (socket.id == eachGame.players[playerIndex].id) {
+                    eachGame.players.splice(playerIndex, 1);
+                    socket.leave(`game${eachGame.id}`);
+                    socket.join('lobby');
+                }
+            }
+        }
+    })
+    socket.on('getAllGames', function() {
+        socket.emit('gameList', {'gameList': games});
     })
 
 
