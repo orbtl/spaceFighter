@@ -191,7 +191,14 @@ io.on('connection', socket => {
         for (let eachGame of games) {
             for (let playerIndex in eachGame.players) {
                 if (socket.id == eachGame.players[playerIndex].id) {
+                    if (eachGame.blue.id == eachGame.players[playerIndex].id) {
+                        eachGame.blue = null;
+                    }
+                    if (eachGame.red.id == eachGame.players[playerIndex].id) {
+                        eachGame.red = null;
+                    }
                     eachGame.players.splice(playerIndex, 1);
+                    console.log('player left game, game data: red:', eachGame.red, 'blue:', eachGame.blue, 'players:', eachGame.players);
                     socket.leave(`game${eachGame.id}`);
                     socket.join('lobby');
                     io.in(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame})
