@@ -71,37 +71,38 @@ export class BaseObj {
     }
     explode(){
         var self = this;
-        var exploded = 0;
+        let exploded = 0;
         this.imgAlpha = '1';
         var fade = setInterval(function(){
-            if (exploded <= 40) { // explosion gif
+            if (exploded < 40) { // explosion gif
                 self.imgTop = {
-                    'img': 'assets/img/Effects/explosion.gif',
+                    'img': `assets/img/explosion/${Math.floor(exploded/5)}.gif`,
                     'alpha': 1,
                     'transform': `rotate(${exploded*2}deg)`,
                     'size': 50,
                 };
-                exploded ++;
             }
             if (self.hp <= 0 && exploded >= 30) { // fade out if dead
                 let alpha = parseFloat(self.imgAlpha);
                 if (alpha <= 0 && exploded >= 49) {
                     clearInterval(fade);
-                    self.bg = '';
-                    return this;
+                    self.img = '';
+                    return self;
                 }
                 else {
-                    alpha -= 0.03;
+                    alpha -= 0.05;
                     self.imgAlpha = alpha.toString();
                 }
             }
             if (exploded >= 40) {
                 self.imgTop = null;
             }
-            if (exploded >= 50) {
+            if (exploded >= 60) {
                 clearInterval(fade);
             }
+            exploded ++;
         }, 10); // interval ms
+        return this;
     }
 }
 
