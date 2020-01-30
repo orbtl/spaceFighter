@@ -124,6 +124,7 @@ export class GameComponent implements OnInit {
       'turnNumber': this.gameMap.turn,
       'turnPlayer': this.gameMap.playerTurn,
     }
+    this.cancel(this.currentPlayer);
     console.log('Finished processing map data received and generating new object instances');
     this.actionText = `Map Loaded from Server.  Your team is: ${this.currentPlayer}`;
     return this;
@@ -133,6 +134,7 @@ export class GameComponent implements OnInit {
     this.gameMap = new MapObj();
     this.generateMap(map);
     this._gameService.sendMap(this.gameMap);
+    this.cancel(this.currentPlayer);
     this.actionText = `New Map/Game started.  Your team is ${this.currentPlayer}`;
     return this;
   }
@@ -703,38 +705,36 @@ export class GameComponent implements OnInit {
     return this;
   }
   cancel(player: any){
-    if (player == this.gameMap.playerTurn){
-      this.inMove = false;
-      this.inShoot = false;
-      this.inSpecial = false;
-      if (this.moveable) {
-        for (let item of this.moveable) {
-          item.bg = '';
-        }
+    this.inMove = false;
+    this.inShoot = false;
+    this.inSpecial = false;
+    if (this.moveable) {
+      for (let item of this.moveable) {
+        item.bg = '';
       }
-      if (this.shootInRange) {
-        for (let item of this.shootInRange) {
-          item.border = '';
-        }
+    }
+    if (this.shootInRange) {
+      for (let item of this.shootInRange) {
+        item.border = '';
       }
-      if (this.shootable) {
-        for (let item of this.shootable) {
-          if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
-            if (item.imgTopLast) {
-              item.imgTop = item.imgTopLast;
-              item.imgTopLast = null;
-            }
-            else {
-              item.imgTop = null;
-            }
+    }
+    if (this.shootable) {
+      for (let item of this.shootable) {
+        if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
+          if (item.imgTopLast) {
+            item.imgTop = item.imgTopLast;
+            item.imgTopLast = null;
+          }
+          else {
+            item.imgTop = null;
           }
         }
       }
-      this.moveable = [];
-      this.shootInRange = [];
-      this.shootable = [];
-      this.unitToAct = null;
     }
+    this.moveable = [];
+    this.shootInRange = [];
+    this.shootable = [];
+    this.unitToAct = null;
     if (player == 'blue' && this.lastBlueClicked) {
       this.lastBlueClicked.border = "";
       this.lastBlueClicked = null;
@@ -779,6 +779,7 @@ export class GameComponent implements OnInit {
       }
     }
     this.newTurn(player);
+    this.cancel(player);
     return this;
   }
   newTurn(player: any) {
