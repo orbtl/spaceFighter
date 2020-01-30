@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { GameService } from '../game.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lobby',
@@ -10,12 +11,11 @@ import { GameService } from '../game.service';
 export class LobbyComponent implements OnInit {
   gameList: any;
   singleGame: any;
-  redAvail: boolean;
-  blueAvail: boolean;
   private _gameListObs: Subscription;
   private _singleGameObs: Subscription;
+  private _enterGameObs: Subscription;
 
-  constructor(private _gameService: GameService) { }
+  constructor(private _gameService: GameService, private _router: Router) { }
 
   ngOnInit() {
     this._gameListObs = this._gameService.gameListListener.subscribe(data => {
@@ -25,6 +25,9 @@ export class LobbyComponent implements OnInit {
     this._singleGameObs = this._gameService.singleGameListener.subscribe(data => {
       this.singleGame = data.singleGame;
       this.gameList = null;
+    })
+    this._enterGameObs = this._gameService.enterGameListener.subscribe(data => {
+      this.enterGame();
     })
   }
   createGame(){
@@ -36,5 +39,11 @@ export class LobbyComponent implements OnInit {
   }
   leaveGame(){
     this._gameService.leaveGame();
+  }
+  startGame(color) {
+    this._gameService.enterGame(color);
+  }
+  enterGame(){
+    this._router.navigate(['/game']);
   }
 }

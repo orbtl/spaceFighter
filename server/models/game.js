@@ -4,6 +4,7 @@ module.exports = class Game {
     players;
     red;
     blue;
+    gameMap;
     constructor(name, id) {
         this.name = name;
         this.id = id;

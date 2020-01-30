@@ -10,7 +10,7 @@
 </div>
 <div *ngIf="singleGame">
     <h3>You have joined the following game:</h3>
-    <p>Name: {{singleGame.name}}</p>
+    <p>Name: {{singleGame.name}}</p> <button *ngIf="!singleGame.red" (click)='startGame("red")'>Start as Red</button> <button *ngIf="!singleGame.blue" (click)='startGame("blue")'>Start as Blue</button>
     <p># Players: {{singleGame.players.length}}</p>
     <button (click)='leaveGame()'>Leave Game</button>
 </div>

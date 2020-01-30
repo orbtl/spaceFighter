@@ -47,6 +47,7 @@ export class GameComponent implements OnInit {
   constructor(private _gameService: GameService) { }
 
   ngOnInit() {
+    this._gameService.getTeam();
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
       this.selectClick(data.row, data.col, data.player);
     })
@@ -80,6 +81,7 @@ export class GameComponent implements OnInit {
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
+
   newGame(){
     this.blueprint = this.randomMap();
     // this._gameService.sendMap(this.blueprint);

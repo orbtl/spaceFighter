@@ -70,26 +70,23 @@ io.on('connection', socket => {
     socket.on('getAllGames', function() {
         socket.emit('gameList', {'gameList': games});
     })
+    socket.on('getTeam', function() {
+        let team = '';
+        for (let game of games) {
+            if (game.red && game.red.id == socket.id) {
+                team = 'red';
+                socket.emit('teamAssignment', {'team': team});
+            }
+            if (game.blue && game.blue.id == socket.id) {
+                team = 'blue';
+                socket.emit('teamAssignment', {'team': team});
+            }
+        }
+        if (team == '') {
+            socket.emit('goToLobby');
+        }
+    })
 
-
-
-
-
-    // if (players.blue == null) {
-    //     players.blue = {'socketID': socket.id, 'player': 'blue'};
-    //     console.log(`Assigned socket id ${socket.id} blue team`)
-    //     socket.emit('teamAssignment', {'team': 'blue'})
-    // }
-    // else if (players.red == null) {
-    //     players.red = {'socketID': socket.id, 'player': 'red'};
-    //     console.log(`Assigned socket id ${socket.id} red team`)
-    //     socket.emit('teamAssignment', {'team': 'red'})
-    // } else { // no players available
-    //     console.log(`Disconnecting socket id ${socket.id} because there are no available player spots in game`)
-    //     let i = sockets.indexOf(socket);
-    //     sockets.splice(i, 1);
-    //     socket.disconnect();
-    // }
     // if (currentGameMap == null) {
     //     socket.emit('needNewGame');
     // }
@@ -123,6 +120,30 @@ io.on('connection', socket => {
     socket.on('clientEndTurn', function(data) {
         console.log('Got End Turn data');
         socket.broadcast.emit('serverEndTurn', data);
+    })
+    socket.on('clientEnterGame', function(data) {
+        console.log(`client entering game as team ${data.color}`);
+        for (let eachGame of games) {
+            for (let eachPlayer of eachGame.players) {
+                if (socket.id == eachPlayer.id) {
+                    if (data.color == 'red' && eachGame.red == null) {
+                        eachGame.red = eachPlayer;
+                        socket.emit('serverEnterGame');
+                        console.log('player entered game as red');
+                    }
+                    else if (data.color == 'blue' && eachGame.blue == null) {
+                        eachGame.blue = eachPlayer;
+                        socket.emit('serverEnterGame');
+                        console.log('player entered game as blue');
+                    }
+                    else {
+                        console.log('failed to enter game');
+                        io.to(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame});
+                    }
+                    io.to(`game${eachGame.id}`).broadcast.emit('singleGame', {'singleGame': eachGame});
+                }
+            }
+        }
     })
 
 
