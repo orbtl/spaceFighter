@@ -12,34 +12,37 @@ let players = {
     'blue': null,
     'red': null
 };
+let games = [];
 let currentGameMap = null;
 io.on('connection', socket => {
     if (sockets.indexOf(socket) == -1){
         sockets.push(socket);
         console.log(`Socket ${socket.id} added`);
     }
-    console.log(`All Sockets: ${sockets}`)
-    if (players.blue == null) {
-        players.blue = {'socketID': socket.id, 'player': 'blue'};
-        console.log(`Assigned socket id ${socket.id} blue team`)
-        socket.emit('teamAssignment', {'team': 'blue'})
-    }
-    else if (players.red == null) {
-        players.red = {'socketID': socket.id, 'player': 'red'};
-        console.log(`Assigned socket id ${socket.id} red team`)
-        socket.emit('teamAssignment', {'team': 'red'})
-    } else { // no players available
-        console.log(`Disconnecting socket id ${socket.id} because there are no available player spots in game`)
-        let i = sockets.indexOf(socket);
-        sockets.splice(i, 1);
-        socket.disconnect();
-    }
-    if (currentGameMap == null) {
-        socket.emit('needNewGame');
-    }
-    else {
-        socket.emit('sendMap', currentGameMap);
-    }
+    console.log(`All Sockets: ${sockets}`);
+    socket.emit('gameList', games);
+
+    // if (players.blue == null) {
+    //     players.blue = {'socketID': socket.id, 'player': 'blue'};
+    //     console.log(`Assigned socket id ${socket.id} blue team`)
+    //     socket.emit('teamAssignment', {'team': 'blue'})
+    // }
+    // else if (players.red == null) {
+    //     players.red = {'socketID': socket.id, 'player': 'red'};
+    //     console.log(`Assigned socket id ${socket.id} red team`)
+    //     socket.emit('teamAssignment', {'team': 'red'})
+    // } else { // no players available
+    //     console.log(`Disconnecting socket id ${socket.id} because there are no available player spots in game`)
+    //     let i = sockets.indexOf(socket);
+    //     sockets.splice(i, 1);
+    //     socket.disconnect();
+    // }
+    // if (currentGameMap == null) {
+    //     socket.emit('needNewGame');
+    // }
+    // else {
+    //     socket.emit('sendMap', currentGameMap);
+    // }
 
     // end stuff to do on connection always
 

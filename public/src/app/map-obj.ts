@@ -271,7 +271,7 @@ export class Capitol extends BaseObj {
     }
     die(){
         console.log('Game over');
-        super.die();
+        super.explode();
         // need game over logic here
         return this;
     }

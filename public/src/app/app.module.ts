@@ -6,13 +6,15 @@ import { AppComponent } from './app.component';
 import { GameComponent } from './game/game.component';
 
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { LobbyComponent } from './lobby/lobby.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:8000', options: {} };
 
 @NgModule({
   declarations: [
     AppComponent,
-    GameComponent
+    GameComponent,
+    LobbyComponent
   ],
   imports: [
     BrowserModule,

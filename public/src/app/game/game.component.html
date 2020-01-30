@@ -1,4 +1,8 @@
 <div style="display: block;">
+    <h3>Space Fighter</h3>
+    <h4 *ngIf="currentPlayer">Your team: {{currentPlayer}}</h4>
+</div>
+<div style="display: block;">
     <div *ngIf="gameMap" style="display: inline-block">
         <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
             <tr *ngFor="let row of gameMap.map">
