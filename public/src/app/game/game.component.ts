@@ -425,6 +425,7 @@ export class GameComponent implements OnInit {
     else if (specialFrom.unitName == 'Scout') {
       if (specialFrom.empAmmo > 0) {
         // emp stuff
+        specialFrom.fireEMP();
         let row = specialFrom.location.row;
         let minRow = row;
         let maxRow = row;

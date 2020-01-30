@@ -161,13 +161,33 @@ export class Scout extends BaseObj {
         this.unitName = "Scout";
     }
     fireEMP(){
-        if (this.empAmmo > 0) {
-            // do EMP exploding stuff
+        this.imgTop = {
+            'img': 'assets/img/Effects/EMP.png',
+            'alpha': '0.1',
+            'transform': '',
+            'size': 60,
         }
-        else {
-            console.log('Out of EMP ammo');
-        }
-        this.empAmmo = 0;
+        var self = this;
+        let time = 0;
+        var emp = setInterval(function(){
+            self.imgTop.size = (time*2.2 + 60);
+            self.imgTop.transform = `rotate(${time*6}deg)`;
+            if (time < 40) { // emp animation
+                self.imgTop.alpha = ((time/10) + 0.1).toString();
+            }
+            else if (time == 40) {
+                self.imgTop.alpha = '1';
+            }
+            else if (time > 40 && time < 60) {
+                self.imgTop.alpha = (parseFloat(self.imgTop.alpha) - 0.05);
+            }
+            else if (time >= 60) {
+                self.imgTop.alpha = '0';
+                self.imgTop = null;
+                clearInterval(emp);
+            }
+            time ++;
+        }, 7); // interval ms
         return this;
     }
     shoot(targetObj: any) {
