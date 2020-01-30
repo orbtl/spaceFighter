@@ -19,7 +19,7 @@ export class BaseObj {
     border: string;
     team: string;
     moved: boolean;
-    name: string;
+    unitName: string;
 
     constructor (row: number, col: number, rotate: number, hp: number, speed: number, range: number){
         this.location.row = row;
@@ -36,7 +36,7 @@ export class BaseObj {
         this.team = "neutral";
         this.moved = false;
         this.imgAlpha = "1";
-        this.name = "Empty Space";
+        this.unitName = "Empty Space";
     }
     click(){
         console.log('clicked an empty space');
@@ -119,7 +119,7 @@ export class Fighter extends BaseObj {
         super(row, col, rotate, 50, 4, 6);
         this.img = `assets/img/playerShip1_${color}.png`;
         this.team = color;
-        this.name = "Fighter";
+        this.unitName = "Fighter";
     }
     fireMissile(targetRow: number, targetCol: number){
         this.missile.firing = true;
@@ -158,7 +158,7 @@ export class Scout extends BaseObj {
         this.empAmmo = 1;
         this.img = `assets/img/playerShip2_${color}.png`;
         this.team = color;
-        this.name = "Scout";
+        this.unitName = "Scout";
     }
     fireEMP(){
         if (this.empAmmo > 0) {
@@ -195,7 +195,7 @@ export class Sniper extends BaseObj {
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;
-        this.name = "Sniper";
+        this.unitName = "Sniper";
     }
     charge(){
         if (this.ammo > 0 && this.moved == false && this.charged == false) {
@@ -245,7 +245,7 @@ export class Capitol extends BaseObj {
             'transform': '',
             'size': 60,
         };
-        this.name = "Capitol";
+        this.unitName = "Capitol";
     }
     shoot(targetObj: any) {
         try {
@@ -299,7 +299,7 @@ export class Asteroid extends BaseObj {
         }
         this.location.rotate = (Math.floor(Math.random()*360));
         this.location.transform = `rotate(${this.location.rotate}deg)`;
-        this.name = "Asteroid";
+        this.unitName = "Asteroid";
     }
     newTurn(){
         let rotate = (this.location.rotate + (Math.floor(Math.random()*60)-30));

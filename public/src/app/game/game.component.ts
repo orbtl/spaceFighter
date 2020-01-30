@@ -104,19 +104,17 @@ export class GameComponent implements OnInit {
     }
     return this;
   }
-  processExistingMap(mapDataRaw: any){
-    console.log('got existing map data, beginning processing:', mapDataRaw);
-    var mapData = JSON.parse(mapDataRaw);
-    console.log('parsed mapData:', mapData);
-    console.log('testing reading unparsed data: ammo of first fighter:', mapDataRaw[1][0]['ammo']);
+  processExistingMap(mapData: any){
     this.gameMap = new MapObj();
-    this.gameMap.map = mapData.map;
+    this.gameMap.map =[]
     for (let row in mapData.map) {
+      this.gameMap.map.push([]);
       for (let col in mapData.map[row]) {
-        if (mapData.map[row][col].name == 'Empty Space') {
+        this.gameMap.map[row].push({});
+        if (mapData.map[row][col].unitName == 'Empty Space') {
           this.gameMap.map[row][col] = new BaseObj(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].hp, mapData.map[row][col].speed, mapData.map[row][col].range);
         }
-        else if (mapData.map[row][col].name == 'Fighter') {
+        else if (mapData.map[row][col].unitName == 'Fighter') {
           this.gameMap.map[row][col] = new Fighter(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
           this.gameMap.map[row][col].missile = {
             'firing': mapData.map[row][col].missile.firing,
@@ -137,17 +135,17 @@ export class GameComponent implements OnInit {
           console.log('fighter found with ammo:', mapData.map[row][col].ammo);
           this.gameMap.map[row][col].ammo = mapData.map[row][col].ammo;
         }
-        else if (mapData.map[row][col].name == 'Scout') {
+        else if (mapData.map[row][col].unitName == 'Scout') {
           this.gameMap.map[row][col] = new Scout(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
           this.gameMap.map[row][col].empAmmo = mapData.map[row][col].empAmmo;
           this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
         }
-        else if (mapData.map[row][col].name == 'Sniper') {
+        else if (mapData.map[row][col].unitName == 'Sniper') {
           this.gameMap.map[row][col] = new Sniper(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
           this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
           this.gameMap.map[row][col].charged = mapData.map[row][col].charged;
         }
-        else if (mapData.map[row][col].name == 'Capitol') {
+        else if (mapData.map[row][col].unitName == 'Capitol') {
           this.gameMap.map[row][col] = new Capitol(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
           this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
           this.gameMap.map[row][col].shieldHP = mapData.map[row][col].shieldHP;
@@ -160,7 +158,7 @@ export class GameComponent implements OnInit {
             }
           }
         }
-        else if (mapData.map[row][col].name == 'Asteroid') {
+        else if (mapData.map[row][col].unitName == 'Asteroid') {
           var asteroid = new Asteroid(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].hp);
           asteroid.size = mapData.map[row][col].size;
           asteroid.img = mapData.map[row][col].img;
@@ -189,7 +187,7 @@ export class GameComponent implements OnInit {
   renderGame(map: any) {
     this.gameMap = new MapObj();
     this.generateMap(map);
-    this._gameService.sendMap(JSON.stringify(this.gameMap));
+    this._gameService.sendMap(this.gameMap);
     this.cancel(this.currentPlayer);
     this.actionText = `New Map/Game started.  Your team is ${this.currentPlayer}`;
     return this;
@@ -396,7 +394,7 @@ export class GameComponent implements OnInit {
     return this;
   }
   doSpecial(specialFrom: any, player: any){
-    if (specialFrom.name == 'Sniper') {
+    if (specialFrom.unitName == 'Sniper') {
       if (specialFrom.charged == false) {
         if (specialFrom.moved == false) {
           if (specialFrom.ammo > 0) {
@@ -417,7 +415,7 @@ export class GameComponent implements OnInit {
         this.actionText = "This sniper is already charged!";
       }
     }
-    else if (specialFrom.name == 'Scout') {
+    else if (specialFrom.unitName == 'Scout') {
       if (specialFrom.empAmmo > 0) {
         // emp stuff
         let row = specialFrom.location.row;
@@ -440,12 +438,12 @@ export class GameComponent implements OnInit {
         }
         for (let i=minRow; i<=maxRow; i++) {
           for (let j=minCol; j<=maxCol; j++) {
-            if (this.gameMap.map[i][j].name == 'Capitol'){
+            if (this.gameMap.map[i][j].unitName == 'Capitol'){
               this.gameMap.map[i][j].shieldHP = 0;
               this.gameMap.map[i][j].imgTop = null;
               this.gameMap.map[i][j].imgTopLast = null;
             }
-            else if (this.gameMap.map[i][j].name == 'Sniper') {
+            else if (this.gameMap.map[i][j].unitName == 'Sniper') {
               this.gameMap.map[i][j].charged = false;
             }
           }
@@ -546,7 +544,7 @@ export class GameComponent implements OnInit {
   }
 
   shootUnit(shootTo: any, shootFrom: any, player: any) {
-    if (shootFrom.name == 'Fighter') {
+    if (shootFrom.unitName == 'Fighter') {
       shootFrom.fireMissile(shootTo.location.row, shootTo.location.col);
     }
     else {
@@ -601,7 +599,7 @@ export class GameComponent implements OnInit {
           this.moveRange(clicked.location.row, clicked.location.col, clicked.speed);
         }
         if (clicked.ammo > 0) {
-          if (clicked.name == 'Fighter') {
+          if (clicked.unitName == 'Fighter') {
             this.shootRange(clicked.location.row, clicked.location.col, clicked.range, true);
           }
           else {
@@ -806,7 +804,7 @@ export class GameComponent implements OnInit {
     if (player == this.gameMap.playerTurn) {// it's this player's turn and they have the right to end it
     this.cancel(player);
     this.endTurn(player);
-    this._gameService.sendEndTurn(player, JSON.stringify(this.gameMap));
+    this._gameService.sendEndTurn(player, this.gameMap);
     }
     else {
       this.actionText = "It is not currently your turn to end.";
@@ -842,7 +840,7 @@ export class GameComponent implements OnInit {
     for (let row of this.gameMap.map) {
       for (let col of row) {
         if (col.team == this.gameMap.playerTurn) {
-          if (col.name == "Fighter" && col.missile.firing == true) {
+          if (col.unitName == "Fighter" && col.missile.firing == true) {
             this.detonateMissile(col.missile.target.row, col.missile.target.col);
           }
           col.newTurn();
@@ -892,11 +890,11 @@ export class GameComponent implements OnInit {
       this.gameInfo['desc'] = 'Empty Space';
     }
     else{
-      this.gameInfo['desc'] = ` Unit Type: ${unit.name} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
-      if (unit.name != 'Asteroid') {
+      this.gameInfo['desc'] = ` Unit Type: ${unit.unitName} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
+      if (unit.unitName != 'Asteroid') {
         this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
       }
-      if (unit.name == 'Fighter') {
+      if (unit.unitName == 'Fighter') {
         this.gameInfo['desc'] += `\n Missile Available: `;
         if (unit.ammo == 1) {
           this.gameInfo['desc'] += `Yes`;
@@ -908,7 +906,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += ` (Missile en route)`;
         }
       }
-      else if (unit.name ==  'Scout') {
+      else if (unit.unitName ==  'Scout') {
         this.gameInfo['desc'] += `\n EMP Available: `;
         if (unit.empAmmo == 1) {
           this.gameInfo['desc'] += `Yes`;
@@ -917,7 +915,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += `No`;
         }
       }
-      else if (unit.name == 'Sniper') {
+      else if (unit.unitName == 'Sniper') {
         this.gameInfo['desc'] += `\n Charged: `;
         if (unit.charged == true) {
           this.gameInfo['desc'] += `Yes`;
@@ -926,7 +924,7 @@ export class GameComponent implements OnInit {
           this.gameInfo['desc'] += `No`;
         }
       }
-      else if (unit.name == 'Capitol') {
+      else if (unit.unitName == 'Capitol') {
         this.gameInfo['desc'] += `\n Shield Health: ${unit.shieldHP}`;
       }
     }

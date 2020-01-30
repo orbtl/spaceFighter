@@ -95,8 +95,7 @@ io.on('connection', socket => {
                 socket.emit('needNewGame');
             }
             else {
-                console.log(JSON.stringify(playerGameList[socket.id].gameMap));
-                socket.emit('sendMap', JSON.stringify(playerGameList[socket.id].gameMap));
+                socket.emit('sendMap', playerGameList[socket.id].gameMap);
             }
         }
         else {
@@ -116,8 +115,7 @@ io.on('connection', socket => {
     })
     socket.on('newMap', function(data) {
         if (playerGameList[socket.id]) {
-            playerGameList[socket.id].gameMap = JSON.parse(data);
-            console.log('got new map: ', JSON.parse(data));
+            playerGameList[socket.id].gameMap = data;
             socket.to(`game${playerGameList[socket.id].id}`).emit('sendMap', data);
         }
         else {
@@ -155,7 +153,7 @@ io.on('connection', socket => {
         if (playerGameList[socket.id]) {
             console.log('Got End Turn data');
             socket.to(`game${playerGameList[socket.id].id}`).emit('serverEndTurn', data.player);
-            let gameData = JSON.parse(data.game);
+            let gameData = data.game;
             playerGameList[socket.id].gameMap = gameData;
             // debug
             console.log('game data:', gameData);
