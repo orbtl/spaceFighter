@@ -3,6 +3,7 @@ import { Observable, Subscription } from 'rxjs';
 import { GameService } from '../game.service';
 import { Router } from '@angular/router';
 
+
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -11,6 +12,11 @@ import { Router } from '@angular/router';
 export class LobbyComponent implements OnInit {
   gameList: any;
   singleGame: any;
+  settings: any = {
+    'maxAsteroids': 0,
+    'numCols': 0,
+    'numRows': 0
+  };
   private _gameListObs: Subscription;
   private _singleGameObs: Subscription;
   private _enterGameObs: Subscription;
@@ -26,6 +32,7 @@ export class LobbyComponent implements OnInit {
     this._singleGameObs = this._gameService.singleGameListener.subscribe(data => {
       this.singleGame = data.singleGame;
       this.gameList = null;
+      this.settings = this.singleGame.settings;
     })
     this._enterGameObs = this._gameService.enterGameListener.subscribe(data => {
       this.enterGame();
@@ -47,5 +54,8 @@ export class LobbyComponent implements OnInit {
   }
   enterGame(){
     this._router.navigate(['/game']);
+  }
+  changeSettings(){
+    this._gameService.updateGame(this.settings);
   }
 }

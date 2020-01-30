@@ -60,6 +60,9 @@ export class GameService {
   enterGame(color){
     this._socket.emit('clientEnterGame', {'color': color});
   }
+  updateGame(settings){
+    this._socket.emit('clientUpdateGame', settings);
+  }
 
   // testMySocketFromClient(){
   //   this._socket.emit('testSocketFromClient', {'lookAtThisKey': 'WowAValueOMG'});

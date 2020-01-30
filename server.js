@@ -92,7 +92,7 @@ io.on('connection', socket => {
     socket.on('checkForGameMap', function() {
         if (playerGameList[socket.id]) {
             if (playerGameList[socket.id].gameMap == null) {
-                socket.emit('needNewGame');
+                socket.emit('needNewGame', {'settings': playerGameList[socket.id].settings});
             }
             else {
                 socket.emit('sendMap', playerGameList[socket.id].gameMap);
@@ -197,7 +197,12 @@ io.on('connection', socket => {
             console.log("Player's current game not found");
         }
     })
-
+    socket.on('clientUpdateGame', function(data) {
+        if (playerGameList[socket.id]) {
+            playerGameList[socket.id].settings = data;
+            io.in(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
+        }
+    })
 
 
     socket.on('disconnect', function() {

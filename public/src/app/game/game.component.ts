@@ -64,7 +64,10 @@ export class GameComponent implements OnInit {
       this.processExistingMap(data);
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
-      console.log('creating new map data');
+      console.log('creating new map data with settings:', data.settings);
+      this.numRows = data.settings.numRows;
+      this.numColumns = data.settings.numCols;
+      this.numAsteroids = data.settings.maxAsteroids;
       this.newGame();
     })
     this._moveObs = this._gameService.otherPlayerMoves.subscribe(data => {
@@ -251,6 +254,7 @@ export class GameComponent implements OnInit {
         blueprint[i].push(0);
       }
     }
+    // put blue and red ships in corners
     blueprint[0][0] = "bCapitol";
     blueprint[0][1] = "bSniper";
     blueprint[1][0] = "bFighter";
