@@ -317,6 +317,8 @@ export class Asteroid extends BaseObj {
         else { // small meteor
             this.size = (Math.floor(Math.random()*15)+20);
         }
+        let randMeteorHPDiff = (Math.floor(Math.random()*10)-5); // random from -5 to 5 to add to size
+        this.hp = (this.size + randMeteorHPDiff);
         this.location.rotate = (Math.floor(Math.random()*360));
         this.location.transform = `rotate(${this.location.rotate}deg)`;
         this.unitName = "Asteroid";
