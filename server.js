@@ -1,3 +1,4 @@
+import { Game } from './server/models/game';
 console.log('starting server...');
 const express = require('express');
 const app = express();
@@ -12,7 +13,8 @@ let players = {
     'blue': null,
     'red': null
 };
-let games = [];
+let exampleGame = new Game('testGame', 1);
+let games = [exampleGame];
 let currentGameMap = null;
 io.on('connection', socket => {
     if (sockets.indexOf(socket) == -1){
@@ -20,7 +22,29 @@ io.on('connection', socket => {
         console.log(`Socket ${socket.id} added`);
     }
     console.log(`All Sockets: ${sockets}`);
-    socket.emit('gameList', games);
+    socket.emit('gameList', {'gameList': games});
+    socket.join('lobby');
+    socket.on('createNewGame', function(data) {
+        console.log('Creating new game and socket room');
+        if (games.length == 0) {
+            let thisID = 1;
+        }
+        else {
+            let thisID = (games[games.length-1].id + 1); // one more than the last id in the list of games
+        }
+        let newGame = new Game(data.name, thisID);
+        games.push(newGame);
+        io.to('lobby').emit('gameList', {'gameList': games});
+    })
+    socket.on('clientJoinGame', function(data) {
+        socket.leave('lobby');
+        socket.join(`game${data.id}`);
+        
+    })
+
+
+
+
 
     // if (players.blue == null) {
     //     players.blue = {'socketID': socket.id, 'player': 'blue'};

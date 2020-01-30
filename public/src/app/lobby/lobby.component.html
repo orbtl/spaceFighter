@@ -1,1 +1,10 @@
-<p>lobby works!</p>
+<h1>Space Fighter</h1>
+<h5>Created by Jake Sklarew</h5>
+<br>
+<button (click)="createGame()">Create New Game</button>
+<div *ngIf="gameList">
+    <h3>All Existing Games: </h3>
+    <ul>
+        <li *ngFor="let game of gameList">{{game['name']}} -- Players: {{game['players']}} -- <button (click)="joinGame(game)">Join Game</button></li>
+    </ul>
+</div>

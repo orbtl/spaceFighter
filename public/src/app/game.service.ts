@@ -13,6 +13,7 @@ export class GameService {
   otherPlayerShoots = this._socket.fromEvent<any>('newServerShoot');
   otherPlayerSpecial = this._socket.fromEvent<any>('newServerSpecial');
   otherPlayerEndsTurn = this._socket.fromEvent<any>('serverEndTurn');
+  gameListListener = this._socket.fromEvent<any>('gameList');
   // testData = this._socket.fromEvent<any>('testSocketFromServer');
   constructor(private _socket: Socket) { }
 
@@ -33,6 +34,12 @@ export class GameService {
   }
   sendEndTurn(player){
     this._socket.emit('clientEndTurn', {'player': player});
+  }
+  createNewGame(name){
+    this._socket.emit('createNewGame', {'name': name});
+  }
+  joinGame(game){
+    this._socket.emit('clientJoinGame', game);
   }
 
   // testMySocketFromClient(){
