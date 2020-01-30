@@ -2,3 +2,4 @@
 -asteroids all have the same health
 -need to be able to choose a game to join and maybe team color as well
 -need a game over function
+-players do not persist upon refresh of page.  need to either have login/reg or cookies etc to solve this

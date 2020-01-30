@@ -10,6 +10,8 @@ import { GameService } from '../game.service';
 export class LobbyComponent implements OnInit {
   gameList: any;
   singleGame: any;
+  redAvail: boolean;
+  blueAvail: boolean;
   private _gameListObs: Subscription;
   private _singleGameObs: Subscription;
 

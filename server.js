@@ -129,5 +129,16 @@ io.on('connection', socket => {
 
     socket.on('disconnect', function() {
         console.log(`Socket disconnected with id ${socket.id}`)
+        for (let eachGame of games) {
+            for (let playerIndex in eachGame.players) {
+                if (socket.id == eachGame.players[playerIndex].id) {
+                    eachGame.players.splice(playerIndex, 1);
+                    socket.leave(`game${eachGame.id}`);
+                    socket.join('lobby');
+                    io.to(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame})
+                    io.to('lobby').emit('gameList', {'gameList': games});
+                }
+            }
+        }
     })
 })
