@@ -72,6 +72,7 @@ export class BaseObj {
     explode(){
         var self = this;
         var exploded = 0;
+        this.imgAlpha = '1';
         var fade = setInterval(function(){
             if (exploded <= 40) { // explosion gif
                 self.imgTop = {
@@ -84,7 +85,7 @@ export class BaseObj {
             }
             if (self.hp <= 0 && exploded >= 30) { // fade out if dead
                 let alpha = parseFloat(self.imgAlpha);
-                if (alpha <= 0) {
+                if (alpha <= 0 && exploded >= 49) {
                     clearInterval(fade);
                     self.bg = '';
                     return this;

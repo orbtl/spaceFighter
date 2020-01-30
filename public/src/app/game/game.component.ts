@@ -238,12 +238,17 @@ export class GameComponent implements OnInit {
             return this;
           }
         }
-        if (this.unitToAct.moved == false) {
-          this.inMove = true;
-          this.actionText = "Select a position marked by a green background to move to";
+        if (this.unitToAct.team == player) {
+          if (this.unitToAct.moved == false) {
+            this.inMove = true;
+            this.actionText = "Select a position marked by a green background to move to";
+          }
+          else {
+            this.actionText = "That unit has already moved";
+          }
         }
         else {
-          this.actionText = "That unit has already moved";
+          this.actionText = "That is not your unit to move.";
         }
       }
     }
@@ -273,12 +278,17 @@ export class GameComponent implements OnInit {
             return this;
           }
         }
-        if (this.unitToAct.ammo > 0) {
-          this.inShoot = true;
-          this.actionText = "Select a target marked by an X to shoot (range illustrated by green border)"
+        if (this.unitToAct.team == player) {
+          if (this.unitToAct.ammo > 0) {
+            this.inShoot = true;
+            this.actionText = "Select a target marked by an X to shoot (range illustrated by green border)"
+          }
+          else {
+            this.actionText = "That unit does not have any ammo";
+          }
         }
         else {
-          this.actionText = "That unit does not have any ammo";
+          this.actionText = "You cannot fire your enemy's weapons for them!";
         }
       }
     }
@@ -308,13 +318,18 @@ export class GameComponent implements OnInit {
             return this;
           }
         }
-        let specialData = {
-          'specialFromRow': this.unitToAct.location.row,
-          'specialFromCol': this.unitToAct.location.col,
-          'player': player
+        if (this.unitToAct.team == player) {
+          let specialData = {
+            'specialFromRow': this.unitToAct.location.row,
+            'specialFromCol': this.unitToAct.location.col,
+            'player': player
+          }
+          this.doSpecial(this.unitToAct, player);
+          this._gameService.sendSpecial(specialData);
         }
-        this.doSpecial(this.unitToAct, player);
-        this._gameService.sendSpecial(specialData);
+        else {
+          this.actionText = "You cannot use your enemy's special abilities for them!";
+        }
       }
     }
     else {
