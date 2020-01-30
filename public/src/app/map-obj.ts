@@ -64,15 +64,15 @@ export class BaseObj {
         }
         this.hp -= amount;
         if (this.hp <= 0) {
-            this.die();
+            this.hp = 0;
         }
+        this.explode();
         return this;
     }
-    die() {
-        this.hp = 0;
+    explode(){
         var self = this;
         var exploded = 0;
-        var fade = setInterval(function() {
+        var fade = setInterval(function(){
             if (exploded <= 40) { // explosion gif
                 self.imgTop = {
                     'img': 'assets/img/Effects/explosion.gif',
@@ -82,7 +82,7 @@ export class BaseObj {
                 };
                 exploded ++;
             }
-            if (exploded >= 30) { // fade
+            if (self.hp <= 0 && exploded >= 30) { // fade out if dead
                 let alpha = parseFloat(self.imgAlpha);
                 if (alpha <= 0) {
                     clearInterval(fade);
@@ -94,8 +94,11 @@ export class BaseObj {
                     self.imgAlpha = alpha.toString();
                 }
             }
-            if (exploded > 40) {
+            if (exploded >= 40) {
                 self.imgTop = null;
+            }
+            if (exploded >= 50) {
+                clearInterval(fade);
             }
         }, 10); // interval ms
     }
