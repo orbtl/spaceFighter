@@ -1,4 +1,4 @@
-export class Game {
+module.exports = class Game {
     name;
     id;
     players;
@@ -9,10 +9,4 @@ export class Game {
         this.id = id;
         this.players = [];
     }
-}
-export class Player {
-    id;
-    team;
-    constructor(id){
-        this.id = id;
 }

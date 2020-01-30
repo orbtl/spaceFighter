@@ -1,4 +1,6 @@
-import { Game, Player } from './server/models/game';
+const Game = require('./server/models/game');
+const Player = require('./server/models/player');
+
 console.log('starting server...');
 const express = require('express');
 const app = express();
@@ -8,29 +10,33 @@ require('./server/config/routes.js')(app);
 const server = app.listen(8000, () => console.log('listening on port 8000'));
 //socket stuff
 const io = require('socket.io')(server);
-let sockets = [];
-let players = {
-    'blue': null,
-    'red': null
-};
 let exampleGame = new Game('testGame', 1);
 let games = [exampleGame];
 let currentGameMap = null;
 io.on('connection', socket => {
-    if (sockets.indexOf(socket) == -1){
-        sockets.push(socket);
-        console.log(`Socket ${socket.id} added`);
+    let gameFound = false;
+    for (let game of games) {
+        for (let player of game.players) {
+            if (player.id == socket.id) {
+                socket.emit('singleGame', {'singleGame': game});
+                socket.join(`game${game.id}`);
+                gameFound = true;
+            }
+        }
     }
-    console.log(`All Sockets: ${sockets}`);
-    socket.emit('gameList', {'gameList': games});
-    socket.join('lobby');
+    if (gameFound == false) {
+        console.log(`Socket ${socket.id} added`);
+        socket.emit('gameList', {'gameList': games});
+        socket.join('lobby');
+    }
+
     socket.on('createNewGame', function(data) {
         console.log('Creating new game and socket room');
         if (games.length == 0) {
-            let thisID = 1;
+            var thisID = 1;
         }
         else {
-            let thisID = (games[games.length-1].id + 1); // one more than the last id in the list of games
+            var thisID = (games[games.length-1].id + 1); // one more than the last id in the list of games
         }
         let newGame = new Game(data.name, thisID);
         games.push(newGame);
@@ -44,7 +50,7 @@ io.on('connection', socket => {
                 let thisPlayer = new Player(socket.id);
                 eachGame.players.push(thisPlayer);
                 io.to('lobby').emit('gameList', {'gameList': games});
-                io.to(`game${data.id}`).emit('singleGame': {'singleGame': eachGame});
+                io.to(`game${data.id}`).emit('singleGame', {'singleGame': eachGame});
             }
         }
     })
@@ -55,6 +61,8 @@ io.on('connection', socket => {
                     eachGame.players.splice(playerIndex, 1);
                     socket.leave(`game${eachGame.id}`);
                     socket.join('lobby');
+                    io.to(`game${eachGame.id}`).emit('singleGame', {'singleGame': eachGame})
+                    io.to('lobby').emit('gameList', {'gameList': games});
                 }
             }
         }
@@ -121,13 +129,5 @@ io.on('connection', socket => {
 
     socket.on('disconnect', function() {
         console.log(`Socket disconnected with id ${socket.id}`)
-        if (players.blue && players.blue.socketID == socket.id) {
-            players.blue = null;
-        }
-        if (players.red && players.red.socketID == socket.id) {
-            players.red = null;
-        }
-        let i = sockets.indexOf(socket);
-        sockets.splice(i, 1);
     })
 })
