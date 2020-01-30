@@ -130,7 +130,7 @@ export class GameComponent implements OnInit {
               'size': 22,
             }
           }
-          this.gameMap[row][col].ammo = mapData.map[row][col].ammo;
+          this.gameMap.map[row][col].ammo = mapData.map[row][col].ammo;
         }
         else if (mapData.map[row][col].name == 'Scout') {
           this.gameMap.map[row][col] = new Scout(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
