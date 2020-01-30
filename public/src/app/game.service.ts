@@ -20,6 +20,13 @@ export class GameService {
 
   constructor(private _socket: Socket) { }
 
+
+  getTeam(){
+    this._socket.emit('getTeam');
+  }
+  checkForGameMap(){
+    this._socket.emit('checkForGameMap');
+  }
   sendClick(row: number, col: number, player: string){
     this._socket.emit('newClientClick', {'row': row, 'col': col, 'player': player})
   }

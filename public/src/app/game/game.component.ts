@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BaseObj, Fighter, Scout, Sniper, Capitol, Asteroid, MapObj } from '../map-obj';
 import { Observable, Subscription } from 'rxjs';
 import { GameService } from '../game.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -43,11 +44,13 @@ export class GameComponent implements OnInit {
   private _shootObs: Subscription;
   private _specialObs: Subscription;
   private _endTurnObs: Subscription;
+  private _goToLobbyObs: Subscription;
 
-  constructor(private _gameService: GameService) { }
+  constructor(private _gameService: GameService, private _router: Router) { }
 
   ngOnInit() {
     this._gameService.getTeam();
+    this._gameService.checkForGameMap();
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
       this.selectClick(data.row, data.col, data.player);
     })
@@ -78,6 +81,9 @@ export class GameComponent implements OnInit {
     })
     this._endTurnObs = this._gameService.otherPlayerEndsTurn.subscribe(data => {
       this.endTurn(data.player);
+    })
+    this._goToLobbyObs = this._gameService.goToLobbyListener.subscribe(data => {
+      this._router.navigate(['/']);
     })
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
