@@ -86,7 +86,7 @@ io.on('connection', socket => {
             }
         }
         if (team == '') {
-            socket.emit('goToLobby');
+            socket.emit('teamAssignment', {'team': 'NOTINGAME'});
         }
     })
     socket.on('checkForGameMap', function() {

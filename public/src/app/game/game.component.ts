@@ -52,16 +52,15 @@ export class GameComponent implements OnInit {
   ngOnInit() {
     this.firstGame = true; // keeping track of the fact that it's the first game on page load so it doens't need to confirm new game
     this._gameService.getTeam();
+    this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
+      this.assignTeam(data.team);
+    })
     this._gameService.checkForGameMap();
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
       this.selectClick(data.row, data.col, data.player);
     })
-    this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
-      console.log('was assigned to team', data.team)
-      this.currentPlayer = data.team;
-    })
     this._existingMapObs = this._gameService.existingMap.subscribe(data => {
-      console.log('raw received map data:', data);
+      console.log('received map data');
       this.processExistingMap(data);
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
@@ -91,6 +90,15 @@ export class GameComponent implements OnInit {
     this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
   }
 
+  assignTeam(team: any){
+    if (team == 'NOTINGAME') {
+      this._router.navigate(['/']);
+      return this;
+    }
+    console.log('was assigned to team', team)
+    this.currentPlayer = team;
+    return this;
+  }
   newGame(){
     var goNew = false;
     if (this.firstGame == false){
@@ -132,7 +140,6 @@ export class GameComponent implements OnInit {
               'size': 22,
             }
           }
-          console.log('fighter found with ammo:', mapData.map[row][col].ammo);
           this.gameMap.map[row][col].ammo = mapData.map[row][col].ammo;
         }
         else if (mapData.map[row][col].unitName == 'Scout') {

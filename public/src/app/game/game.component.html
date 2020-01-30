@@ -17,16 +17,20 @@
         </table>
     </div>
     <div style="display: inline-block; vertical-align: top;">
-        <button (click)="cancel(currentPlayer)">Cancel Selection</button>
-        <br>
-        <button (click)="enableMove(currentPlayer)">Move</button>
-        <br>
-        <button (click)="enableShoot(currentPlayer)">Shoot</button>
-        <br>
-        <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
-        <br>
-        <button (click)="endTurnLocal(currentPlayer)">End Turn</button>
-        <br>
+        <div *ngIf="gameMap">
+            <div *ngIf="currentPlayer == gameMap.playerTurn">
+                <button (click)="cancel(currentPlayer)">Cancel Selection</button>
+                <br>
+                <button (click)="enableMove(currentPlayer)">Move</button>
+                <br>
+                <button (click)="enableShoot(currentPlayer)">Shoot</button>
+                <br>
+                <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
+                <br>
+                <button (click)="endTurnLocal(currentPlayer)">End Turn</button>
+                <br>
+            </div>
+        </div>
         <div *ngIf="actionText">
             <p>{{actionText}}</p>
         </div>

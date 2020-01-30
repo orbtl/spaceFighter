@@ -18,6 +18,7 @@ export class LobbyComponent implements OnInit {
   constructor(private _gameService: GameService, private _router: Router) { }
 
   ngOnInit() {
+    this._gameService.getAllGames();
     this._gameListObs = this._gameService.gameListListener.subscribe(data => {
       this.gameList = data.gameList;
       this.singleGame = null;
