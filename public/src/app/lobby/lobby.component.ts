@@ -31,11 +31,12 @@ export class LobbyComponent implements OnInit {
     })
   }
   createGame(){
-    let name = prompt('Enter a game name.');
-    this._gameService.createNewGame(name);
+    let gameName = prompt('Enter a game name.');
+    this._gameService.createNewGame(gameName);
   }
   joinGame(gameToJoin){
-    this._gameService.joinGame(gameToJoin);
+    let userName = prompt('Enter a user name to display');
+    this._gameService.joinGame({'gameToJoin': gameToJoin, 'userName': userName});
   }
   leaveGame(){
     this._gameService.leaveGame();

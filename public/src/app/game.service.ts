@@ -48,8 +48,8 @@ export class GameService {
   createNewGame(name){
     this._socket.emit('createNewGame', {'name': name});
   }
-  joinGame(game){
-    this._socket.emit('clientJoinGame', game);
+  joinGame(data){
+    this._socket.emit('clientJoinGame', data);
   }
   leaveGame(){
     this._socket.emit('clientLeaveGame');

@@ -35,6 +35,7 @@ export class GameComponent implements OnInit {
   blueprint: any;
   debugMode = true;
   tempItem: any;
+  firstGame: boolean;
   // private _testSocketData: Subscription;
   private _clickObs: Subscription;
   private _teamObs: Subscription;
@@ -49,6 +50,7 @@ export class GameComponent implements OnInit {
   constructor(private _gameService: GameService, private _router: Router) { }
 
   ngOnInit() {
+    this.firstGame = true; // keeping track of the fact that it's the first game on page load so it doens't need to confirm new game
     this._gameService.getTeam();
     this._gameService.checkForGameMap();
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
@@ -89,9 +91,16 @@ export class GameComponent implements OnInit {
   }
 
   newGame(){
-    this.blueprint = this.randomMap();
-    // this._gameService.sendMap(this.blueprint);
-    this.renderGame(this.blueprint);
+    var goNew = false;
+    if (this.firstGame == false){
+      goNew = confirm('Are you sure you want to lose all current game data/progress and start a new game?')
+    }
+    if (this.firstGame == true || goNew == true) {
+      this.firstGame = false;
+      this.blueprint = this.randomMap();
+      // this._gameService.sendMap(this.blueprint); // this was back when blueprints were sent instead of the full game object
+      this.renderGame(this.blueprint);
+    }
     return this;
   }
   processExistingMap(mapData){

@@ -46,14 +46,14 @@ io.on('connection', socket => {
     })
     socket.on('clientJoinGame', function(data) {
         socket.leave('lobby');
-        socket.join(`game${data.id}`);
+        socket.join(`game${data.gameToJoin.id}`);
         for (let eachGame of games){
-            if (eachGame.id == data.id) {
-                let thisPlayer = new Player(socket.id);
+            if (eachGame.id == data.gameToJoin.id) {
+                let thisPlayer = new Player(socket.id, data.userName);
                 eachGame.players.push(thisPlayer);
                 playerGameList[socket.id] = eachGame;
                 io.in('lobby').emit('gameList', {'gameList': games});
-                io.in(`game${data.id}`).emit('singleGame', {'singleGame': eachGame});
+                io.in(`game${data.gameToJoin.id}`).emit('singleGame', {'singleGame': eachGame});
             }
         }
     })
