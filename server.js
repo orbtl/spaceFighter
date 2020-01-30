@@ -95,7 +95,8 @@ io.on('connection', socket => {
                 socket.emit('needNewGame');
             }
             else {
-                socket.emit('sendMap', playerGameList[socket.id].gameMap);
+                console.log(JSON.stringify(playerGameList[socket.id].gameMap));
+                socket.emit('sendMap', JSON.stringify(playerGameList[socket.id].gameMap));
             }
         }
         else {
@@ -115,8 +116,8 @@ io.on('connection', socket => {
     })
     socket.on('newMap', function(data) {
         if (playerGameList[socket.id]) {
-            playerGameList[socket.id].gameMap = data;
-            console.log('got new map: ', data);
+            playerGameList[socket.id].gameMap = JSON.parse(data);
+            console.log('got new map: ', JSON.parse(data));
             socket.to(`game${playerGameList[socket.id].id}`).emit('sendMap', data);
         }
         else {
@@ -154,7 +155,17 @@ io.on('connection', socket => {
         if (playerGameList[socket.id]) {
             console.log('Got End Turn data');
             socket.to(`game${playerGameList[socket.id].id}`).emit('serverEndTurn', data.player);
-            playerGameList[socket.id].gameMap = data.game;
+            let gameData = JSON.parse(data.game);
+            playerGameList[socket.id].gameMap = gameData;
+            // debug
+            console.log('game data:', gameData);
+            for (let row of gameData.map) {
+                for (let col of row) {
+                    if (col.name == 'Fighter') {
+                        console.log('Fighter found, ammo:', col.ammo);
+                    }
+                }
+            }
         }
         else {
             console.log('Error -- player game not found in playerGameList')
@@ -196,10 +207,10 @@ io.on('connection', socket => {
         for (let eachGame of games) {
             for (let playerIndex in eachGame.players) {
                 if (socket.id == eachGame.players[playerIndex].id) {
-                    if (eachGame.blue.id == eachGame.players[playerIndex].id) {
+                    if (eachGame.blue && eachGame.blue.id == eachGame.players[playerIndex].id) {
                         eachGame.blue = null;
                     }
-                    if (eachGame.red.id == eachGame.players[playerIndex].id) {
+                    if (eachGame.red && eachGame.red.id == eachGame.players[playerIndex].id) {
                         eachGame.red = null;
                     }
                     eachGame.players.splice(playerIndex, 1);

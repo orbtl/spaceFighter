@@ -61,6 +61,7 @@ export class GameComponent implements OnInit {
       this.currentPlayer = data.team;
     })
     this._existingMapObs = this._gameService.existingMap.subscribe(data => {
+      console.log('raw received map data:', data);
       this.processExistingMap(data);
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
@@ -103,8 +104,11 @@ export class GameComponent implements OnInit {
     }
     return this;
   }
-  processExistingMap(mapData){
-    console.log('got existing map data, beginning processing');
+  processExistingMap(mapDataRaw: any){
+    console.log('got existing map data, beginning processing:', mapDataRaw);
+    var mapData = JSON.parse(mapDataRaw);
+    console.log('parsed mapData:', mapData);
+    console.log('testing reading unparsed data: ammo of first fighter:', mapDataRaw[1][0]['ammo']);
     this.gameMap = new MapObj();
     this.gameMap.map = mapData.map;
     for (let row in mapData.map) {
@@ -130,6 +134,7 @@ export class GameComponent implements OnInit {
               'size': 22,
             }
           }
+          console.log('fighter found with ammo:', mapData.map[row][col].ammo);
           this.gameMap.map[row][col].ammo = mapData.map[row][col].ammo;
         }
         else if (mapData.map[row][col].name == 'Scout') {
@@ -184,7 +189,7 @@ export class GameComponent implements OnInit {
   renderGame(map: any) {
     this.gameMap = new MapObj();
     this.generateMap(map);
-    this._gameService.sendMap(this.gameMap);
+    this._gameService.sendMap(JSON.stringify(this.gameMap));
     this.cancel(this.currentPlayer);
     this.actionText = `New Map/Game started.  Your team is ${this.currentPlayer}`;
     return this;
@@ -801,7 +806,7 @@ export class GameComponent implements OnInit {
     if (player == this.gameMap.playerTurn) {// it's this player's turn and they have the right to end it
     this.cancel(player);
     this.endTurn(player);
-    this._gameService.sendEndTurn(player, this.gameMap);
+    this._gameService.sendEndTurn(player, JSON.stringify(this.gameMap));
     }
     else {
       this.actionText = "It is not currently your turn to end.";
