@@ -40,6 +40,7 @@ export class GameComponent implements OnInit {
   enemyPlayer: any;
   enemyColor: any;
   gameOverInfo: any;
+  gameIsOver = false;
   // private _testSocketData: Subscription;
   private _clickObs: Subscription;
   private _teamObs: Subscription;
@@ -138,6 +139,8 @@ export class GameComponent implements OnInit {
     }
     if (this.firstGame == true || goNew == true) {
       this.firstGame = false;
+      this.gameOverInfo = null;
+      this.gameIsOver = false;
       this.blueprint = this.randomMap();
       // this._gameService.sendMap(this.blueprint); // this was back when blueprints were sent instead of the full game object
       this.renderGame(this.blueprint);
@@ -145,6 +148,7 @@ export class GameComponent implements OnInit {
     return this;
   }
   processExistingMap(mapData: any){
+    this.firstGame = false;
     this.gameMap = new MapObj();
     this.gameMap.map =[]
     for (let row in mapData.map) {
@@ -602,7 +606,9 @@ export class GameComponent implements OnInit {
       shootFrom.fireMissile(shootTo.location.row, shootTo.location.col);
     }
     else {
-      shootFrom.shoot(shootTo);
+      if (shootFrom.shoot(shootTo) == true) {
+        this.gameIsOver = true;
+      }
     }
     this.cancel(player);
     return this;
@@ -857,8 +863,8 @@ export class GameComponent implements OnInit {
   endTurnLocal(player: any){
     if (player == this.gameMap.playerTurn) {// it's this player's turn and they have the right to end it
     this.cancel(player);
-    this.endTurn(player);
     this._gameService.sendEndTurn(player, this.gameMap);
+    this.endTurn(player);
     }
     else {
       this.actionText = "It is not currently your turn to end.";
@@ -891,6 +897,10 @@ export class GameComponent implements OnInit {
     return this;
   }
   newTurn(player: any) {
+    if (this.gameIsOver == true) {
+      this.gameOver();
+      return this;
+    }
     for (let row of this.gameMap.map) {
       for (let col of row) {
         if (col.team == this.gameMap.playerTurn) {
@@ -924,12 +934,11 @@ export class GameComponent implements OnInit {
     }
     let totalDmg = 0;
     let targetsHit = 0;
-    let gameOver = false;
     for (let row=minRow; row<=maxRow; row++){
       for (let col=minCol; col<=maxCol; col++) {
         let originalHP = this.gameMap.map[row][col].hp;
         if (this.gameMap.map[row][col].takeDmg(60) == true) { // takeDmg function returns true if a capitol ship is destroyed
-          gameOver = true;
+          this.gameIsOver = true;
           if (this.gameMap.map[row][col].team == 'blue') {
             this.gameMap.winner = 'red';
           }
@@ -945,9 +954,6 @@ export class GameComponent implements OnInit {
       }
     }
     this.actionText = `Missile detonated, hitting ${targetsHit} targets for a sum total of ${totalDmg} Damage!`;
-    if (gameOver == true) {
-      this.gameOver();
-    }
     return this;
   }
 
