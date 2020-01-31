@@ -186,6 +186,9 @@ export class GameComponent implements OnInit {
           this.gameMap.map[row][col] = new Sniper(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
           this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
           this.gameMap.map[row][col].charged = mapData.map[row][col].charged;
+          if (this.gameMap.map[row][col].charged == true){
+            this.gameMap.map[row][col].charge();
+          }
         }
         else if (mapData.map[row][col].unitName == 'Capitol') {
           this.gameMap.map[row][col] = new Capitol(+row, +col, mapData.map[row][col].location.rotate, mapData.map[row][col].team);
@@ -454,6 +457,7 @@ export class GameComponent implements OnInit {
             specialFrom.charged = true;
             specialFrom.ammo = 0;
             specialFrom.moved = true;
+            specialFrom.charge();
             this.actionText = "This sniper is now charging and cannot shoot or move until next turn";
           }
           else {
@@ -514,6 +518,7 @@ export class GameComponent implements OnInit {
     else {
       this.actionText = "That unit does not have a special ability";
     }
+    this.cancel(this.currentPlayer);
     return this;
   }
 

@@ -116,7 +116,7 @@ export class Fighter extends BaseObj {
     }
 
     constructor (row: number, col: number, rotate: number, color: string) {
-        super(row, col, rotate, 50, 4, 6);
+        super(row, col, rotate, 50, 4, 4);
         this.img = `assets/img/playerShip1_${color}.png`;
         this.team = color;
         this.unitName = "Fighter";
@@ -211,21 +211,20 @@ export class Scout extends BaseObj {
 export class Sniper extends BaseObj {
     charged: Boolean;
     constructor (row: number, col: number, rotate: number, color: string) {
-        super(row, col, rotate, 20, 2, 5);
+        super(row, col, rotate, 20, 2, 4);
         this.charged = false;
         this.img = `assets/img/playerShip3_${color}.png`;
         this.team = color;
         this.unitName = "Sniper";
     }
     charge(){
-        if (this.ammo > 0 && this.moved == false && this.charged == false) {
-            this.charged = true;
-            this.ammo = 0;
-            this.moved = true;
+        this.imgTop = {
+            'img': 'assets/img/Power-ups/bolt_gold.png',
+            'alpha': 1,
+            'transform': '',
+            'size': 30,
         }
-        else {
-            console.log('Either out of ammo or already charged');
-        }
+        this.range = 6;
         return this;
     }
     shoot(targetObj: any) {
@@ -233,6 +232,8 @@ export class Sniper extends BaseObj {
             if (this.charged == true) {
                 targetObj.takeDmg(70);
                 this.charged = false;
+                this.imgTop = null;
+                this.range = 4;
             }
             else {
                 targetObj.takeDmg(30);
@@ -243,7 +244,9 @@ export class Sniper extends BaseObj {
         }
     }
     newTurn(){
-        this.moved = false;
+        if (this.charged == false) {
+            this.moved = false;
+        }
         this.ammo = 1;
     }
     click(){
