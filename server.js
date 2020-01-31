@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname + "/public/dist/public"));
 require('./server/config/routes.js')(app);
-const server = app.listen(8000, () => console.log('listening on port 8000'));
+const server = app.listen(8000, '0.0.0.0', () => console.log('listening on port 8000'));
 //socket stuff
 const io = require('socket.io')(server);
 let exampleGame = new Game('testGame', 1);
