@@ -36,6 +36,8 @@ export class GameComponent implements OnInit {
   debugMode = true;
   tempItem: any;
   firstGame: boolean;
+  localPlayer: any;
+  enemyPlayer: any;
   // private _testSocketData: Subscription;
   private _clickObs: Subscription;
   private _teamObs: Subscription;
@@ -46,16 +48,19 @@ export class GameComponent implements OnInit {
   private _specialObs: Subscription;
   private _endTurnObs: Subscription;
   private _goToLobbyObs: Subscription;
+  private _roomInfoObs: Subscription;
 
   constructor(private _gameService: GameService, private _router: Router) { }
 
   ngOnInit() {
     this.firstGame = true; // keeping track of the fact that it's the first game on page load so it doens't need to confirm new game
-    this._gameService.getTeam();
     this._teamObs = this._gameService.myTeamAssignment.subscribe(data => {
       this.assignTeam(data.team);
     })
-    this._gameService.checkForGameMap();
+    this._gameService.getTeam();
+    this._roomInfoObs = this._gameService.singleGameListener.subscribe(data => {
+      this.assignNames(data);
+    })
     this._clickObs = this._gameService.otherPlayerClicks.subscribe(data => {
       this.selectClick(data.row, data.col, data.player);
     })
@@ -88,18 +93,39 @@ export class GameComponent implements OnInit {
       this.endTurn(data);
     })
     this._goToLobbyObs = this._gameService.goToLobbyListener.subscribe(data => {
+      this._gameService.leaveGame();
       this._router.navigate(['/']);
     })
-    this.currentPlayer = 'blue'; // defaults to blue until getting info back from socket
+    this._gameService.checkForGameMap();
   }
 
+  requestGameInfo(){
+    this._gameService.getGameInfo();
+    return this;
+  }
   assignTeam(team: any){
     if (team == 'NOTINGAME') {
       this._router.navigate(['/']);
       return this;
     }
-    console.log('was assigned to team', team)
     this.currentPlayer = team;
+    console.log('got current team as:', this.currentPlayer);
+    this.requestGameInfo();
+    return this;
+  }
+  assignNames(data: any) {
+    if (this.currentPlayer) {
+      for (let player of data.singleGame.players) {
+        if (player.team == this.currentPlayer) {
+          this.localPlayer = player;
+          console.log('current player:', this.currentPlayer ,'this player:', this.localPlayer);
+        }
+        else {
+          this.enemyPlayer = player;
+          console.log('current player:', this.currentPlayer ,'enemy player:', this.enemyPlayer);
+        }
+      }
+    }
     return this;
   }
   newGame(){
@@ -941,5 +967,12 @@ export class GameComponent implements OnInit {
       }
     }
     return this;
+  }
+  goToLobby(){
+    let sure = confirm('Are you sure you want to leave this game and return to the lobby?');
+    if (sure == true) {
+      this._gameService.leaveGame();
+      this._router.navigate(['/']);
+    }
   }
 }

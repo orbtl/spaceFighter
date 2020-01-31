@@ -17,10 +17,11 @@ export class GameService {
   singleGameListener = this._socket.fromEvent<any>('singleGame');
   enterGameListener = this._socket.fromEvent<any>('serverEnterGame');
   goToLobbyListener = this._socket.fromEvent<any>('goToLobby');
-
   constructor(private _socket: Socket) { }
 
-
+  getGameInfo(){
+    this._socket.emit('getGameInfo');
+  }
   getTeam(){
     this._socket.emit('getTeam');
   }

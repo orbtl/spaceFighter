@@ -60,6 +60,13 @@ io.on('connection', socket => {
         for (let eachGame of games) {
             for (let playerIndex in eachGame.players) {
                 if (socket.id == eachGame.players[playerIndex].id) {
+                    eachGame.players[playerIndex].team = null;
+                    if (eachGame.red && eachGame.red.id == eachGame.players[playerIndex].id) {
+                        eachGame.red = null;
+                    }
+                    if (eachGame.blue && eachGame.blue.id == eachGame.players[playerIndex].id) {
+                        eachGame.blue = null;
+                    }
                     eachGame.players.splice(playerIndex, 1);
                     socket.leave(`game${eachGame.id}`);
                     socket.join('lobby');
@@ -178,11 +185,13 @@ io.on('connection', socket => {
                 }
             }
             if (data.color == 'red' && playerGameList[socket.id].red == null) {
+                thisPlayer.team = 'red';
                 playerGameList[socket.id].red = thisPlayer;
                 socket.emit('serverEnterGame');
                 console.log('player entered game as red');
             }
             else if (data.color == 'blue' && playerGameList[socket.id].blue == null) {
+                thisPlayer.team = 'blue';
                 playerGameList[socket.id].blue = thisPlayer;
                 socket.emit('serverEnterGame');
                 console.log('player entered game as blue');
@@ -191,7 +200,8 @@ io.on('connection', socket => {
                 console.log('failed to enter game');
                 io.in(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
             }
-            socket.to(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
+            console.log('game info being sent:', JSON.stringify(playerGameList[socket.id]))
+            io.to(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
         }
         else {
             console.log("Player's current game not found");
@@ -201,6 +211,11 @@ io.on('connection', socket => {
         if (playerGameList[socket.id]) {
             playerGameList[socket.id].settings = data;
             io.in(`game${playerGameList[socket.id].id}`).emit('singleGame', {'singleGame': playerGameList[socket.id]});
+        }
+    })
+    socket.on('getGameInfo', function(){
+        if (playerGameList[socket.id]){
+            socket.emit('singleGame', {'singleGame': playerGameList[socket.id]});
         }
     })
 
@@ -216,6 +231,7 @@ io.on('connection', socket => {
                     if (eachGame.red && eachGame.red.id == eachGame.players[playerIndex].id) {
                         eachGame.red = null;
                     }
+                    eachGame.players[playerIndex].team = null;
                     eachGame.players.splice(playerIndex, 1);
                     console.log('player left game, game data: red:', eachGame.red, 'blue:', eachGame.blue, 'players:', eachGame.players);
                     socket.leave(`game${eachGame.id}`);
