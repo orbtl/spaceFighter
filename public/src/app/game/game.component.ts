@@ -211,6 +211,7 @@ export class GameComponent implements OnInit {
           asteroid.location.rotate = mapData.map[row][col].location.rotate;
           asteroid.location.transform = mapData.map[row][col].location.transform;
           this.gameMap.map[row][col] = asteroid; //
+          this.gameMap.map[row][col].hp = mapData.map[row][col].hp; // stlil need this to overwrite the randomization in the constructor
         }
         else {
           console.log('error: unknown object type in map data');
