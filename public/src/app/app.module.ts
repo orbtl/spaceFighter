@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { LobbyComponent } from './lobby/lobby.component';
 
-const config: SocketIoConfig = { url: 'http://localhost:8000', options: {} };
+const config: SocketIoConfig = { url: 'http://192.168.1.224:8000', options: {} };
 
 @NgModule({
   declarations: [

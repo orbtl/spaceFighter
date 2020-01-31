@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Bungee&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Bungee%20Inline&display=swap');
+*{
+    background-color: rgb(15,15,15);
+    color: white;
+    font-family: 'Bungee';
+    font-weight: normal;
+    margin: 0px;
+    padding: 0px;
+}
+img{
+    background-color: rgba(0,0,0,0);
+}
