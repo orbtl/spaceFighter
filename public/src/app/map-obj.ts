@@ -175,9 +175,11 @@ export class Fighter extends BaseObj {
                 clearInterval(spin);
             }
             self.imgTop.img = 'assets/img/Power-ups/missileSmall.png';
-            self.imgTop.transform = `rotate(${time*10}deg)`;
+            self.imgTop.alpha = 1,
+            self.imgTop.transform = `rotate(${time*4}deg)`;
+            self.imgTop.size = 40;
             time++;
-        }, 30)
+        }, 10)
         return this;
     }
     newTurn(){

@@ -654,9 +654,20 @@ export class GameComponent implements OnInit {
           item.border = '';
         }
       }
-      if (this.shootable) { // clear old bg highlights
+      if (this.shootable) { // clear old X top imgs
         for (let item of this.shootable) {
-          item.imgTop = null;
+          if (item.imgTopLast) {
+            item.imgTop = {
+              'img': item.imgTopLast.img,
+              'alpha': item.imgTopLast.alpha,
+              'transform': item.imgTopLast.transform,
+              'size': item.imgTopLast.size
+            }
+            item.imgTopLast = null;
+          }
+          else {
+            item.imgTop = null;
+          }
         }
       }
       this.shootable = [];
@@ -723,7 +734,12 @@ export class GameComponent implements OnInit {
           this.shootInRange.push(item);
           if (item.hp > 0 || missile == true) { // it's a shootable unit or user is firing missiles which can target any location
             if (item.imgTop && item.imgTop.img != 'assets/img/UI/numeralX.png') {
-              item.imgTopLast = item.imgTop; // this saves whatever the old imgTop was like a missile or powerup so it will be restored later when the X target is removed
+              item.imgTopLast = {
+                'img': item.imgTop.img,
+                'alpha': item.imgTop.alpha,
+                'transform': item.imgTop.transform,
+                'size': item.imgTop.size
+              }// this saves whatever the old imgTop was like a missile or powerup so it will be restored later when the X target is removed
             }
             item.imgTop = {
               'img': 'assets/img/UI/numeralX.png',
@@ -845,7 +861,12 @@ export class GameComponent implements OnInit {
         if (item.imgTop) {
           if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
             if (item.imgTopLast) {
-              item.imgTop = item.imgTopLast;
+              item.imgTop = {
+                'img': item.imgTopLast.img,
+                'alpha': item.imgTopLast.alpha,
+                'transform': item.imgTopLast.transform,
+                'size': item.imgTopLast.size
+              }
               item.imgTopLast = null;
             }
             else {
