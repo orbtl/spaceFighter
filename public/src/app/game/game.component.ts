@@ -236,7 +236,12 @@ export class GameComponent implements OnInit {
     this.generateMap(map);
     this._gameService.sendMap(this.gameMap);
     this.cancel(this.currentPlayer);
-    this.actionText = `New Map/Game started.  Your team is ${this.currentPlayer}`;
+    if (this.gameMap.playerTurn == this.currentPlayer) {
+      this.actionText = `New Game started.  It is your turn.  Pleas select a unit.`;
+    }
+    else {
+      this.actionText = "New Game started.  It is your opponent's turn.  Please wait.";
+    }
     return this;
   }
   generateMap(map: any){
@@ -866,19 +871,19 @@ export class GameComponent implements OnInit {
     if (this.gameMap.playerTurn == 'red') {
       this.gameMap.playerTurn = 'blue';
       if (this.currentPlayer == 'red') {
-        this.actionText = "You (red) ended your turn.  It is now your opponent (blue)'s turn.";
+        this.actionText = "You ended your turn.  It is now your opponent's turn.";
       }
       else {
-        this.actionText = "Your opponent (red) ended their turn.  It is now your (blue) turn."
+        this.actionText = "Your opponent ended their turn.  It is now your turn."
       }
     }
     else {
       this.gameMap.playerTurn = 'red';
       if (this.currentPlayer == 'red') {
-        this.actionText = "Your opponent (blue) ended their turn.  It is now your (red) turn."
+        this.actionText = "Your opponent ended their turn.  It is now your turn."
       }
       else {
-        this.actionText = "You (blue) ended your turn.  It is now your opponent (red)'s turn.";
+        this.actionText = "You ended your turn.  It is now your opponent's turn.";
       }
     }
     this.newTurn(player);
@@ -942,6 +947,16 @@ export class GameComponent implements OnInit {
       this.gameInfo['desc'] = ` Unit Type: ${unit.unitName} \n Player Owner: ${unit.team} \n Health: ${unit.hp}`
       if (unit.unitName != 'Asteroid') {
         this.gameInfo['desc'] += `\n Speed: ${unit.speed} units/turn \n Attack Range: ${unit.range} units`;
+        if (unit.unitName != 'Fighter') {
+          this.gameInfo['desc'] += `\n Ammo: ${unit.ammo}`;
+        }
+        this.gameInfo['desc'] += `\n Movement: `
+        if (unit.moved == false) {
+          this.gameInfo['desc']+= 'Available';
+        }
+        else {
+          this.gameInfo['desc'] += 'Not Available';
+        }
       }
       if (unit.unitName == 'Fighter') {
         this.gameInfo['desc'] += `\n Missile Available: `;
