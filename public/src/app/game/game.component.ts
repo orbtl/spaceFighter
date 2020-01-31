@@ -609,6 +609,12 @@ export class GameComponent implements OnInit {
     else {
       if (shootFrom.shoot(shootTo) == true) {
         this.gameIsOver = true;
+        if (shootTo.team == 'blue') {
+          this.gameMap.winner = 'red';
+        }
+        if (shootTo.team == 'red') {
+          this.gameMap.winner = 'blue';
+        }
       }
     }
     this.cancel(player);
@@ -893,8 +899,8 @@ export class GameComponent implements OnInit {
         this.actionText = "You ended your turn.  It is now your opponent's turn.";
       }
     }
-    this.newTurn(player);
     this.cancel(player);
+    this.newTurn(player);
     return this;
   }
   newTurn(player: any) {
@@ -1019,6 +1025,7 @@ export class GameComponent implements OnInit {
       this._gameService.leaveGame();
       this._router.navigate(['/']);
     }
+    return this;
   }
   gameOver(){
     this.gameMap.map = null;
