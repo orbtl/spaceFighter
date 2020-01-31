@@ -49,6 +49,7 @@ export class BaseObj {
         return this;
     }
     takeDmg(amount: number) {
+        var gameOver = false;
         if (this.shieldHP > 0){
             this.shieldHP -= amount;
             if (this.shieldHP < 0) {
@@ -65,9 +66,12 @@ export class BaseObj {
         this.hp -= amount;
         if (this.hp <= 0) {
             this.hp = 0;
+            if (this.unitName == 'Capitol') {
+                gameOver = true;
+            }
         }
         this.explode();
-        return this;
+        return gameOver;
     }
     explode(){
         var self = this;
@@ -191,12 +195,14 @@ export class Scout extends BaseObj {
         return this;
     }
     shoot(targetObj: any) {
+        var gameOver = false;
         try {
-            targetObj.takeDmg(10);
+            gameOver = targetObj.takeDmg(10);
             this.ammo = 0;
         } catch (error) {
             console.log('Error reducing health of target')
         }
+        return gameOver;
     }
     newTurn(){
         this.moved = false;
@@ -228,20 +234,22 @@ export class Sniper extends BaseObj {
         return this;
     }
     shoot(targetObj: any) {
+        var gameOver = false;
         try {
             if (this.charged == true) {
-                targetObj.takeDmg(70);
+                gameOver = targetObj.takeDmg(70);
                 this.charged = false;
                 this.imgTop = null;
                 this.range = 4;
             }
             else {
-                targetObj.takeDmg(30);
+                gameOver = targetObj.takeDmg(30);
             }
             this.ammo = 0;
         } catch (error) {
             console.log('Error reducing health of target')
         }
+        return gameOver;
     }
     newTurn(){
         if (this.charged == false) {
@@ -271,12 +279,14 @@ export class Capitol extends BaseObj {
         this.unitName = "Capitol";
     }
     shoot(targetObj: any) {
+        var gameOver = false;
         try {
-            targetObj.takeDmg(15);
+            gameOver = targetObj.takeDmg(15);
             this.ammo -= 1;
         } catch (error) {
             console.log('Error reducing health of target')
         }
+        return gameOver;
     }
     newTurn(){
         this.moved = false;
@@ -344,6 +354,7 @@ export class MapObj { // main game object
     map: any;
     playerTurn: string;
     activeClick: string;
+    winner: any;
     constructor(){
         this.turn = 0;
         this.playerTurn = 'blue';

@@ -33,12 +33,13 @@ export class GameComponent implements OnInit {
   unitToAct: any;
   actionText: any;
   blueprint: any;
-  debugMode = true;
+  debugMode = false;
   tempItem: any;
   firstGame: boolean;
   localPlayer: any;
   enemyPlayer: any;
   enemyColor: any;
+  gameOverInfo: any;
   // private _testSocketData: Subscription;
   private _clickObs: Subscription;
   private _teamObs: Subscription;
@@ -66,11 +67,9 @@ export class GameComponent implements OnInit {
       this.selectClick(data.row, data.col, data.player);
     })
     this._existingMapObs = this._gameService.existingMap.subscribe(data => {
-      console.log('received map data');
       this.processExistingMap(data);
     })
     this._needNewMapObs = this._gameService.needNewMap.subscribe(data => {
-      console.log('creating new map data with settings:', data.settings);
       this.numRows = data.settings.numRows;
       this.numColumns = data.settings.numCols;
       this.numAsteroids = data.settings.maxAsteroids;
@@ -124,11 +123,9 @@ export class GameComponent implements OnInit {
       for (let player of data.singleGame.players) {
         if (player.team == this.currentPlayer) {
           this.localPlayer = player;
-          console.log('current player:', this.currentPlayer ,'this player:', this.localPlayer);
         }
         else {
           this.enemyPlayer = player;
-          console.log('current player:', this.currentPlayer ,'enemy player:', this.enemyPlayer);
         }
       }
     }
@@ -224,7 +221,6 @@ export class GameComponent implements OnInit {
       'turnPlayer': this.gameMap.playerTurn,
     }
     this.cancel(this.currentPlayer);
-    console.log('Finished processing map data received and generating new object instances');
     if (this.gameMap.playerTurn == this.currentPlayer) {
       this.actionText = 'Map loaded.  It is your turn.  Please select a unit.';
     }
@@ -288,7 +284,6 @@ export class GameComponent implements OnInit {
       'turnNumber': this.gameMap.turn,
       'turnPlayer': this.gameMap.playerTurn,
     }
-    console.log('generated map and game info');
     return this;
   }
   randomMap(){
@@ -929,10 +924,19 @@ export class GameComponent implements OnInit {
     }
     let totalDmg = 0;
     let targetsHit = 0;
+    let gameOver = false;
     for (let row=minRow; row<=maxRow; row++){
       for (let col=minCol; col<=maxCol; col++) {
         let originalHP = this.gameMap.map[row][col].hp;
-        this.gameMap.map[row][col].takeDmg(60);
+        if (this.gameMap.map[row][col].takeDmg(60) == true) { // takeDmg function returns true if a capitol ship is destroyed
+          gameOver = true;
+          if (this.gameMap.map[row][col].team == 'blue') {
+            this.gameMap.winner = 'red';
+          }
+          else {
+            this.gameMap.winner = 'blue';
+          }
+        }
         let missileDmg = originalHP - this.gameMap.map[row][col].hp;
         totalDmg += missileDmg;
         if (missileDmg > 0) {
@@ -941,6 +945,9 @@ export class GameComponent implements OnInit {
       }
     }
     this.actionText = `Missile detonated, hitting ${targetsHit} targets for a sum total of ${totalDmg} Damage!`;
+    if (gameOver == true) {
+      this.gameOver();
+    }
     return this;
   }
 
@@ -1005,5 +1012,24 @@ export class GameComponent implements OnInit {
       this._gameService.leaveGame();
       this._router.navigate(['/']);
     }
+  }
+  gameOver(){
+    this.gameMap.map = null;
+    this.actionText = null;
+    this.gameInfo = null;
+    if (this.gameMap.winner == this.currentPlayer) {
+      this.gameOverInfo = {
+        'msg': `GAME OVER!! YOU WIN!!`,
+        'color': 'blue',
+      }
+    }
+    if (this.gameMap.winner != this.currentPlayer) {
+      this.gameOverInfo = {
+        'msg': `GAME OVER!! YOU LOSE!!`,
+        'color': 'red',
+      }
+    }
+    this.currentPlayer = null;
+    return this;
   }
 }
