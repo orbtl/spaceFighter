@@ -1,56 +1,57 @@
-<div style="display: block;">
-    <h3>Space Fighter</h3>
-    <h4 *ngIf="currentPlayer" [style.color]="currentPlayer"><span *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
-</div>
-<div *ngIf="gameOverInfo">
-    <h1 [style.color]="gameOverInfo.color">{{gameOverInfo.msg}}</h1>
-</div>
-<div style="display: block;">
-    <div *ngIf="gameMap" style="display: inline-block">
-        
-        <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
-            <tr *ngFor="let row of gameMap.map">
-                <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.background-color]="col.bg" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
-                    <div [style.width]="gameScale" [style.height]="gameScale" style="display: flex; justify-content: center; align-items: center;">
-                        <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.opacity]="col.imgAlpha" [style.transform]="col.location.transform">
-                        <img *ngIf="col.imgTop" [src]="col.imgTop.img" [width]="col.imgTop.size" [height]="col.imgTop.size" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
-                    </div>
-                </td>
-            </tr>
-        </table>
+<div class="gameContainer" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+    <div style="display: block;">
+        <h4 *ngIf="currentPlayer" [style.color]="currentPlayer"><span [style.color]="currentPlayer" *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
     </div>
-    <div style="display: inline-block; vertical-align: top;">
-        <div *ngIf="gameMap">
-            <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn">
-                <button (click)="cancel(currentPlayer)">Cancel Selection</button>
-                <br>
-                <button (click)="enableMove(currentPlayer)">Move</button>
-                <br>
-                <button (click)="enableShoot(currentPlayer)">Shoot</button>
-                <br>
-                <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
-                <br>
-                <button (click)="endTurnLocal(currentPlayer)">End Turn</button>
-                <br>
+    <div *ngIf="gameOverInfo">
+        <h1 [style.color]="gameOverInfo.color">{{gameOverInfo.msg}}</h1>
+    </div>
+    <div style="display: block;">
+        <div *ngIf="gameMap" style="display: inline-block">
+            
+            <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
+                <tr *ngFor="let row of gameMap.map">
+                    <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.background-color]="col.bg" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
+                        <div [style.width]="gameScale" [style.height]="gameScale" style="display: flex; justify-content: center; align-items: center;">
+                            <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.opacity]="col.imgAlpha" [style.transform]="col.location.transform">
+                            <img *ngIf="col.imgTop" [src]="col.imgTop.img" [width]="col.imgTop.size" [height]="col.imgTop.size" [style.opacity]='col.imgTop.alpha' [style.transform]='col.imgTop.transform' style="position: absolute;">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="display: inline-block; vertical-align: top;">
+            <div *ngIf="gameMap">
+                <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn">
+                    <button (click)="cancel(currentPlayer)">Cancel Selection</button>
+                    <br>
+                    <button (click)="enableMove(currentPlayer)">Move</button>
+                    <br>
+                    <button (click)="enableShoot(currentPlayer)">Shoot</button>
+                    <br>
+                    <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
+                    <br>
+                    <button (click)="endTurnLocal(currentPlayer)">End Turn</button>
+                    <br>
+                </div>
+            </div>
+            <div *ngIf="actionText">
+                <p>{{actionText}}</p>
             </div>
         </div>
-        <div *ngIf="actionText">
-            <p>{{actionText}}</p>
+    </div>
+    <div *ngIf="gameInfo">
+        <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>
+        <div *ngIf="gameInfo['desc']" style="white-space: pre-line;">
+            <p>{{gameInfo['desc']}}</p>
         </div>
     </div>
-</div>
-<div *ngIf="gameInfo">
-    <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>
-    <div *ngIf="gameInfo['desc']" style="white-space: pre-line;">
-        <p>{{gameInfo['desc']}}</p>
+    <div>
+        <button (click)='newGame()'>Start New Game</button>
     </div>
-</div>
-<div>
-    <button (click)='newGame()'>Start New Game</button>
-</div>
-<div *ngIf="debugMode == true">
-    <button (click)="debugInfo()">Print Debug Info</button>
-</div>
-<div>
-    <button (click)="goToLobby()">Return To Lobby</button>
+    <div *ngIf="debugMode == true">
+        <button (click)="debugInfo()">Print Debug Info</button>
+    </div>
+    <div>
+        <button (click)="goToLobby()">Return To Lobby</button>
+    </div>
 </div>

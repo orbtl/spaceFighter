@@ -1,17 +1,13 @@
-<div *ngIf="gameList">
-<button (click)="createGame()">Create New Game</button>
+<div *ngIf="gameList" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
     <h3>All Existing Games: </h3>
-    <ul>
-        <li *ngFor="let game of gameList">{{game['name']}} -- # Players: {{game['players'].length}} -- <button (click)="joinGame(game)">Join Game</button></li>
-    </ul>
+    <p *ngFor="let game of gameList">Name: {{game['name']}} -- Players: {{game['players'].length}} -- <button (click)="joinGame(game)">Join Game</button></p>
+    <p *ngIf="gameList.length == 0">There are no existing games</p>
+    <button (click)="createGame()">Create New Game</button>
 </div>
-<div *ngIf="singleGame">
+<div *ngIf="singleGame" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center;">
     <h3>You have joined the following game:</h3>
-    <p>Game Name: {{singleGame.name}}</p>
-    <p># Players: {{singleGame.players.length}}</p>
-    <ul>
-        <li *ngFor="let player of singleGame.players">{{player.name}}</li>
-    </ul>
+    <p>Game Name: {{singleGame.name}} -- Players: {{singleGame.players.length}}</p>
+    <p><span *ngFor="let player of singleGame.players; let i = index"><span *ngIf="i > 0">, </span>{{player.name}}</span></p>
     <div *ngIf="settings">
         <form>
             <div>
