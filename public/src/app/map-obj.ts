@@ -62,7 +62,9 @@ export class BaseObj {
                 this.shieldHP = 0;
                 this.imgTop = null;
             }
-            this.imgTop.alpha= (this.shieldHP / 100);
+            if (this.imgTop) {
+                this.imgTop.alpha= (this.shieldHP / 100);
+            }
         }
         this.hp -= amount;
         if (this.hp <= 0) {
@@ -173,6 +175,11 @@ export class Fighter extends BaseObj {
         var spin = setInterval(function(){
             if (self.missile.firing == false) {
                 clearInterval(spin);
+                return;
+            }
+            if (!self.imgTop) {
+                clearInterval(spin);
+                return;
             }
             self.imgTop.img = 'assets/img/Power-ups/missileSmall.png';
             self.imgTop.alpha = 1,

@@ -10,8 +10,9 @@ require('./server/config/routes.js')(app);
 const server = app.listen(8000, '0.0.0.0', () => console.log('listening on port 8000'));
 //socket stuff
 const io = require('socket.io')(server);
-let exampleGame = new Game('testGame', 1);
-let games = [exampleGame];
+// let exampleGame = new Game('testGame', 1);
+// let games = [exampleGame];
+let games = [];
 playerGameList = {};
 io.on('connection', socket => {
     let gameFound = false;

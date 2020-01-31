@@ -1,6 +1,6 @@
 <div class="gameContainer" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
     <div>
-        <h4 *ngIf="currentPlayer" [style.color]="currentPlayer"><span [style.color]="currentPlayer" *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
+        <h4 *ngIf="currentPlayer" [style.color]="currentPlayer" style="text-shadow: 0px 0px 3px rgba(220,220,200,0.8);"><span [style.color]="currentPlayer" *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
     </div>
     <div *ngIf="gameOverInfo">
         <h1 [style.color]="gameOverInfo.color">{{gameOverInfo.msg}}</h1>
@@ -19,8 +19,8 @@
             </table>
         </div>
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
-            <div *ngIf="gameMap">
-                <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 150px; border-bottom: 1px solid lightgrey; padding-bottom: 10px;">
+            <div *ngIf="gameMap" style="height: 150px; border-bottom: 1px solid lightgrey; padding-bottom: 10px;">
+                <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn" style="display: flex; flex-direction: column; align-items: center; height: 140px; justify-content: space-between; ">
                     <div style="display: flex; flex-direction: row;">
                         <button (click)="cancel(currentPlayer)" style="color: lightgrey; padding: 0px 8px; margin-right: 20px;">Cancel Selection</button>
                         <button (click)="endTurnLocal(currentPlayer)" style="color: red; padding: 0px 8px;">End Turn</button>
@@ -32,24 +32,27 @@
                     <button (click)="enableSpecial(currentPlayer)" style="color: rgb(173, 198, 230); padding: 0px 8px;">Special Ability</button>
                 </div>
             </div>
-            <div *ngIf="actionText">
-                <p>{{actionText}}</p>
+            <div *ngIf="gameInfo" style="max-width: 250px; line-height: 25px; margin-top: 10px; font-size: 14px; font-weight: normal; letter-spacing: 1.3px;">
+                <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>
+                <div *ngIf="gameInfo['desc']" style="white-space: pre-line; line-height: 25px; font-size: 14px; font-weight: normal; letter-spacing: 1.3px;">
+                    <p>{{gameInfo['desc']}}</p>
+                </div>
             </div>
+            
         </div>
     </div>
-    <div *ngIf="gameInfo">
-        <p>Turn: {{gameInfo.turnNumber}}, {{gameInfo.turnPlayer}}'s turn</p>
-        <div *ngIf="gameInfo['desc']" style="white-space: pre-line;">
-            <p>{{gameInfo['desc']}}</p>
+    <div *ngIf="actionText" style="max-width: 600px; line-height: 30px; margin-top: 7px;">
+        <p>{{actionText}}</p>
+    </div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; width: 600px;">
+        <div>
+            <button (click)='newGame()' style="color: red; padding: 0px 8px;">Start New Game</button>
         </div>
-    </div>
-    <div>
-        <button (click)='newGame()'>Start New Game</button>
-    </div>
-    <div *ngIf="debugMode == true">
-        <button (click)="debugInfo()">Print Debug Info</button>
-    </div>
-    <div>
-        <button (click)="goToLobby()">Return To Lobby</button>
+        <div *ngIf="debugMode == true">
+            <button (click)="debugInfo()" style="padding: 0px 8px;">Print Debug Info</button>
+        </div>
+        <div>
+            <button (click)="goToLobby()" style="color: red; padding: 0px 8px;">Return To Lobby</button>
+        </div>
     </div>
 </div>
