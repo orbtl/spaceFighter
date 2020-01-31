@@ -153,11 +153,31 @@ export class Fighter extends BaseObj {
         this.missile.target.col = targetCol;
         this.ammo = 0;
         this.imgTop = {
-            'img': 'assets/img/Power-ups/pill_yellow.png',
+            'img': 'assets/img/Power-ups/missileSmall.png',
             'alpha': 1,
             'transform': '',
-            'size': 22,
+            'size': 40,
         }
+        this.missileSpin();
+        return this;
+    }
+    missileSpin(){
+        this.imgTop = {
+            'img': 'assets/img/Power-ups/missileSmall.png',
+            'alpha': 1,
+            'transform': '',
+            'size': 40,
+        }
+        var self = this;
+        var time = 0;
+        var spin = setInterval(function(){
+            if (self.missile.firing == false) {
+                clearInterval(spin);
+            }
+            self.imgTop.img = 'assets/img/Power-ups/missileSmall.png';
+            self.imgTop.transform = `rotate(${time*10}deg)`;
+            time++;
+        }, 30)
         return this;
     }
     newTurn(){

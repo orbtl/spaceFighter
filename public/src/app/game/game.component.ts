@@ -170,11 +170,12 @@ export class GameComponent implements OnInit {
           this.gameMap.map[row][col].hp = mapData.map[row][col].hp;
           if (mapData.map[row][col].missile.firing) {
             this.gameMap.map[row][col].imgTop = {
-              'img': 'assets/img/Power-ups/pill_yellow.png',
+              'img': 'assets/img/Power-ups/missileSmall.png',
               'alpha': 1,
               'transform': '',
-              'size': 22,
+              'size': 40,
             }
+            this.gameMap.map[row][col].missileSpin();
           }
           this.gameMap.map[row][col].ammo = mapData.map[row][col].ammo;
         }
