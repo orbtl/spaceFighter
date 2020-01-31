@@ -1,15 +1,14 @@
 <div class="gameContainer" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
-    <div style="display: block;">
+    <div>
         <h4 *ngIf="currentPlayer" [style.color]="currentPlayer"><span [style.color]="currentPlayer" *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
     </div>
     <div *ngIf="gameOverInfo">
         <h1 [style.color]="gameOverInfo.color">{{gameOverInfo.msg}}</h1>
     </div>
-    <div style="display: block;">
-        <div *ngIf="gameMap" style="display: inline-block">
-            
+    <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: flex-start;">
+        <div *ngIf="gameMap" style="display: inline-block; margin-right: 10px;">
             <table *ngIf="gameMap.map" class="borderTable" [style.backgroundImage]="'url('+ gameBG + ')'">
-                <tr *ngFor="let row of gameMap.map">
+                <tr *ngFor="let row of gameMap.map" >
                     <td *ngFor="let col of row" (click)="clickGame(col, currentPlayer)" [style.background-color]="col.bg" [style.width]="gameScale" [style.height]="gameScale" [style.max-width]="gameScale" [style.max-height]="gameScale" [style.outline]="col.border">
                         <div [style.width]="gameScale" [style.height]="gameScale" style="display: flex; justify-content: center; align-items: center;">
                             <img *ngIf="col.img" [src]="col.img" [width]="col.size" [height]="col.size" [style.opacity]="col.imgAlpha" [style.transform]="col.location.transform">
@@ -19,19 +18,18 @@
                 </tr>
             </table>
         </div>
-        <div style="display: inline-block; vertical-align: top;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
             <div *ngIf="gameMap">
-                <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn">
-                    <button (click)="cancel(currentPlayer)">Cancel Selection</button>
-                    <br>
-                    <button (click)="enableMove(currentPlayer)">Move</button>
-                    <br>
-                    <button (click)="enableShoot(currentPlayer)">Shoot</button>
-                    <br>
-                    <button (click)="enableSpecial(currentPlayer)">Special Ability</button>
-                    <br>
-                    <button (click)="endTurnLocal(currentPlayer)">End Turn</button>
-                    <br>
+                <div *ngIf="gameMap.map && currentPlayer == gameMap.playerTurn" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 150px; border-bottom: 1px solid lightgrey; padding-bottom: 10px;">
+                    <div style="display: flex; flex-direction: row;">
+                        <button (click)="cancel(currentPlayer)" style="color: lightgrey; padding: 0px 8px; margin-right: 20px;">Cancel Selection</button>
+                        <button (click)="endTurnLocal(currentPlayer)" style="color: red; padding: 0px 8px;">End Turn</button>
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <button (click)="enableMove(currentPlayer)" style="color: rgb(67, 160, 71); padding: 0px 8px; margin-right: 20px;">Move</button>
+                        <button (click)="enableShoot(currentPlayer)" style="color: yellow; padding: 0px 8px;">Shoot</button>
+                    </div>
+                    <button (click)="enableSpecial(currentPlayer)" style="color: rgb(173, 198, 230); padding: 0px 8px;">Special Ability</button>
                 </div>
             </div>
             <div *ngIf="actionText">

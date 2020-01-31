@@ -242,7 +242,7 @@ export class GameComponent implements OnInit {
     this._gameService.sendMap(this.gameMap);
     this.cancel(this.currentPlayer);
     if (this.gameMap.playerTurn == this.currentPlayer) {
-      this.actionText = `New Game started.  It is your turn.  Pleas select a unit.`;
+      this.actionText = `New Game started.  It is your turn.  Please select a unit.`;
     }
     else {
       this.actionText = "New Game started.  It is your opponent's turn.  Please wait.";
