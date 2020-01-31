@@ -1,6 +1,6 @@
 <div style="display: block;">
     <h3>Space Fighter</h3>
-    <h4 *ngIf="currentPlayer"><span *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyPlayer.team}}</span></h4>
+    <h4 *ngIf="currentPlayer" [style.color]="currentPlayer"><span *ngIf="localPlayer">Your Name: {{localPlayer.name}}, </span>Your Team: {{currentPlayer}} <span *ngIf="enemyPlayer" [style.color]="enemyColor"> | Enemy Name: {{enemyPlayer.name}}, Enemy Team: {{enemyColor}}</span></h4>
 </div>
 <div style="display: block;">
     <div *ngIf="gameMap" style="display: inline-block">

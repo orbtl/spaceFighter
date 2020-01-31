@@ -38,6 +38,7 @@ export class GameComponent implements OnInit {
   firstGame: boolean;
   localPlayer: any;
   enemyPlayer: any;
+  enemyColor: any;
   // private _testSocketData: Subscription;
   private _clickObs: Subscription;
   private _teamObs: Subscription;
@@ -109,7 +110,12 @@ export class GameComponent implements OnInit {
       return this;
     }
     this.currentPlayer = team;
-    console.log('got current team as:', this.currentPlayer);
+    if (team == 'blue') {
+      this.enemyColor = 'red';
+    }
+    else {
+      this.enemyColor = 'blue';
+    }
     this.requestGameInfo();
     return this;
   }
@@ -216,7 +222,12 @@ export class GameComponent implements OnInit {
     }
     this.cancel(this.currentPlayer);
     console.log('Finished processing map data received and generating new object instances');
-    this.actionText = `Map Loaded from Server.  Your team is: ${this.currentPlayer}`;
+    if (this.gameMap.playerTurn == this.currentPlayer) {
+      this.actionText = 'Map loaded.  It is your turn.  Please select a unit.';
+    }
+    else {
+      this.actionText = "Map Loaded.  It is your opponent's turn.  Please wait.";
+    }
     return this;
   }
 
