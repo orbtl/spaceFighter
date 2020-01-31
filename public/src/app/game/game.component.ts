@@ -841,13 +841,15 @@ export class GameComponent implements OnInit {
     }
     if (this.shootable) {
       for (let item of this.shootable) {
-        if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
-          if (item.imgTopLast) {
-            item.imgTop = item.imgTopLast;
-            item.imgTopLast = null;
-          }
-          else {
-            item.imgTop = null;
+        if (item.imgTop) {
+          if (item.imgTop.img == 'assets/img/UI/numeralX.png') {
+            if (item.imgTopLast) {
+              item.imgTop = item.imgTopLast;
+              item.imgTopLast = null;
+            }
+            else {
+              item.imgTop = null;
+            }
           }
         }
       }

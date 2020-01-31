@@ -62,6 +62,7 @@ export class BaseObj {
                 this.shieldHP = 0;
                 this.imgTop = null;
             }
+            this.imgTop.alpha= (this.shieldHP / 100);
         }
         this.hp -= amount;
         if (this.hp <= 0) {
@@ -77,6 +78,14 @@ export class BaseObj {
         var self = this;
         let exploded = 0;
         this.imgAlpha = '1';
+        if (this.imgTop) {
+            this.imgTopLast = {
+                'img': this.imgTop.img,
+                'alpha': this.imgTop.alpha,
+                'transform': this.imgTop.transform,
+                'size': this.imgTop.size
+            };
+        }
         var fade = setInterval(function(){
             if (exploded < 40) { // explosion gif
                 self.imgTop = {
@@ -91,6 +100,7 @@ export class BaseObj {
                 if (alpha <= 0 && exploded >= 49) {
                     clearInterval(fade);
                     self.img = '';
+                    self.imgTop = null;
                     return self;
                 }
                 else {
@@ -98,8 +108,20 @@ export class BaseObj {
                     self.imgAlpha = alpha.toString();
                 }
             }
-            if (exploded >= 40) {
-                self.imgTop = null;
+            if (exploded >= 40 && self.hp > 0) {
+                if (self.imgTopLast) {
+                    self.imgTop = {
+                        'img': self.imgTopLast.img,
+                        'alpha': self.imgTopLast.alpha,
+                        'transform': self.imgTopLast.transform,
+                        'size': self.imgTopLast.size
+                    };
+                    self.imgTopLast = null;
+                }
+                else {
+                    self.imgTop = null;
+                }
+                clearInterval(fade);
             }
             if (exploded >= 60) {
                 clearInterval(fade);

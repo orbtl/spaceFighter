@@ -40,14 +40,14 @@ export class LobbyComponent implements OnInit {
   }
   createGame(){
     let gameName = prompt('Enter a game name.');
-    if (gameName == '') {
+    if (gameName == '' || gameName == null) {
       return this;
     }
     this._gameService.createNewGame(gameName);
   }
   joinGame(gameToJoin){
     let userName = prompt('Enter a user name to display');
-    if (userName == '') {
+    if (userName == '' || userName == null) {
       return this;
     }
     this._gameService.joinGame({'gameToJoin': gameToJoin, 'userName': userName});
