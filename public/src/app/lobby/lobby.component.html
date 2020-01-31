@@ -9,25 +9,32 @@
     <p>Game Name: {{singleGame.name}} -- Players: {{singleGame.players.length}}</p>
     <p><span *ngFor="let player of singleGame.players; let i = index"><span *ngIf="i > 0">, </span>{{player.name}}</span></p>
     <div *ngIf="settings">
-        <form>
-            <div>
+        <form style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: flex-start;">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 275px; height: 100px; outline: 1px solid white;">
                 <label for="maxAsteroids">Max # of Asteroids:</label>
-                <input type="number" name="maxAsteroids" [(ngModel)]="settings['maxAsteroids']" (change)="changeSettings()">
+                <input style="max-width: 100px; text-align: center;" type="number" name="maxAsteroids" [(ngModel)]="settings['maxAsteroids']" (change)="changeSettings()">
             </div>
             <br>
-            <div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 275px; height: 100px; outline: 1px solid white;">
                 <label for="numCols">Map Width (in grid units):</label>
-                <input type="number" name="numCols" [(ngModel)]="settings['numCols']" (change)="changeSettings()">
+                <input style="max-width: 100px; text-align: center;" type="number" name="numCols" [(ngModel)]="settings['numCols']" (change)="changeSettings()">
             </div>
             <br>
-            <div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 275px; height: 100px; outline: 1px solid white;">
                 <label for="numRows">Map Height (in grid units):</label>
-                <input type="number" name="numRows" [(ngModel)]="settings['numRows']" (change)="changeSettings()">
+                <input style="max-width: 100px; text-align: center;" type="number" name="numRows" [(ngModel)]="settings['numRows']" (change)="changeSettings()">
             </div>
         </form>
     </div>
     <br>
-    <button *ngIf="!singleGame.blue" (click)='startGame("blue")'>Start as Blue</button><button *ngIf="!singleGame.red" (click)='startGame("red")'>Start as Red</button>
+    <div style="display: flex; flex-direction: row; justify-content: space-around;">
+        <div style="margin: 10px;">
+            <button *ngIf="!singleGame.blue" (click)='startGame("blue")'>Start as Blue</button>
+        </div>
+        <div style="margin: 10px;">
+            <button *ngIf="!singleGame.red" (click)='startGame("red")'>Start as Red</button>
+        </div>
+    </div>
     <br>
     <button (click)='leaveGame()'>Leave Game</button>
 </div>
