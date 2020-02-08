@@ -22,7 +22,7 @@ To run the game:
   
     -npm install -g @angular/cli
     
-  -Back in the public directory, run:
+  -Back in the public directory, edit the tsconfig.json file so where it says "target": "es2015", it instead says "target": "es5", and then run:
   
     -ng build
     
