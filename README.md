@@ -6,6 +6,7 @@ I made this game as an exercise to learn and become comfortable with Angular and
 To run the game:
 
   -Install Node
+  
   -Clone the repo
   
   -In the spaceFighter repo root directory, run:
