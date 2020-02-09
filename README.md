@@ -1,5 +1,10 @@
 # spaceFighter
+
 Turn-Based 2D Multiplayer Space Fighter Game for my MEAN-stack project
+
+[![Click to watch demo video!](https://img.youtube.com/vi/HJGZt49TRV8/0.jpg)](https://www.youtube.com/watch?v=HJGZt49TRV8)
+
+(click the image to watch a demo video on youtube)
 
 I made this game as an exercise to learn and become comfortable with Angular and Sockets in the MEAN stack.
 
