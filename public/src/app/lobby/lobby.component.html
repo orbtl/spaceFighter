@@ -37,6 +37,8 @@
     </div>
     <br>
     <button (click)='leaveGame()'>Leave Game</button>
+    <br>
+    <button (click)='deleteGame()'>Delete Game</button>
 </div>
 <div *ngIf="!gameList && !singleGame">
     <p>Sorry, this site failed to make a connection to the Socket Server, which is crucial for gameplay.  Please check the SocketIoConfig url setting (in the app.module.ts file) and make sure it is set to the back-end server IP!</p>

@@ -52,6 +52,7 @@ export class GameComponent implements OnInit {
   private _endTurnObs: Subscription;
   private _goToLobbyObs: Subscription;
   private _roomInfoObs: Subscription;
+  private _deleteGameObs: Subscription;
 
   constructor(private _gameService: GameService, private _router: Router) { }
 
@@ -95,6 +96,9 @@ export class GameComponent implements OnInit {
     })
     this._goToLobbyObs = this._gameService.goToLobbyListener.subscribe(data => {
       this._gameService.leaveGame();
+      this._router.navigate(['/']);
+    })
+    this._deleteGameObs = this._gameService.deleteGameListener.subscribe(data => {
       this._router.navigate(['/']);
     })
     this._gameService.checkForGameMap();

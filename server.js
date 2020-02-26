@@ -202,6 +202,22 @@ io.on('connection', socket => {
             socket.emit('singleGame', {'singleGame': playerGameList[socket.id]});
         }
     })
+    socket.on('clientDeleteGame', function() {
+        if (playerGameList[socket.id]) {
+            io.in(`game${playerGameList[socket.id].id}`).emit('serverDeleteGame');
+            socket.leave(`game${playerGameList[socket.id].id}`);
+            delete playerGameList[socket.id];
+            for (let eachGameIndex in games){
+                for (let playerIndex in games[eachGameIndex].players){
+                    if (socket.id == games[eachGameIndex].players[playerIndex].id) {
+                        games.splice(eachGameIndex, 1);
+                    }
+                }
+            }
+            console.log(playerGameList);
+            console.log(games);
+        }
+    })
 
 
     socket.on('disconnect', function() {

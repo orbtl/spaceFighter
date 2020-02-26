@@ -20,6 +20,7 @@ export class LobbyComponent implements OnInit {
   private _gameListObs: Subscription;
   private _singleGameObs: Subscription;
   private _enterGameObs: Subscription;
+  private _deleteGameObs: Subscription;
 
   constructor(private _gameService: GameService, private _router: Router) { }
 
@@ -36,6 +37,10 @@ export class LobbyComponent implements OnInit {
     })
     this._enterGameObs = this._gameService.enterGameListener.subscribe(data => {
       this.enterGame();
+    })
+    this._deleteGameObs = this._gameService.deleteGameListener.subscribe(data => {
+      this._gameService.getAllGames();
+      this._router.navigate(['/']);
     })
   }
   createGame(){
@@ -54,6 +59,9 @@ export class LobbyComponent implements OnInit {
   }
   leaveGame(){
     this._gameService.leaveGame();
+  }
+  deleteGame(){
+    this._gameService.deleteGame();
   }
   startGame(color) {
     this._gameService.enterGame(color);

@@ -17,6 +17,7 @@ export class GameService {
   singleGameListener = this._socket.fromEvent<any>('singleGame');
   enterGameListener = this._socket.fromEvent<any>('serverEnterGame');
   goToLobbyListener = this._socket.fromEvent<any>('goToLobby');
+  deleteGameListener = this._socket.fromEvent<any>('serverDeleteGame');
   constructor(private _socket: Socket) { }
 
   getGameInfo(){
@@ -63,6 +64,9 @@ export class GameService {
   }
   updateGame(settings){
     this._socket.emit('clientUpdateGame', settings);
+  }
+  deleteGame(){
+    this._socket.emit('clientDeleteGame');
   }
 
   // testMySocketFromClient(){
